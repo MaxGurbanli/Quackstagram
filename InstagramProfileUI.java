@@ -36,7 +36,7 @@ public class InstagramProfileUI extends JFrame {
     try (BufferedReader imageDetailsReader = Files.newBufferedReader(imageDetailsFilePath)) {
         String line;
         while ((line = imageDetailsReader.readLine()) != null) {
-            if (line.contains("Username: " + currentUser.getUsername())) {
+            if (line.contains("Username: " + currentUser.getUsername() + ",")) {
                 imageCount++;
             }
         }

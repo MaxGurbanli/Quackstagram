@@ -43,9 +43,10 @@ class User {
 
     // Setter methods for followers and following counts
     public void setFollowersCount(int followersCount) { this.followersCount = followersCount; }
-   public void setFollowingCount(int followingCount) { this.followingCount = followingCount; }
-   public void setPostCount(int postCount) { this.postsCount = postCount;}
+    public void setFollowingCount(int followingCount) { this.followingCount = followingCount; }
+    public void setPostCount(int postCount) { this.postsCount = postCount;}
     // Implement the toString method for saving user information
+    
 @Override
 public String toString() {
     return username + ":" + bio + ":" + password; // Format as needed
