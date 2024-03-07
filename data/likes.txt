@@ -1,0 +1,6 @@
+Zara_1:Lorin
+Zara_2:Lorin
+Mystar_1:max,fef,Lorin
+Mystar_2:max,fef,Lorin
+Lorin_2:max,fef
+Lorin_1:max,fef

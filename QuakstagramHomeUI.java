@@ -10,15 +10,14 @@ import java.awt.event.ActionListener;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class QuakstagramHomeUI extends JFrame {
     private static final int WIDTH = 300;
@@ -31,6 +30,7 @@ public class QuakstagramHomeUI extends JFrame {
     private JPanel cardPanel;
     private JPanel homePanel;
     private JPanel imageViewPanel;
+    private ImageLikesManager imageLikesManager;
     
 
     public QuakstagramHomeUI() {
@@ -42,9 +42,11 @@ public class QuakstagramHomeUI extends JFrame {
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
         
+        
         homePanel = new JPanel(new BorderLayout());
         imageViewPanel = new JPanel(new BorderLayout());
 
+        imageLikesManager = new ImageLikesManager("data\\likes.txt"); // Adjust the path as needed
         initializeUI();
 
         cardPanel.add(homePanel, "Home");
@@ -183,66 +185,27 @@ public class QuakstagramHomeUI extends JFrame {
         }
     }
 
-private void handleLikeAction(String imageId, JLabel likesLabel) {
-    Path detailsPath = Paths.get("img", "image_details.txt");
-    StringBuilder newContent = new StringBuilder();
-    boolean updated = false;
-    String currentUser = "";
-    String imageOwner = "";
-    String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-
-    // Retrieve the current user from users.txt
-    try (BufferedReader userReader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
-        String line = userReader.readLine();
-        if (line != null) {
-            currentUser = line.split(":")[0].trim();
+    private void handleLikeAction(String imageId, JLabel likesLabel) {
+        String currentUser = getCurrentUser();
+        if (currentUser != null && !imageLikesManager.hasLiked(imageId, currentUser)) {
+            imageLikesManager.addLike(imageId, currentUser);
+            int updatedLikes = imageLikesManager.getLikesCount(imageId);
+            SwingUtilities.invokeLater(() -> likesLabel.setText("Likes: " + updatedLikes));
         }
-    } catch (IOException e) {
-        e.printStackTrace();
     }
 
-    // Read and update image_details.txt
-    try (BufferedReader reader = Files.newBufferedReader(detailsPath)) {
-        String line;
-        while ((line = reader.readLine()) != null) {
-            if (line.contains("ImageID: " + imageId)) {
-                String[] parts = line.split(", ");
-                imageOwner = parts[1].split(": ")[1];
-                int likes = Integer.parseInt(parts[4].split(": ")[1]);
-                likes++; // Increment the likes count
-                parts[4] = "Likes: " + likes;
-                line = String.join(", ", parts);
-
-                // Update the UI
-                likesLabel.setText("Likes: " + likes);
-                updated = true;
-            }
-            newContent.append(line).append("\n");
-        }
-    } catch (IOException e) {
-        e.printStackTrace();
-    }
-
-    // Write updated likes back to image_details.txt
-    if (updated) {
-        try (BufferedWriter writer = Files.newBufferedWriter(detailsPath)) {
-            writer.write(newContent.toString());
+    private String getCurrentUser() {
+        try {
+            String result = Files.readAllLines(Paths.get("data\\users.txt")).get(0);
+            int iend = result.indexOf(":");
+            String user = result.substring(0, iend);
+            return user;
         } catch (IOException e) {
             e.printStackTrace();
-        }
-
-        // Record the like in notifications.txt
-        String notification = String.format("%s; %s; %s; %s\n", imageOwner, currentUser, imageId, timestamp);
-        try (BufferedWriter notificationWriter = Files.newBufferedWriter(Paths.get("data", "notifications.txt"), StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
-            notificationWriter.write(notification);
-        } catch (IOException e) {
-            e.printStackTrace();
+            return null;
         }
     }
-}
 
-
-    
 private String[][] createSampleData() {
     String currentUser = "";
     try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
@@ -295,6 +258,23 @@ private String[][] createSampleData() {
     return sampleData;
 }
 
+private Set<String> getFollowedUsers(String currentUser) {
+    Set<String> followedUsers = new HashSet<>();
+    try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "following.txt"))) {
+        String line;
+        while ((line = reader.readLine()) != null) {
+            if (line.startsWith(currentUser + ":")) {
+                Collections.addAll(followedUsers, line.split(":")[1].trim().split(","));
+                break;
+            }
+        }
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+    return followedUsers;
+}
+
+    
     private JButton createIconButton(String iconPath) {
         ImageIcon iconOriginal = new ImageIcon(iconPath);
         Image iconScaled = iconOriginal.getImage().getScaledInstance(NAV_ICON_SIZE, NAV_ICON_SIZE, Image.SCALE_SMOOTH);
