@@ -30,103 +30,48 @@ public class SignInUI extends JFrame {
     }
 
     private void initializeSignInUI() {
-        setTitle("Quackstagram - Register");
+        setTitle("Quackstagram - Sign In");
         setSize(WIDTH, HEIGHT);
-        setMinimumSize(new Dimension(WIDTH, HEIGHT));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
     
-        // Header with the Register label
-        JPanel headerPanel = getLblRegister();
+        add(UIComponentsUtil.createHeaderPanel("Quackstagram 🐥"), BorderLayout.NORTH);
     
-        // Profile picture placeholder without border
-        JPanel photoPanel = getFormattedPhotoPanel();
+        lblPhoto = UIComponentsUtil.createPhotoLabel("img/logos/DACS.png");
+        JPanel photoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        photoPanel.add(lblPhoto);
     
-        // Text fields panel
         JPanel fieldsPanel = new JPanel();
         fieldsPanel.setLayout(new BoxLayout(fieldsPanel, BoxLayout.Y_AXIS));
         fieldsPanel.setBorder(BorderFactory.createEmptyBorder(5, 20, 5, 20));
     
         fieldsPanel.add(Box.createVerticalStrut(10));
         fieldsPanel.add(photoPanel);
+        fieldsPanel.add(Box.createVerticalStrut(10));
+        
+        JLabel lblUsername = new JLabel("Username");
+        lblUsername.setFont(new Font("Arial", Font.BOLD, 12));
+        txtUsername = UIComponentsUtil.createTextField(Color.GRAY);
+        JLabel lblPassword = new JLabel("Password");
+        lblPassword.setFont(new Font("Arial", Font.BOLD, 12));
+        txtPassword = UIComponentsUtil.createPasswordField(Color.GRAY);
+
+        fieldsPanel.add(lblUsername);
+        fieldsPanel.add(txtUsername);
+        fieldsPanel.add(lblPassword);
+        fieldsPanel.add(txtPassword);
     
-        createInputFields(fieldsPanel);
+        btnSignIn = UIComponentsUtil.createButton("Sign-In", this::onSignInClicked);
+        btnRegisterNow = UIComponentsUtil.createButton("No Account? Register Now", this::onRegisterNowClicked);
+        btnRegisterNow.setBackground(Color.WHITE);
     
-        SignInSignUpBtns();
-    
-        JPanel buttonPanel = new JPanel(new GridLayout(2, 1, 10, 10)); // Grid layout with 1 row, 2 columns
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 1, 10, 10));
         buttonPanel.setBackground(Color.white);
         buttonPanel.add(btnSignIn);
         buttonPanel.add(btnRegisterNow);
     
-        // Adding components to the frame
-        add(headerPanel, BorderLayout.NORTH);
         add(fieldsPanel, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
-    }
-
-    private void SignInSignUpBtns() {
-        // Sign-In and Register buttons
-        btnSignIn = new JButton("Sign-In");
-        btnSignIn.addActionListener(this::onSignInClicked);
-        btnSignIn.setBackground(new Color(255, 90, 95)); // Use a red color that matches the mockup
-        btnSignIn.setForeground(Color.BLACK); // Set the text color to black
-        btnSignIn.setFocusPainted(false);
-        btnSignIn.setBorderPainted(false);
-        btnSignIn.setFont(new Font("Arial", Font.BOLD, 14));
-    
-        btnRegisterNow = new JButton("No Account? Register Now");
-        btnRegisterNow.addActionListener(this::onRegisterNowClicked);
-        btnRegisterNow.setBackground(Color.WHITE); // Set a different color for distinction
-        btnRegisterNow.setForeground(Color.BLACK);
-        btnRegisterNow.setFocusPainted(false);
-        btnRegisterNow.setBorderPainted(false);
-    }
-
-    private void createInputFields(JPanel fieldsPanel) {
-        // Username label and text field
-        JLabel lblUsername = new JLabel("Username");
-        lblUsername.setFont(new Font("Arial", Font.BOLD, 12));
-        lblUsername.setForeground(Color.BLACK);
-        txtUsername = new JTextField();
-        txtUsername.setForeground(Color.BLACK);
-        fieldsPanel.add(Box.createVerticalStrut(10));
-        fieldsPanel.add(lblUsername);
-        fieldsPanel.add(txtUsername);
-    
-        // Password label and text field
-        JLabel lblPassword = new JLabel("Password");
-        lblPassword.setFont(new Font("Arial", Font.BOLD, 12));
-        lblPassword.setForeground(Color.BLACK);
-        txtPassword = new JPasswordField(); // Changed to JPasswordField for better security
-        txtPassword.setForeground(Color.BLACK);
-        fieldsPanel.add(Box.createVerticalStrut(10));
-        fieldsPanel.add(lblPassword);
-        fieldsPanel.add(txtPassword);
-        fieldsPanel.add(Box.createVerticalStrut(10));
-    }
-
-    private JPanel getFormattedPhotoPanel() {
-        lblPhoto = new JLabel();
-        lblPhoto.setPreferredSize(new Dimension(80, 80));
-        lblPhoto.setHorizontalAlignment(JLabel.CENTER);
-        lblPhoto.setVerticalAlignment(JLabel.CENTER);
-        lblPhoto.setIcon(new ImageIcon(new ImageIcon("img/logos/DACS.png").getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH)));
-        JPanel photoPanel = new JPanel(); // Use a panel to center the photo label
-        photoPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-        photoPanel.add(lblPhoto);
-        return photoPanel;
-    }
-
-    private JPanel getLblRegister() {
-        JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        headerPanel.setBackground(new Color(51, 51, 51)); // Set a darker background for the header
-        JLabel lblRegister = new JLabel("Quackstagram 🐥");
-        lblRegister.setFont(new Font("Arial", Font.BOLD, 16));
-        lblRegister.setForeground(Color.WHITE); // Set the text color to white
-        headerPanel.add(lblRegister);
-        headerPanel.setPreferredSize(new Dimension(WIDTH, 40)); // Give the header a fixed height
-        return headerPanel;
     }
     
 

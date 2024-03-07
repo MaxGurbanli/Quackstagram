@@ -32,23 +32,12 @@ public class ExploreUI extends JFrame {
     }
 
     private void initializeUI() {
-        
-        getContentPane().removeAll(); // Clear existing components
-        setLayout(new BorderLayout()); // Reset the layout manager
-
-        JPanel headerPanel = createHeaderPanel(); // Method from your InstagramProfileUI class
-        JPanel navigationPanel = createNavigationPanel(); // Method from your InstagramProfileUI class
+        JPanel headerPanel = createHeaderPanel(); // Method from InstagramProfileUI class
+        JPanel navigationPanel = createNavigationPanel(); // Method from InstagramProfileUI class
         JPanel mainContentPanel = createMainContentPanel();
 
-        // Add panels to the frame
-        add(headerPanel, BorderLayout.NORTH);
-        add(mainContentPanel, BorderLayout.CENTER);
-        add(navigationPanel, BorderLayout.SOUTH);
+        InitializeUI.initializeUI(this, headerPanel, mainContentPanel, navigationPanel);
 
-        revalidate();
-        repaint();
-
-        
     }
     
     private JPanel createMainContentPanel() {
