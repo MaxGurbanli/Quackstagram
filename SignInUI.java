@@ -51,10 +51,10 @@ public class SignInUI extends JFrame {
         
         JLabel lblUsername = new JLabel("Username");
         lblUsername.setFont(new Font("Arial", Font.BOLD, 12));
-        txtUsername = UIComponentsUtil.createTextField(Color.GRAY);
+        txtUsername = UIComponentsUtil.createTextField("", Color.BLACK);
         JLabel lblPassword = new JLabel("Password");
         lblPassword.setFont(new Font("Arial", Font.BOLD, 12));
-        txtPassword = UIComponentsUtil.createPasswordField(Color.GRAY);
+        txtPassword = UIComponentsUtil.createPasswordField("", Color.BLACK);
 
         fieldsPanel.add(lblUsername);
         fieldsPanel.add(txtUsername);

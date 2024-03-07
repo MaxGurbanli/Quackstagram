@@ -51,26 +51,22 @@ public class SignUpUI extends JFrame {
         fieldsPanel.add(Box.createVerticalStrut(10));
         
         JLabel lblUsername = new JLabel("Username");
-        lblUsername.setFont(new Font("Arial", Font.BOLD, 12));
-        txtUsername = UIComponentsUtil.createTextField(Color.GRAY);
+        txtUsername = UIComponentsUtil.createTextField("", Color.BLACK);
+        
         JLabel lblPassword = new JLabel("Password");
-        lblPassword.setFont(new Font("Arial", Font.BOLD, 12));
-        JLabel lblBio = new JLabel("Bio");
-        lblBio.setFont(new Font("Arial", Font.BOLD, 12));
+        txtPassword = UIComponentsUtil.createPasswordField("", Color.BLACK);
 
-        txtUsername = UIComponentsUtil.createTextField(Color.BLACK);
-        txtPassword = UIComponentsUtil.createPasswordField(Color.BLACK);
-        txtBio = UIComponentsUtil.createTextField(Color.GRAY);
+        JLabel lblBio = new JLabel("Bio");
+        txtBio = UIComponentsUtil.createTextField("", Color.BLACK);
     
         fieldsPanel.add(lblUsername);
         fieldsPanel.add(txtUsername);
-        fieldsPanel.add(Box.createVerticalStrut(10));
+
         fieldsPanel.add(lblPassword);
         fieldsPanel.add(txtPassword);
-        fieldsPanel.add(Box.createVerticalStrut(10));
+
         fieldsPanel.add(lblBio);
         fieldsPanel.add(txtBio);
-        fieldsPanel.add(Box.createVerticalStrut(10));
     
         btnUploadPhoto = UIComponentsUtil.createButton("Upload Photo", e -> handleProfilePictureUpload());
         JPanel photoUploadPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));

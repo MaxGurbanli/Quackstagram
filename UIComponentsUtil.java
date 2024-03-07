@@ -34,14 +34,14 @@ public class UIComponentsUtil {
         return lblPhoto;
     }
 
-    public static JTextField createTextField(Color foreground) {
-        JTextField textField = new JTextField();
+    public static JTextField createTextField(String text, Color foreground) {
+        JTextField textField = new JTextField(text);
         textField.setForeground(foreground);
         return textField;
     }
 
-    public static JPasswordField createPasswordField(Color foreground) {
-        JPasswordField passwordField = new JPasswordField();
+    public static JPasswordField createPasswordField(String text, Color foreground) {
+        JPasswordField passwordField = new JPasswordField(text);
         passwordField.setForeground(foreground);
         return passwordField;
     }
