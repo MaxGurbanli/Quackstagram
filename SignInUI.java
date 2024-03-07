@@ -30,6 +30,12 @@ public class SignInUI extends JFrame {
     }
 
     private void initializeUI() {
+        setTitle("Quackstagram - Register");
+        setSize(WIDTH, HEIGHT);
+        setMinimumSize(new Dimension(WIDTH, HEIGHT));
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(new BorderLayout(10, 10));
+    
         // Header with the Register label
         JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         headerPanel.setBackground(new Color(51, 51, 51)); // Set a darker background for the header
@@ -38,7 +44,7 @@ public class SignInUI extends JFrame {
         lblRegister.setForeground(Color.WHITE); // Set the text color to white
         headerPanel.add(lblRegister);
         headerPanel.setPreferredSize(new Dimension(WIDTH, 40)); // Give the header a fixed height
-
+    
         // Profile picture placeholder without border
         lblPhoto = new JLabel();
         lblPhoto.setPreferredSize(new Dimension(80, 80));
@@ -48,27 +54,37 @@ public class SignInUI extends JFrame {
         JPanel photoPanel = new JPanel(); // Use a panel to center the photo label
         photoPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
         photoPanel.add(lblPhoto);
-
+    
         // Text fields panel
         JPanel fieldsPanel = new JPanel();
         fieldsPanel.setLayout(new BoxLayout(fieldsPanel, BoxLayout.Y_AXIS));
         fieldsPanel.setBorder(BorderFactory.createEmptyBorder(5, 20, 5, 20));
-
-        txtUsername = new JTextField("Username");
-        txtPassword = new JTextField("Password");
-        txtUsername.setForeground(Color.GRAY);
-        txtPassword.setForeground(Color.GRAY);
-
+    
         fieldsPanel.add(Box.createVerticalStrut(10));
         fieldsPanel.add(photoPanel);
+    
+        // Username label and text field
+        JLabel lblUsername = new JLabel("Username");
+        lblUsername.setFont(new Font("Arial", Font.BOLD, 12));
+        lblUsername.setForeground(Color.BLACK);
+        txtUsername = new JTextField();
+        txtUsername.setForeground(Color.BLACK);
         fieldsPanel.add(Box.createVerticalStrut(10));
+        fieldsPanel.add(lblUsername);
         fieldsPanel.add(txtUsername);
+    
+        // Password label and text field
+        JLabel lblPassword = new JLabel("Password");
+        lblPassword.setFont(new Font("Arial", Font.BOLD, 12));
+        lblPassword.setForeground(Color.BLACK);
+        txtPassword = new JPasswordField(); // Changed to JPasswordField for better security
+        txtPassword.setForeground(Color.BLACK);
         fieldsPanel.add(Box.createVerticalStrut(10));
+        fieldsPanel.add(lblPassword);
         fieldsPanel.add(txtPassword);
         fieldsPanel.add(Box.createVerticalStrut(10));
-
-
-        // Register button with black text
+    
+        // Sign-In and Register buttons
         btnSignIn = new JButton("Sign-In");
         btnSignIn.addActionListener(this::onSignInClicked);
         btnSignIn.setBackground(new Color(255, 90, 95)); // Use a red color that matches the mockup
@@ -76,33 +92,25 @@ public class SignInUI extends JFrame {
         btnSignIn.setFocusPainted(false);
         btnSignIn.setBorderPainted(false);
         btnSignIn.setFont(new Font("Arial", Font.BOLD, 14));
-        JPanel registerPanel = new JPanel(new BorderLayout()); // Panel to contain the register button
-        registerPanel.setBackground(Color.WHITE); // Background for the panel
-        registerPanel.add(btnSignIn, BorderLayout.CENTER);
-
-        // Adding components to the frame
-        add(headerPanel, BorderLayout.NORTH);
-        add(fieldsPanel, BorderLayout.CENTER);
-        add(registerPanel, BorderLayout.SOUTH);
-
-        // New button for navigating to SignUpUI
+    
         btnRegisterNow = new JButton("No Account? Register Now");
         btnRegisterNow.addActionListener(this::onRegisterNowClicked);
         btnRegisterNow.setBackground(Color.WHITE); // Set a different color for distinction
         btnRegisterNow.setForeground(Color.BLACK);
         btnRegisterNow.setFocusPainted(false);
         btnRegisterNow.setBorderPainted(false);
-
-        // Panel to hold both buttons
+    
         JPanel buttonPanel = new JPanel(new GridLayout(2, 1, 10, 10)); // Grid layout with 1 row, 2 columns
         buttonPanel.setBackground(Color.white);
         buttonPanel.add(btnSignIn);
         buttonPanel.add(btnRegisterNow);
-
-        // Adding the button panel to the frame
+    
+        // Adding components to the frame
+        add(headerPanel, BorderLayout.NORTH);
+        add(fieldsPanel, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
-
     }
+    
 
    private void onSignInClicked(ActionEvent event) {
     String enteredUsername = txtUsername.getText();
