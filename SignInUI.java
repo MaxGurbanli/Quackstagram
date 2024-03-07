@@ -26,10 +26,10 @@ public class SignInUI extends JFrame {
         setMinimumSize(new Dimension(WIDTH, HEIGHT));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
-        initializeUI();
+        initializeSignInUI();
     }
 
-    private void initializeUI() {
+    private void initializeSignInUI() {
         setTitle("Quackstagram - Register");
         setSize(WIDTH, HEIGHT);
         setMinimumSize(new Dimension(WIDTH, HEIGHT));
@@ -37,23 +37,10 @@ public class SignInUI extends JFrame {
         setLayout(new BorderLayout(10, 10));
     
         // Header with the Register label
-        JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        headerPanel.setBackground(new Color(51, 51, 51)); // Set a darker background for the header
-        JLabel lblRegister = new JLabel("Quackstagram 🐥");
-        lblRegister.setFont(new Font("Arial", Font.BOLD, 16));
-        lblRegister.setForeground(Color.WHITE); // Set the text color to white
-        headerPanel.add(lblRegister);
-        headerPanel.setPreferredSize(new Dimension(WIDTH, 40)); // Give the header a fixed height
+        JPanel headerPanel = getLblRegister();
     
         // Profile picture placeholder without border
-        lblPhoto = new JLabel();
-        lblPhoto.setPreferredSize(new Dimension(80, 80));
-        lblPhoto.setHorizontalAlignment(JLabel.CENTER);
-        lblPhoto.setVerticalAlignment(JLabel.CENTER);
-        lblPhoto.setIcon(new ImageIcon(new ImageIcon("img/logos/DACS.png").getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH)));
-        JPanel photoPanel = new JPanel(); // Use a panel to center the photo label
-        photoPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-        photoPanel.add(lblPhoto);
+        JPanel photoPanel = getFormattedPhotoPanel();
     
         // Text fields panel
         JPanel fieldsPanel = new JPanel();
@@ -63,6 +50,40 @@ public class SignInUI extends JFrame {
         fieldsPanel.add(Box.createVerticalStrut(10));
         fieldsPanel.add(photoPanel);
     
+        createInputFields(fieldsPanel);
+    
+        SignInSignUpBtns();
+    
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 1, 10, 10)); // Grid layout with 1 row, 2 columns
+        buttonPanel.setBackground(Color.white);
+        buttonPanel.add(btnSignIn);
+        buttonPanel.add(btnRegisterNow);
+    
+        // Adding components to the frame
+        add(headerPanel, BorderLayout.NORTH);
+        add(fieldsPanel, BorderLayout.CENTER);
+        add(buttonPanel, BorderLayout.SOUTH);
+    }
+
+    private void SignInSignUpBtns() {
+        // Sign-In and Register buttons
+        btnSignIn = new JButton("Sign-In");
+        btnSignIn.addActionListener(this::onSignInClicked);
+        btnSignIn.setBackground(new Color(255, 90, 95)); // Use a red color that matches the mockup
+        btnSignIn.setForeground(Color.BLACK); // Set the text color to black
+        btnSignIn.setFocusPainted(false);
+        btnSignIn.setBorderPainted(false);
+        btnSignIn.setFont(new Font("Arial", Font.BOLD, 14));
+    
+        btnRegisterNow = new JButton("No Account? Register Now");
+        btnRegisterNow.addActionListener(this::onRegisterNowClicked);
+        btnRegisterNow.setBackground(Color.WHITE); // Set a different color for distinction
+        btnRegisterNow.setForeground(Color.BLACK);
+        btnRegisterNow.setFocusPainted(false);
+        btnRegisterNow.setBorderPainted(false);
+    }
+
+    private void createInputFields(JPanel fieldsPanel) {
         // Username label and text field
         JLabel lblUsername = new JLabel("Username");
         lblUsername.setFont(new Font("Arial", Font.BOLD, 12));
@@ -83,32 +104,29 @@ public class SignInUI extends JFrame {
         fieldsPanel.add(lblPassword);
         fieldsPanel.add(txtPassword);
         fieldsPanel.add(Box.createVerticalStrut(10));
-    
-        // Sign-In and Register buttons
-        btnSignIn = new JButton("Sign-In");
-        btnSignIn.addActionListener(this::onSignInClicked);
-        btnSignIn.setBackground(new Color(255, 90, 95)); // Use a red color that matches the mockup
-        btnSignIn.setForeground(Color.BLACK); // Set the text color to black
-        btnSignIn.setFocusPainted(false);
-        btnSignIn.setBorderPainted(false);
-        btnSignIn.setFont(new Font("Arial", Font.BOLD, 14));
-    
-        btnRegisterNow = new JButton("No Account? Register Now");
-        btnRegisterNow.addActionListener(this::onRegisterNowClicked);
-        btnRegisterNow.setBackground(Color.WHITE); // Set a different color for distinction
-        btnRegisterNow.setForeground(Color.BLACK);
-        btnRegisterNow.setFocusPainted(false);
-        btnRegisterNow.setBorderPainted(false);
-    
-        JPanel buttonPanel = new JPanel(new GridLayout(2, 1, 10, 10)); // Grid layout with 1 row, 2 columns
-        buttonPanel.setBackground(Color.white);
-        buttonPanel.add(btnSignIn);
-        buttonPanel.add(btnRegisterNow);
-    
-        // Adding components to the frame
-        add(headerPanel, BorderLayout.NORTH);
-        add(fieldsPanel, BorderLayout.CENTER);
-        add(buttonPanel, BorderLayout.SOUTH);
+    }
+
+    private JPanel getFormattedPhotoPanel() {
+        lblPhoto = new JLabel();
+        lblPhoto.setPreferredSize(new Dimension(80, 80));
+        lblPhoto.setHorizontalAlignment(JLabel.CENTER);
+        lblPhoto.setVerticalAlignment(JLabel.CENTER);
+        lblPhoto.setIcon(new ImageIcon(new ImageIcon("img/logos/DACS.png").getImage().getScaledInstance(80, 80, Image.SCALE_SMOOTH)));
+        JPanel photoPanel = new JPanel(); // Use a panel to center the photo label
+        photoPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+        photoPanel.add(lblPhoto);
+        return photoPanel;
+    }
+
+    private JPanel getLblRegister() {
+        JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        headerPanel.setBackground(new Color(51, 51, 51)); // Set a darker background for the header
+        JLabel lblRegister = new JLabel("Quackstagram 🐥");
+        lblRegister.setFont(new Font("Arial", Font.BOLD, 16));
+        lblRegister.setForeground(Color.WHITE); // Set the text color to white
+        headerPanel.add(lblRegister);
+        headerPanel.setPreferredSize(new Dimension(WIDTH, 40)); // Give the header a fixed height
+        return headerPanel;
     }
     
 
