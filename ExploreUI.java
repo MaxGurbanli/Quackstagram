@@ -21,7 +21,7 @@ public class ExploreUI extends JFrame {
     private static final int WIDTH = 300;
     private static final int IMAGE_SIZE = WIDTH / 3; // Size for each image in the grid
 
-    private static ActionListener[] actions;
+    JPanel navigationPanel;
 
     public ExploreUI() {
         InitializeUI.setupFrame(this, "Explore");
@@ -34,7 +34,7 @@ public class ExploreUI extends JFrame {
                 e -> notificationsUI(),
                 e -> openProfileUI()
         };
-        JPanel navigationPanel = InitializeUI.createNavigationPanel(actions);
+        navigationPanel = InitializeUI.createNavigationPanel(actions);
 
         InitializeUI.addComponents(this, headerPanel, mainContentPanel, navigationPanel);
     }
@@ -85,12 +85,12 @@ public class ExploreUI extends JFrame {
     }
 
     private void displayImage(String imagePath) {
-        // getContentPane().removeAll();
-        // setLayout(new BorderLayout());
+        getContentPane().removeAll();
+        setLayout(new BorderLayout());
 
-        // // Add the header and navigation panels back
-        // add(InitializeUI.createHeaderPanel("Explore"), BorderLayout.NORTH);
-        // add(InitializeUI.createNavigationPanel(actions), BorderLayout.SOUTH);
+        // Add the header and navigation panels back
+        add(InitializeUI.createHeaderPanel("Explore"), BorderLayout.NORTH);
+        add(navigationPanel, BorderLayout.SOUTH);
 
         // Extract image ID from the imagePath
         String imageId = new File(imagePath).getName().split("\\.")[0];
@@ -159,7 +159,7 @@ public class ExploreUI extends JFrame {
 
         // Re-add the header and navigation panels
         add(InitializeUI.createHeaderPanel("Explore"), BorderLayout.NORTH);
-        add(InitializeUI.createNavigationPanel(actions), BorderLayout.SOUTH);
+        add(navigationPanel, BorderLayout.SOUTH);
 
         // Panel for the back button
         JPanel backButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -174,7 +174,7 @@ public class ExploreUI extends JFrame {
             getContentPane().removeAll();
             add(InitializeUI.createHeaderPanel("Explore"), BorderLayout.NORTH);
             add(createMainContentPanel(), BorderLayout.CENTER);
-            add(InitializeUI.createNavigationPanel(actions), BorderLayout.SOUTH);
+            add(navigationPanel, BorderLayout.SOUTH);
             revalidate();
             repaint();
         });
