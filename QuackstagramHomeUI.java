@@ -1,14 +1,11 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
-
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
-import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -21,97 +18,54 @@ import java.util.Set;
 public class QuackstagramHomeUI extends JFrame {
     private static final int WIDTH = 300;
     private static final int HEIGHT = 500;
-    private static final int NAV_ICON_SIZE = 20; // Corrected static size for bottom icons
-    private static final int IMAGE_WIDTH = WIDTH - 100; // Width for the image posts
-    private static final int IMAGE_HEIGHT = 150; // Height for the image posts
-    private static final Color LIKE_BUTTON_COLOR = new Color(255, 90, 95); // Color for the like button
+    private static final int IMAGE_WIDTH = WIDTH - 100;
+    private static final int IMAGE_HEIGHT = 150;
+    private static final Color LIKE_BUTTON_COLOR = new Color(255, 90, 95);
     private CardLayout cardLayout;
     private JPanel cardPanel;
     private JPanel homePanel;
     private JPanel imageViewPanel;
     private ImageLikesManager imageLikesManager;
-    
 
     public QuackstagramHomeUI() {
-        setTitle("Quakstagram Home");
-        setSize(WIDTH, HEIGHT);
-        setMinimumSize(new Dimension(WIDTH, HEIGHT));
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
+        InitializeUI.setupFrame(this, "Quakstagram Home");
+    
+        // Initialize the CardLayout before using it in the cardPanel
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
-        
-        
+    
+        JPanel headerPanel = InitializeUI.createHeaderPanel("🐥 Quackstagram 🐥");
         homePanel = new JPanel(new BorderLayout());
         imageViewPanel = new JPanel(new BorderLayout());
-
-        imageLikesManager = new ImageLikesManager("data\\likes.txt"); // Adjust the path as needed
+        imageLikesManager = new ImageLikesManager("data\\likes.txt");
+    
         initializeUI();
-
+    
         cardPanel.add(homePanel, "Home");
         cardPanel.add(imageViewPanel, "ImageView");
-
-        add(cardPanel, BorderLayout.CENTER);
-        cardLayout.show(cardPanel, "Home"); // Start with the home view
-        
-         // Header Panel (reuse from InstagramProfileUI or customize for home page)
-          // Header with the Register label
-          JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-          headerPanel.setBackground(new Color(51, 51, 51)); // Set a darker background for the header
-          JLabel lblRegister = new JLabel("🐥 Quackstagram 🐥");
-          lblRegister.setFont(new Font("Arial", Font.BOLD, 16));
-          lblRegister.setForeground(Color.WHITE); // Set the text color to white
-          headerPanel.add(lblRegister);
-          headerPanel.setPreferredSize(new Dimension(WIDTH, 40)); // Give the header a fixed height
-        
-          add(headerPanel, BorderLayout.NORTH);
-
-
-        // Navigation Bar
-        JPanel navigationPanel = new JPanel();
-        navigationPanel.setBackground(new Color(249, 249, 249));
-        navigationPanel.setLayout(new BoxLayout(navigationPanel, BoxLayout.X_AXIS));
-        navigationPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-        navigationPanel.add(createIconButton("img/icons/home.png", "home"));
-        navigationPanel.add(Box.createHorizontalGlue());
-        navigationPanel.add(createIconButton("img/icons/search.png","explore"));
-        navigationPanel.add(Box.createHorizontalGlue());
-        navigationPanel.add(createIconButton("img/icons/add.png","add"));
-        navigationPanel.add(Box.createHorizontalGlue());
-        navigationPanel.add(createIconButton("img/icons/heart.png","notification"));
-        navigationPanel.add(Box.createHorizontalGlue());
-        navigationPanel.add(createIconButton("img/icons/profile.png", "profile"));
-
-
-        add(navigationPanel, BorderLayout.SOUTH);
+    
+        ActionListener[] actions = {
+            e -> openHomeUI(),
+            e -> exploreUI(),
+            e -> ImageUploadUI(),
+            e -> notificationsUI(),
+            e -> openProfileUI()
+        };
+        JPanel navigationPanel = InitializeUI.createNavigationPanel(actions);
+    
+        InitializeUI.addComponents(this, headerPanel, cardPanel, navigationPanel);
+        cardLayout.show(cardPanel, "Home");
     }
 
     private void initializeUI() {
-       
-
-        // Content Scroll Panel
         JPanel contentPanel = new JPanel();
-        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS)); // Vertical box layout
+        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
         JScrollPane scrollPane = new JScrollPane(contentPanel);
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER); // Never allow horizontal scrolling
-         String[][] sampleData = createSampleData(); 
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        
+        String[][] sampleData = createSampleData();
         populateContentPanel(contentPanel, sampleData);
-        add(scrollPane, BorderLayout.CENTER);
-
-
-        
-
-         // Set up the home panel
-
-         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-        
-        
-      
-
-         homePanel.add(scrollPane, BorderLayout.CENTER);
-       
-
+        homePanel.add(scrollPane, BorderLayout.CENTER);
     }
 
     private void populateContentPanel(JPanel panel, String[][] sampleData) {
@@ -341,30 +295,6 @@ private Set<String> getFollowedUsers(String currentUser) {
     
         // Call displayImage with updated postData
         displayImage(postData);
-    }
-
-    private JButton createIconButton(String iconPath, String buttonType) {
-        ImageIcon iconOriginal = new ImageIcon(iconPath);
-        Image iconScaled = iconOriginal.getImage().getScaledInstance(NAV_ICON_SIZE, NAV_ICON_SIZE, Image.SCALE_SMOOTH);
-        JButton button = new JButton(new ImageIcon(iconScaled));
-        button.setBorder(BorderFactory.createEmptyBorder());
-        button.setContentAreaFilled(false);
- 
-        // Define actions based on button type
-        if ("home".equals(buttonType)) {
-            button.addActionListener(e -> openHomeUI());
-        } else if ("profile".equals(buttonType)) {
-            button.addActionListener(e -> openProfileUI());
-        } else if ("notification".equals(buttonType)) {
-            button.addActionListener(e -> notificationsUI());
-        } else if ("explore".equals(buttonType)) {
-            button.addActionListener(e -> exploreUI());
-        } else if ("add".equals(buttonType)) {
-            button.addActionListener(e -> ImageUploadUI());
-        }
-        return button;
- 
-        
     }
  
     private void openProfileUI() {
