@@ -30,48 +30,72 @@ public class SignInUI extends JFrame {
     }
 
     private void initializeSignInUI() {
+        configureMainFrame();
+        add(createHeaderPanel(), BorderLayout.NORTH);
+        add(createFieldsPanel(), BorderLayout.CENTER);
+        add(createButtonPanel(), BorderLayout.SOUTH);
+    }
+    
+    private void configureMainFrame() {
         setTitle("Quackstagram - Sign In");
         setSize(WIDTH, HEIGHT);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
+    }
     
-        add(UIComponentsUtil.createHeaderPanel("Quackstagram 🐥"), BorderLayout.NORTH);
+    private JPanel createHeaderPanel() {
+        return UIComponentsUtil.createHeaderPanel("Quackstagram 🐥");
+    }
+    
+    private JPanel createFieldsPanel() {
+        JPanel fieldsPanel = new JPanel();
+        fieldsPanel.setLayout(new BoxLayout(fieldsPanel, BoxLayout.Y_AXIS));
+        fieldsPanel.setBorder(BorderFactory.createEmptyBorder(5, 20, 5, 20));
     
         lblPhoto = UIComponentsUtil.createPhotoLabel("img/logos/DACS.png");
         JPanel photoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         photoPanel.add(lblPhoto);
     
-        JPanel fieldsPanel = new JPanel();
-        fieldsPanel.setLayout(new BoxLayout(fieldsPanel, BoxLayout.Y_AXIS));
-        fieldsPanel.setBorder(BorderFactory.createEmptyBorder(5, 20, 5, 20));
-    
         fieldsPanel.add(Box.createVerticalStrut(10));
         fieldsPanel.add(photoPanel);
         fieldsPanel.add(Box.createVerticalStrut(10));
-        
-        JLabel lblUsername = new JLabel("Username");
-        lblUsername.setFont(new Font("Arial", Font.BOLD, 12));
-        txtUsername = UIComponentsUtil.createTextField("", Color.BLACK);
-        JLabel lblPassword = new JLabel("Password");
-        lblPassword.setFont(new Font("Arial", Font.BOLD, 12));
-        txtPassword = UIComponentsUtil.createPasswordField("", Color.BLACK);
-
-        fieldsPanel.add(lblUsername);
-        fieldsPanel.add(txtUsername);
-        fieldsPanel.add(lblPassword);
-        fieldsPanel.add(txtPassword);
+    
+        txtUsername = addTextField(fieldsPanel, "Username");
+        txtPassword = addPasswordField(fieldsPanel, "Password");
+    
+        return fieldsPanel;
+    }
+    
+    private JTextField addTextField(JPanel panel, String label) {
+        JLabel jLabel = new JLabel(label);
+        jLabel.setFont(new Font("Arial", Font.BOLD, 12));
+        JTextField textField = UIComponentsUtil.createTextField("", Color.BLACK);
+        panel.add(jLabel);
+        panel.add(textField);
+        return textField;
+    }
+    
+    private JPasswordField addPasswordField(JPanel panel, String label) {
+        JLabel jLabel = new JLabel(label);
+        jLabel.setFont(new Font("Arial", Font.BOLD, 12));
+        JPasswordField passwordField = UIComponentsUtil.createPasswordField("", Color.BLACK);
+        panel.add(jLabel);
+        panel.add(passwordField);
+        return passwordField;
+    }
+    
+    private JPanel createButtonPanel() {
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 1, 10, 10));
+        buttonPanel.setBackground(Color.white);
     
         btnSignIn = UIComponentsUtil.createButton("Sign-In", this::onSignInClicked);
         btnRegisterNow = UIComponentsUtil.createButton("No Account? Register Now", this::onRegisterNowClicked);
         btnRegisterNow.setBackground(Color.WHITE);
     
-        JPanel buttonPanel = new JPanel(new GridLayout(2, 1, 10, 10));
-        buttonPanel.setBackground(Color.white);
         buttonPanel.add(btnSignIn);
         buttonPanel.add(btnRegisterNow);
     
-        add(fieldsPanel, BorderLayout.CENTER);
-        add(buttonPanel, BorderLayout.SOUTH);
+        return buttonPanel;
     }
     
 
