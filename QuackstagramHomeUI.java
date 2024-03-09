@@ -297,18 +297,7 @@ public class QuackstagramHomeUI extends JFrame {
     private void openProfileUI() {
         // Open InstagramProfileUI frame
         this.dispose();
-        String loggedInUsername = "";
-
-        // Read the logged-in user's username from users.txt
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
-            String line = reader.readLine();
-            if (line != null) {
-                loggedInUsername = line.split(":")[0].trim();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        User user = new User(loggedInUsername);
+        User user = User.getLoggedInUser();
         InstagramProfileUI profileUI = new InstagramProfileUI(user);
         profileUI.setVisible(true);
     }

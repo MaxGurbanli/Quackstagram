@@ -1,4 +1,8 @@
 import java.util.List;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 // Represents a user on Quackstagram
@@ -78,6 +82,19 @@ class User {
     @Override
     public String toString() {
         return username + ":" + bio + ":" + password; // Format as needed
+    }
+
+    public static User getLoggedInUser() {
+        String loggedInUsername = "";
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
+            String line = reader.readLine();
+            if (line != null) {
+                loggedInUsername = line.split(":")[0].trim();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new User(loggedInUsername);
     }
 
 }
