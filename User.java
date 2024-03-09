@@ -2,6 +2,7 @@ import java.util.List;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
@@ -95,6 +96,20 @@ class User {
             e.printStackTrace();
         }
         return new User(loggedInUsername);
+    }
+
+    public boolean isCurrentUser() {
+        Path usersFilePath = Paths.get("data", "users.txt");
+        try (BufferedReader reader = Files.newBufferedReader(usersFilePath)) {
+            String line = reader.readLine();
+            if (line != null) {
+                String currentUsername = line.split(":")[0];
+                return this.username.equals(currentUsername);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
 }
