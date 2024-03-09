@@ -31,13 +31,28 @@ public class SignUpUI extends JFrame {
     }
 
     private void initializeUI() {
+        configureMainFrame();
+        JPanel headerPanel = createHeaderPanel();
+        JPanel fieldsPanel = createFieldsPanel();
+        JPanel registerPanel = createRegisterPanel();
+    
+        add(headerPanel, BorderLayout.NORTH);
+        add(fieldsPanel, BorderLayout.CENTER);
+        add(registerPanel, BorderLayout.SOUTH);
+    }
+    
+    private void configureMainFrame() {
         setTitle("Quackstagram - Register");
         setSize(WIDTH, HEIGHT);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
+    }
     
-        add(UIComponentsUtil.createHeaderPanel("Quackstagram 🐥"), BorderLayout.NORTH);
+    private JPanel createHeaderPanel() {
+        return UIComponentsUtil.createHeaderPanel("Quackstagram 🐥");
+    }
     
+    private JPanel createFieldsPanel() {
         lblPhoto = UIComponentsUtil.createPhotoLabel("img/logos/DACS.png");
         JPanel photoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         photoPanel.add(lblPhoto);
@@ -45,47 +60,46 @@ public class SignUpUI extends JFrame {
         JPanel fieldsPanel = new JPanel();
         fieldsPanel.setLayout(new BoxLayout(fieldsPanel, BoxLayout.Y_AXIS));
         fieldsPanel.setBorder(BorderFactory.createEmptyBorder(5, 20, 5, 20));
-    
         fieldsPanel.add(Box.createVerticalStrut(10));
         fieldsPanel.add(photoPanel);
         fieldsPanel.add(Box.createVerticalStrut(10));
-        
-        JLabel lblUsername = new JLabel("Username");
-        txtUsername = UIComponentsUtil.createTextField("", Color.BLACK);
-        
-        JLabel lblPassword = new JLabel("Password");
-        txtPassword = UIComponentsUtil.createPasswordField("", Color.BLACK);
-
-        JLabel lblBio = new JLabel("Bio");
-        txtBio = UIComponentsUtil.createTextField("", Color.BLACK);
     
-        fieldsPanel.add(lblUsername);
-        fieldsPanel.add(txtUsername);
-
-        fieldsPanel.add(lblPassword);
-        fieldsPanel.add(txtPassword);
-
-        fieldsPanel.add(lblBio);
-        fieldsPanel.add(txtBio);
+        addField(fieldsPanel, "Username", txtUsername);
+        addField(fieldsPanel, "Password", txtPassword);
+        addField(fieldsPanel, "Bio", txtBio);
     
+        addPhotoUploadButton(fieldsPanel);
+    
+        return fieldsPanel;
+    }
+    
+    private void addField(JPanel panel, String labelText, JTextField textField) {
+        JLabel label = new JLabel(labelText);
+        textField = UIComponentsUtil.createTextField("", Color.BLACK);
+        panel.add(label);
+        panel.add(textField);
+    }
+    
+    private void addPhotoUploadButton(JPanel panel) {
         btnUploadPhoto = UIComponentsUtil.createButton("Upload Photo", e -> handleProfilePictureUpload());
         JPanel photoUploadPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         photoUploadPanel.add(btnUploadPhoto);
-        fieldsPanel.add(photoUploadPanel);
+        panel.add(photoUploadPanel);
+    }
     
+    private JPanel createRegisterPanel() {
         btnRegister = UIComponentsUtil.createButton("Register", this::onRegisterClicked);
         JPanel registerPanel = new JPanel(new BorderLayout());
         registerPanel.setBackground(Color.WHITE);
         registerPanel.add(btnRegister, BorderLayout.CENTER);
     
-        // "Sign In" button allows the user to go back to the SignInUI
         JButton btnSignIn = UIComponentsUtil.createButton("Already have an account? Sign In", e -> openSignInUI());
         btnSignIn.setBackground(Color.WHITE);
         registerPanel.add(btnSignIn, BorderLayout.SOUTH);
     
-        add(fieldsPanel, BorderLayout.CENTER);
-        add(registerPanel, BorderLayout.SOUTH);
+        return registerPanel;
     }
+    
 
     private void onRegisterClicked(ActionEvent event) {
         String username = txtUsername.getText();
