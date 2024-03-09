@@ -22,14 +22,13 @@ public class InstagramProfileUI extends JFrame {
     private User currentUser; // User object to store the current user's information
 
     public InstagramProfileUI(User user) {
+        System.out.println("InstagramProfileUI with user var");
         this.currentUser = user;
-        // Initialize counts
         int imageCount = 0;
         int followersCount = 0;
         int followingCount = 0;
 
-        // Step 1: Read image_details.txt to count the number of images posted by the
-        // user
+        // Read image_details.txt to count the number of images posted by the
         Path imageDetailsFilePath = Paths.get("img", "image_details.txt");
         try (BufferedReader imageDetailsReader = Files.newBufferedReader(imageDetailsFilePath)) {
             String line;
@@ -42,7 +41,7 @@ public class InstagramProfileUI extends JFrame {
             e.printStackTrace();
         }
 
-        // Step 2: Read following.txt to calculate followers and following
+        // Read following.txt to calculate followers and following
         Path followingFilePath = Paths.get("data", "following.txt");
         try (BufferedReader followingReader = Files.newBufferedReader(followingFilePath)) {
             String line;
@@ -66,29 +65,14 @@ public class InstagramProfileUI extends JFrame {
             e.printStackTrace();
         }
 
-        String bio = "";
-
-        Path bioDetailsFilePath = Paths.get("data", "credentials.txt");
-        try (BufferedReader bioDetailsReader = Files.newBufferedReader(bioDetailsFilePath)) {
-            String line;
-            while ((line = bioDetailsReader.readLine()) != null) {
-                String[] parts = line.split(":");
-                if (parts[0].equals(currentUser.getUsername()) && parts.length >= 3) {
-                    bio = parts[2];
-                    break; // Exit the loop once the matching bio is found
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        String bio = user.getBio();
         currentUser.setBio(bio);
 
         currentUser.setFollowersCount(followersCount);
         currentUser.setFollowingCount(followingCount);
         currentUser.setPostCount(imageCount);
 
-        setTitle("DACS Profile");
+        setTitle("Profile");
         setSize(WIDTH, HEIGHT);
         setMinimumSize(new Dimension(WIDTH, HEIGHT));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -97,19 +81,6 @@ public class InstagramProfileUI extends JFrame {
         headerPanel = createHeaderPanel(); // Initialize header panel
         navigationPanel = createNavigationPanel(); // Initialize navigation panel
 
-        initializeUI();
-    }
-
-    public InstagramProfileUI() {
-
-        setTitle("DACS Profile");
-        setSize(WIDTH, HEIGHT);
-        setMinimumSize(new Dimension(WIDTH, HEIGHT));
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
-        contentPanel = new JPanel();
-        headerPanel = createHeaderPanel(); // Initialize header panel
-        navigationPanel = createNavigationPanel(); // Initialize navigation panel
         initializeUI();
     }
 
@@ -129,18 +100,8 @@ public class InstagramProfileUI extends JFrame {
 
     private JPanel createHeaderPanel() {
         boolean isCurrentUser = false;
-        String loggedInUsername = "";
-
-        // Read the logged-in user's username from users.txt
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
-            String line = reader.readLine();
-            if (line != null) {
-                loggedInUsername = line.split(":")[0].trim();
-                isCurrentUser = loggedInUsername.equals(currentUser.getUsername());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        User loggedInUser = User.getLoggedInUser();
+        String loggedInUsername = loggedInUser.getUsername();
 
         // Header Panel
         JPanel headerPanel = new JPanel();
@@ -412,28 +373,24 @@ public class InstagramProfileUI extends JFrame {
     }
 
     private void ImageUploadUI() {
-        // Open InstagramProfileUI frame
         this.dispose();
         ImageUploadUI upload = new ImageUploadUI();
         upload.setVisible(true);
     }
 
     private void notificationsUI() {
-        // Open InstagramProfileUI frame
         this.dispose();
         NotificationsUI notificationsUI = new NotificationsUI();
         notificationsUI.setVisible(true);
     }
 
     private void openHomeUI() {
-        // Open InstagramProfileUI frame
         this.dispose();
         QuackstagramHomeUI homeUI = new QuackstagramHomeUI();
         homeUI.setVisible(true);
     }
 
     private void exploreUI() {
-        // Open InstagramProfileUI frame
         this.dispose();
         ExploreUI explore = new ExploreUI();
         explore.setVisible(true);
