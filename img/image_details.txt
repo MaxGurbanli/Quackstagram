@@ -7,6 +7,4 @@ ImageID: Zara_2, Username: Zara, Bio: Yoga with Yoda, Timestamp: 2023-12-17 19:2
 ImageID: Mystar_1, Username: Mystar, Bio: Cookies gone? , Timestamp: 2023-12-17 19:26:50, Likes: 13
 ImageID: Mystar_2, Username: Mystar, Bio: In my soup a fly is., Timestamp: 2023-12-17 19:27:24, Likes: 12
 ImageID: max_1, Username: max, Bio: Enter a caption, Timestamp: 2024-02-22 11:38:22, Likes: 0
-ImageID: max2_1, Username: max2, Bio: Enter a caption, Timestamp: 2024-02-22 11:40:12, Likes: 0
-ImageID: max3_1, Username: max3, Bio: Enter a caption, Timestamp: 2024-02-23 01:14:40, Likes: 0
 ImageID: max_2, Username: max, Bio: Enter a caption, Timestamp: 2024-02-29 11:13:56, Likes: 0

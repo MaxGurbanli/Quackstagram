@@ -19,7 +19,6 @@ public class ImageUploadUI extends JFrame {
     private JTextArea bioTextArea;
     private JButton uploadButton;
     private JButton saveButton;
-    private boolean imageUploaded = false;
 
     public ImageUploadUI() {
         setTitle("Upload Image");
@@ -121,9 +120,6 @@ public class ImageUploadUI extends JFrame {
                 }
     
                 imagePreviewLabel.setIcon(imageIcon);
-    
-                // Update the flag to indicate that an image has been uploaded
-                imageUploaded = true;
     
                 // Change the text of the upload button
                 uploadButton.setText("Upload Another Image");
@@ -292,7 +288,7 @@ public class ImageUploadUI extends JFrame {
     private void openHomeUI() {
         // Open InstagramProfileUI frame
         this.dispose();
-        QuakstagramHomeUI homeUI = new QuakstagramHomeUI();
+        QuackstagramHomeUI homeUI = new QuackstagramHomeUI();
         homeUI.setVisible(true);
     }
  

@@ -439,7 +439,7 @@ private void initializeImageGrid() {
     private void openHomeUI() {
         // Open InstagramProfileUI frame
         this.dispose();
-        QuakstagramHomeUI homeUI = new QuakstagramHomeUI();
+        QuackstagramHomeUI homeUI = new QuackstagramHomeUI();
         homeUI.setVisible(true);
     }
  
@@ -449,6 +449,5 @@ private void initializeImageGrid() {
         ExploreUI explore = new ExploreUI();
         explore.setVisible(true);
     }   
-
     
 }

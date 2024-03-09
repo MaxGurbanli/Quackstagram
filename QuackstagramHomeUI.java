@@ -14,12 +14,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class QuakstagramHomeUI extends JFrame {
+public class QuackstagramHomeUI extends JFrame {
     private static final int WIDTH = 300;
     private static final int HEIGHT = 500;
     private static final int NAV_ICON_SIZE = 20; // Corrected static size for bottom icons
@@ -33,7 +32,7 @@ public class QuakstagramHomeUI extends JFrame {
     private ImageLikesManager imageLikesManager;
     
 
-    public QuakstagramHomeUI() {
+    public QuackstagramHomeUI() {
         setTitle("Quakstagram Home");
         setSize(WIDTH, HEIGHT);
         setMinimumSize(new Dimension(WIDTH, HEIGHT));
@@ -217,18 +216,7 @@ private String[][] createSampleData() {
         e.printStackTrace();
     }
 
-    String followedUsers = "";
-    try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "following.txt"))) {
-        String line;
-        while ((line = reader.readLine()) != null) {
-            if (line.startsWith(currentUser + ":")) {
-                followedUsers = line.split(":")[1].trim();
-                break;
-            }
-        }
-    } catch (IOException e) {
-        e.printStackTrace();
-    }
+    Set<String> followedUsers = getFollowedUsers(currentUser);
 
     // Temporary structure to hold the data
     String[][] tempData = new String[100][]; // Assuming a maximum of 100 posts for simplicity
@@ -264,7 +252,7 @@ private Set<String> getFollowedUsers(String currentUser) {
         String line;
         while ((line = reader.readLine()) != null) {
             if (line.startsWith(currentUser + ":")) {
-                Collections.addAll(followedUsers, line.split(":")[1].trim().split(","));
+                Collections.addAll(followedUsers, line.split(":")[1].trim().split("; "));
                 break;
             }
         }
@@ -273,16 +261,6 @@ private Set<String> getFollowedUsers(String currentUser) {
     }
     return followedUsers;
 }
-
-    
-    private JButton createIconButton(String iconPath) {
-        ImageIcon iconOriginal = new ImageIcon(iconPath);
-        Image iconScaled = iconOriginal.getImage().getScaledInstance(NAV_ICON_SIZE, NAV_ICON_SIZE, Image.SCALE_SMOOTH);
-        JButton button = new JButton(new ImageIcon(iconScaled));
-        button.setBorder(BorderFactory.createEmptyBorder());
-        button.setContentAreaFilled(false);
-        return button;
-    }
 
     private void displayImage(String[] postData) {
         imageViewPanel.removeAll(); // Clear previous content
@@ -425,7 +403,7 @@ private Set<String> getFollowedUsers(String currentUser) {
     private void openHomeUI() {
         // Open InstagramProfileUI frame
         this.dispose();
-        QuakstagramHomeUI homeUI = new QuakstagramHomeUI();
+        QuackstagramHomeUI homeUI = new QuackstagramHomeUI();
         homeUI.setVisible(true);
     }
  
@@ -436,5 +414,11 @@ private Set<String> getFollowedUsers(String currentUser) {
         explore.setVisible(true);
     }
 
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            SignInUI frame = new SignInUI();
+            frame.setVisible(true);
+        });
+    }
 
 }
