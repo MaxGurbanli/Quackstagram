@@ -17,7 +17,7 @@ public class LikesFileHandler {
                 String[] parts = line.split(":");
                 String imageID = parts[0];
                 Set<String> users = Arrays.stream(parts[1].split(","))
-                                          .collect(Collectors.toSet());
+                        .collect(Collectors.toSet());
                 likesMap.put(imageID, users);
             }
         }

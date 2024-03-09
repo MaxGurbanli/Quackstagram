@@ -29,30 +29,30 @@ public class QuackstagramHomeUI extends JFrame {
 
     public QuackstagramHomeUI() {
         InitializeUI.setupFrame(this, "Quakstagram Home");
-    
+
         // Initialize the CardLayout before using it in the cardPanel
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
-    
+
         JPanel headerPanel = InitializeUI.createHeaderPanel("🐥 Quackstagram 🐥");
         homePanel = new JPanel(new BorderLayout());
         imageViewPanel = new JPanel(new BorderLayout());
         imageLikesManager = new ImageLikesManager("data\\likes.txt");
-    
+
         initializeUI();
-    
+
         cardPanel.add(homePanel, "Home");
         cardPanel.add(imageViewPanel, "ImageView");
-    
+
         ActionListener[] actions = {
-            e -> openHomeUI(),
-            e -> exploreUI(),
-            e -> ImageUploadUI(),
-            e -> notificationsUI(),
-            e -> openProfileUI()
+                e -> openHomeUI(),
+                e -> exploreUI(),
+                e -> ImageUploadUI(),
+                e -> notificationsUI(),
+                e -> openProfileUI()
         };
         JPanel navigationPanel = InitializeUI.createNavigationPanel(actions);
-    
+
         InitializeUI.addComponents(this, headerPanel, cardPanel, navigationPanel);
         cardLayout.show(cardPanel, "Home");
     }
@@ -62,7 +62,7 @@ public class QuackstagramHomeUI extends JFrame {
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
         JScrollPane scrollPane = new JScrollPane(contentPanel);
         scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        
+
         String[][] sampleData = createSampleData();
         populateContentPanel(contentPanel, sampleData);
         homePanel.add(scrollPane, BorderLayout.CENTER);
@@ -70,7 +70,7 @@ public class QuackstagramHomeUI extends JFrame {
 
     private void populateContentPanel(JPanel panel, String[][] sampleData) {
 
-         for (String[] postData : sampleData) {
+        for (String[] postData : sampleData) {
             JPanel itemPanel = new JPanel();
             itemPanel.setLayout(new BoxLayout(itemPanel, BoxLayout.Y_AXIS));
             itemPanel.setBackground(Color.WHITE); // Set the background color for the item panel
@@ -87,7 +87,9 @@ public class QuackstagramHomeUI extends JFrame {
             String imageId = new File(postData[3]).getName().split("\\.")[0];
             try {
                 BufferedImage originalImage = ImageIO.read(new File(postData[3]));
-                BufferedImage croppedImage = originalImage.getSubimage(0, 0, Math.min(originalImage.getWidth(), IMAGE_WIDTH), Math.min(originalImage.getHeight(), IMAGE_HEIGHT));
+                BufferedImage croppedImage = originalImage.getSubimage(0, 0,
+                        Math.min(originalImage.getWidth(), IMAGE_WIDTH),
+                        Math.min(originalImage.getHeight(), IMAGE_HEIGHT));
                 ImageIcon imageIcon = new ImageIcon(croppedImage);
                 imageLabel.setIcon(imageIcon);
             } catch (IOException ex) {
@@ -121,18 +123,17 @@ public class QuackstagramHomeUI extends JFrame {
 
             panel.add(itemPanel);
 
-              // Make the image clickable
-              imageLabel.addMouseListener(new MouseAdapter() {
+            // Make the image clickable
+            imageLabel.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     displayImage(postData); // Call a method to switch to the image view
                 }
             });
-        
 
             // Grey spacing panel
             JPanel spacingPanel = new JPanel();
-            spacingPanel.setPreferredSize(new Dimension(WIDTH-10, 5)); // Set the height for spacing
+            spacingPanel.setPreferredSize(new Dimension(WIDTH - 10, 5)); // Set the height for spacing
             spacingPanel.setBackground(new Color(230, 230, 230)); // Grey color for spacing
             panel.add(spacingPanel);
         }
@@ -159,107 +160,104 @@ public class QuackstagramHomeUI extends JFrame {
         }
     }
 
-private String[][] createSampleData() {
-    String currentUser = "";
-    try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
-        String line = reader.readLine();
-        if (line != null) {
-            currentUser = line.split(":")[0].trim();
-        }
-    } catch (IOException e) {
-        e.printStackTrace();
-    }
-
-    Set<String> followedUsers = getFollowedUsers(currentUser);
-
-    // Temporary structure to hold the data
-    String[][] tempData = new String[100][]; // Assuming a maximum of 100 posts for simplicity
-    int count = 0;
-
-    try (BufferedReader reader = Files.newBufferedReader(Paths.get("img", "image_details.txt"))) {
-        String line;
-        while ((line = reader.readLine()) != null && count < tempData.length) {
-            String[] details = line.split(", ");
-            String imagePoster = details[1].split(": ")[1];
-            if (followedUsers.contains(imagePoster)) {
-                String imagePath = "img/uploaded/" + details[0].split(": ")[1] + ".png"; // Assuming PNG format
-                String description = details[2].split(": ")[1];
-                String likes = "Likes: " + details[4].split(": ")[1];
-
-                tempData[count++] = new String[]{imagePoster, description, likes, imagePath};
+    private String[][] createSampleData() {
+        String currentUser = "";
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
+            String line = reader.readLine();
+            if (line != null) {
+                currentUser = line.split(":")[0].trim();
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    } catch (IOException e) {
-        e.printStackTrace();
-    }
 
-    // Transfer the data to the final array
-    String[][] sampleData = new String[count][];
-    System.arraycopy(tempData, 0, sampleData, 0, count);
+        Set<String> followedUsers = getFollowedUsers(currentUser);
 
-    return sampleData;
-}
+        // Temporary structure to hold the data
+        String[][] tempData = new String[100][]; // Assuming a maximum of 100 posts for simplicity
+        int count = 0;
 
-private Set<String> getFollowedUsers(String currentUser) {
-    Set<String> followedUsers = new HashSet<>();
-    try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "following.txt"))) {
-        String line;
-        while ((line = reader.readLine()) != null) {
-            if (line.startsWith(currentUser + ":")) {
-                Collections.addAll(followedUsers, line.split(":")[1].trim().split("; "));
-                break;
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get("img", "image_details.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null && count < tempData.length) {
+                String[] details = line.split(", ");
+                String imagePoster = details[1].split(": ")[1];
+                if (followedUsers.contains(imagePoster)) {
+                    String imagePath = "img/uploaded/" + details[0].split(": ")[1] + ".png"; // Assuming PNG format
+                    String description = details[2].split(": ")[1];
+                    String likes = "Likes: " + details[4].split(": ")[1];
+
+                    tempData[count++] = new String[] { imagePoster, description, likes, imagePath };
+                }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    } catch (IOException e) {
-        e.printStackTrace();
+
+        // Transfer the data to the final array
+        String[][] sampleData = new String[count][];
+        System.arraycopy(tempData, 0, sampleData, 0, count);
+
+        return sampleData;
     }
-    return followedUsers;
-}
+
+    private Set<String> getFollowedUsers(String currentUser) {
+        Set<String> followedUsers = new HashSet<>();
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "following.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith(currentUser + ":")) {
+                    Collections.addAll(followedUsers, line.split(":")[1].trim().split("; "));
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return followedUsers;
+    }
 
     private void displayImage(String[] postData) {
         imageViewPanel.removeAll(); // Clear previous content
 
-       
         String imageId = new File(postData[3]).getName().split("\\.")[0];
         JLabel likesLabel = new JLabel(postData[2]); // Update this line
-
-
 
         // Display the image
         JLabel fullSizeImageLabel = new JLabel();
         fullSizeImageLabel.setHorizontalAlignment(JLabel.CENTER);
-      
 
-         try {
-                BufferedImage originalImage = ImageIO.read(new File(postData[3]));
-                BufferedImage croppedImage = originalImage.getSubimage(0, 0, Math.min(originalImage.getWidth(), WIDTH-20), Math.min(originalImage.getHeight(), HEIGHT-40));
-                ImageIcon imageIcon = new ImageIcon(croppedImage);
-                fullSizeImageLabel.setIcon(imageIcon);
-            } catch (IOException ex) {
-                // Handle exception: Image file not found or reading error
-                fullSizeImageLabel.setText("Image not found");
-            }
+        try {
+            BufferedImage originalImage = ImageIO.read(new File(postData[3]));
+            BufferedImage croppedImage = originalImage.getSubimage(0, 0, Math.min(originalImage.getWidth(), WIDTH - 20),
+                    Math.min(originalImage.getHeight(), HEIGHT - 40));
+            ImageIcon imageIcon = new ImageIcon(croppedImage);
+            fullSizeImageLabel.setIcon(imageIcon);
+        } catch (IOException ex) {
+            // Handle exception: Image file not found or reading error
+            fullSizeImageLabel.setText("Image not found");
+        }
 
-        //User Info 
+        // User Info
         JPanel userPanel = new JPanel();
-        userPanel.setLayout(new BoxLayout(userPanel,BoxLayout.Y_AXIS));
+        userPanel.setLayout(new BoxLayout(userPanel, BoxLayout.Y_AXIS));
         JLabel userName = new JLabel(postData[0]);
         userName.setFont(new Font("Arial", Font.BOLD, 18));
-        userPanel.add(userName);//User Name
+        userPanel.add(userName);// User Name
 
-           JButton likeButton = new JButton("❤");
-            likeButton.setAlignmentX(Component.LEFT_ALIGNMENT);
-            likeButton.setBackground(LIKE_BUTTON_COLOR); // Set the background color for the like button
-            likeButton.setOpaque(true);
-            likeButton.setBorderPainted(false); // Remove border
-            likeButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                   handleLikeAction(imageId, likesLabel); // Update this line
-                   refreshDisplayImage(postData, imageId); // Refresh the view
-                }
-            });
-       
+        JButton likeButton = new JButton("❤");
+        likeButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+        likeButton.setBackground(LIKE_BUTTON_COLOR); // Set the background color for the like button
+        likeButton.setOpaque(true);
+        likeButton.setBorderPainted(false); // Remove border
+        likeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handleLikeAction(imageId, likesLabel); // Update this line
+                refreshDisplayImage(postData, imageId); // Refresh the view
+            }
+        });
+
         // Information panel at the bottom
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
@@ -269,11 +267,10 @@ private Set<String> getFollowedUsers(String currentUser) {
 
         imageViewPanel.add(fullSizeImageLabel, BorderLayout.CENTER);
         imageViewPanel.add(infoPanel, BorderLayout.SOUTH);
-        imageViewPanel.add(userPanel,BorderLayout.NORTH);
-            
+        imageViewPanel.add(userPanel, BorderLayout.NORTH);
+
         imageViewPanel.revalidate();
         imageViewPanel.repaint();
-
 
         cardLayout.show(cardPanel, "ImageView"); // Switch to the image view
     }
@@ -292,31 +289,31 @@ private Set<String> getFollowedUsers(String currentUser) {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    
+
         // Call displayImage with updated postData
         displayImage(postData);
     }
- 
+
     private void openProfileUI() {
         // Open InstagramProfileUI frame
         this.dispose();
         String loggedInUsername = "";
- 
-         // Read the logged-in user's username from users.txt
-     try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
-         String line = reader.readLine();
-         if (line != null) {
-             loggedInUsername = line.split(":")[0].trim();
-         }
-     } catch (IOException e) {
-         e.printStackTrace();
-     }
-      User user = new User(loggedInUsername);
+
+        // Read the logged-in user's username from users.txt
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
+            String line = reader.readLine();
+            if (line != null) {
+                loggedInUsername = line.split(":")[0].trim();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        User user = new User(loggedInUsername);
         InstagramProfileUI profileUI = new InstagramProfileUI(user);
         profileUI.setVisible(true);
     }
- 
-     private void notificationsUI() {
+
+    private void notificationsUI() {
         // Open InstagramProfileUI frame
         this.dispose();
         NotificationsUI notificationsUI = new NotificationsUI();
@@ -329,14 +326,14 @@ private Set<String> getFollowedUsers(String currentUser) {
         ImageUploadUI upload = new ImageUploadUI();
         upload.setVisible(true);
     }
- 
+
     private void openHomeUI() {
         // Open InstagramProfileUI frame
         this.dispose();
         QuackstagramHomeUI homeUI = new QuackstagramHomeUI();
         homeUI.setVisible(true);
     }
- 
+
     private void exploreUI() {
         // Open InstagramProfileUI frame
         this.dispose();

@@ -16,14 +16,14 @@ public class NotificationsUI extends JFrame {
         JPanel headerPanel = InitializeUI.createHeaderPanel("Notifications 🐥");
         JPanel mainContentPanel = createMainContentPanel();
         ActionListener[] actions = {
-            e -> openHomeUI(),
-            e -> exploreUI(),
-            e -> ImageUploadUI(),
-            e -> notificationsUI(),
-            e -> openProfileUI()
+                e -> openHomeUI(),
+                e -> exploreUI(),
+                e -> ImageUploadUI(),
+                e -> notificationsUI(),
+                e -> openProfileUI()
         };
         JPanel navigationPanel = InitializeUI.createNavigationPanel(actions);
-        
+
         InitializeUI.addComponents(this, headerPanel, mainContentPanel, navigationPanel);
     }
 
@@ -33,15 +33,14 @@ public class NotificationsUI extends JFrame {
         JScrollPane scrollPane = new JScrollPane(contentPanel);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-    
+
         String currentUsername = getCurrentUsername();
         populateNotifications(contentPanel, currentUsername);
-    
+
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(scrollPane, BorderLayout.CENTER);
         return mainPanel;
     }
-    
 
     private String getCurrentUsername() {
         try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
@@ -61,7 +60,8 @@ public class NotificationsUI extends JFrame {
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(";");
                 if (parts[0].trim().equals(currentUsername)) {
-                    String notificationMessage = parts[1].trim() + " liked your picture - " + getElapsedTime(parts[3].trim()) + " ago";
+                    String notificationMessage = parts[1].trim() + " liked your picture - "
+                            + getElapsedTime(parts[3].trim()) + " ago";
                     JPanel notificationPanel = new JPanel(new BorderLayout());
                     notificationPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
                     notificationPanel.add(new JLabel(notificationMessage), BorderLayout.CENTER);
@@ -74,7 +74,8 @@ public class NotificationsUI extends JFrame {
     }
 
     private String getElapsedTime(String timestamp) {
-        LocalDateTime timeOfNotification = LocalDateTime.parse(timestamp, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        LocalDateTime timeOfNotification = LocalDateTime.parse(timestamp,
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         long daysBetween = ChronoUnit.DAYS.between(timeOfNotification, LocalDateTime.now());
         long minutesBetween = ChronoUnit.MINUTES.between(timeOfNotification, LocalDateTime.now()) % 60;
 
@@ -83,7 +84,8 @@ public class NotificationsUI extends JFrame {
             timeElapsed.append(daysBetween).append(" day").append(daysBetween > 1 ? "s" : "");
         }
         if (minutesBetween > 0) {
-            if (daysBetween > 0) timeElapsed.append(" and ");
+            if (daysBetween > 0)
+                timeElapsed.append(" and ");
             timeElapsed.append(minutesBetween).append(" minute").append(minutesBetween > 1 ? "s" : "");
         }
         return timeElapsed.toString();
@@ -95,40 +97,40 @@ public class NotificationsUI extends JFrame {
         ImageUploadUI upload = new ImageUploadUI();
         upload.setVisible(true);
     }
-    
+
     private void openProfileUI() {
         // Open InstagramProfileUI frame
         this.dispose();
         String loggedInUsername = "";
-    
-         // Read the logged-in user's username from users.txt
-     try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
-         String line = reader.readLine();
-         if (line != null) {
-             loggedInUsername = line.split(":")[0].trim();
-         }
-     } catch (IOException e) {
-         e.printStackTrace();
-     }
-      User user = new User(loggedInUsername);
+
+        // Read the logged-in user's username from users.txt
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
+            String line = reader.readLine();
+            if (line != null) {
+                loggedInUsername = line.split(":")[0].trim();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        User user = new User(loggedInUsername);
         InstagramProfileUI profileUI = new InstagramProfileUI(user);
         profileUI.setVisible(true);
     }
-    
-     private void notificationsUI() {
+
+    private void notificationsUI() {
         // Open InstagramProfileUI frame
         this.dispose();
         NotificationsUI notificationsUI = new NotificationsUI();
         notificationsUI.setVisible(true);
     }
-    
+
     private void openHomeUI() {
         // Open InstagramProfileUI frame
         this.dispose();
         QuackstagramHomeUI homeUI = new QuackstagramHomeUI();
         homeUI.setVisible(true);
     }
-    
+
     private void exploreUI() {
         // Open InstagramProfileUI frame
         this.dispose();

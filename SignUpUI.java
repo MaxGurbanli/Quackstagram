@@ -20,7 +20,6 @@ public class SignUpUI extends JFrame {
     private final String credentialsFilePath = "data/credentials.txt";
     private final String profilePhotoStoragePath = "img/storage/profile/";
 
-
     public SignUpUI() {
         setTitle("Quackstagram - Register");
         setSize(WIDTH, HEIGHT);
@@ -35,71 +34,70 @@ public class SignUpUI extends JFrame {
         JPanel headerPanel = createHeaderPanel();
         JPanel fieldsPanel = createFieldsPanel();
         JPanel registerPanel = createRegisterPanel();
-    
+
         add(headerPanel, BorderLayout.NORTH);
         add(fieldsPanel, BorderLayout.CENTER);
         add(registerPanel, BorderLayout.SOUTH);
     }
-    
+
     private void configureMainFrame() {
         setTitle("Quackstagram - Register");
         setSize(WIDTH, HEIGHT);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
     }
-    
+
     private JPanel createHeaderPanel() {
         return UIComponentsUtil.createHeaderPanel("Quackstagram 🐥");
     }
-    
+
     private JPanel createFieldsPanel() {
         lblPhoto = UIComponentsUtil.createPhotoLabel("img/logos/DACS.png");
         JPanel photoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         photoPanel.add(lblPhoto);
-    
+
         JPanel fieldsPanel = new JPanel();
         fieldsPanel.setLayout(new BoxLayout(fieldsPanel, BoxLayout.Y_AXIS));
         fieldsPanel.setBorder(BorderFactory.createEmptyBorder(5, 20, 5, 20));
         fieldsPanel.add(Box.createVerticalStrut(10));
         fieldsPanel.add(photoPanel);
         fieldsPanel.add(Box.createVerticalStrut(10));
-    
+
         addField(fieldsPanel, "Username", txtUsername);
         addField(fieldsPanel, "Password", txtPassword);
         addField(fieldsPanel, "Bio", txtBio);
-    
+
         addPhotoUploadButton(fieldsPanel);
-    
+
         return fieldsPanel;
     }
-    
+
     private void addField(JPanel panel, String labelText, JTextField textField) {
         JLabel label = new JLabel(labelText);
         textField = UIComponentsUtil.createTextField("", Color.BLACK);
         panel.add(label);
         panel.add(textField);
     }
-    
+
     private void addPhotoUploadButton(JPanel panel) {
         btnUploadPhoto = UIComponentsUtil.createButton("Upload Photo", e -> handleProfilePictureUpload());
         JPanel photoUploadPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         photoUploadPanel.add(btnUploadPhoto);
         panel.add(photoUploadPanel);
     }
-    
+
     private JPanel createRegisterPanel() {
         btnRegister = UIComponentsUtil.createButton("Register", this::onRegisterClicked);
         JPanel registerPanel = new JPanel(new BorderLayout());
         registerPanel.setBackground(Color.WHITE);
         registerPanel.add(btnRegister, BorderLayout.CENTER);
-    
+
         JButton btnSignIn = UIComponentsUtil.createButton("Already have an account? Sign In", e -> openSignInUI());
         btnSignIn.setBackground(Color.WHITE);
         registerPanel.add(btnSignIn, BorderLayout.SOUTH);
-    
+
         return registerPanel;
     }
-    
 
     private void onRegisterClicked(ActionEvent event) {
         String username = txtUsername.getText();
@@ -107,20 +105,21 @@ public class SignUpUI extends JFrame {
         String bio = txtBio.getText();
 
         if (doesUsernameExist(username)) {
-            JOptionPane.showMessageDialog(this, "Username already exists. Please choose a different username.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Username already exists. Please choose a different username.", "Error",
+                    JOptionPane.ERROR_MESSAGE);
         } else {
             saveCredentials(username, password, bio);
             handleProfilePictureUpload();
             dispose();
-    
-        // Open the SignInUI frame
-        SwingUtilities.invokeLater(() -> {
-            SignInUI signInFrame = new SignInUI();
-            signInFrame.setVisible(true);
-        });
+
+            // Open the SignInUI frame
+            SwingUtilities.invokeLater(() -> {
+                SignInUI signInFrame = new SignInUI();
+                signInFrame.setVisible(true);
+            });
         }
     }
-    
+
     private boolean doesUsernameExist(String username) {
         try (BufferedReader reader = new BufferedReader(new FileReader(credentialsFilePath))) {
             String line;
@@ -135,8 +134,8 @@ public class SignUpUI extends JFrame {
         return false;
     }
 
-     // Method to handle profile picture upload
-     private void handleProfilePictureUpload() {
+    // Method to handle profile picture upload
+    private void handleProfilePictureUpload() {
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Image files", ImageIO.getReaderFileSuffixes());
         fileChooser.setFileFilter(filter);
@@ -155,7 +154,7 @@ public class SignUpUI extends JFrame {
             e.printStackTrace();
         }
     }
-    
+
     private void saveCredentials(String username, String password, String bio) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/credentials.txt", true))) {
             writer.write(username + ":" + password + ":" + bio);
@@ -164,7 +163,7 @@ public class SignUpUI extends JFrame {
             e.printStackTrace();
         }
     }
-        
+
     private void openSignInUI() {
         // Close the SignUpUI frame
         dispose();

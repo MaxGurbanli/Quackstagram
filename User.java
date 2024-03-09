@@ -22,7 +22,7 @@ class User {
         this.followingCount = 0;
     }
 
-    public User(String username){
+    public User(String username) {
         this.username = username;
     }
 
@@ -33,23 +33,51 @@ class User {
     }
 
     // Getter methods for user details
-    public String getUsername() { return username; }
-    public String getBio() { return bio; }
-    public void setBio(String bio) {this.bio = bio; }
-    public int getPostsCount() { return postsCount; }
-    public int getFollowersCount() { return followersCount; }
-    public int getFollowingCount() { return followingCount; }
-    public List<Picture> getPictures() { return pictures; }
+    public String getUsername() {
+        return username;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public int getPostsCount() {
+        return postsCount;
+    }
+
+    public int getFollowersCount() {
+        return followersCount;
+    }
+
+    public int getFollowingCount() {
+        return followingCount;
+    }
+
+    public List<Picture> getPictures() {
+        return pictures;
+    }
 
     // Setter methods for followers and following counts
-    public void setFollowersCount(int followersCount) { this.followersCount = followersCount; }
-    public void setFollowingCount(int followingCount) { this.followingCount = followingCount; }
-    public void setPostCount(int postCount) { this.postsCount = postCount;}
+    public void setFollowersCount(int followersCount) {
+        this.followersCount = followersCount;
+    }
+
+    public void setFollowingCount(int followingCount) {
+        this.followingCount = followingCount;
+    }
+
+    public void setPostCount(int postCount) {
+        this.postsCount = postCount;
+    }
     // Implement the toString method for saving user information
-    
-@Override
-public String toString() {
-    return username + ":" + bio + ":" + password; // Format as needed
-}
+
+    @Override
+    public String toString() {
+        return username + ":" + bio + ":" + password; // Format as needed
+    }
 
 }

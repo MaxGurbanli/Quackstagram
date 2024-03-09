@@ -22,11 +22,11 @@ public class InitializeUI {
     private static final int NAV_ICON_SIZE = 20;
 
     private static final String[] icons = {
-        "img/icons/home.png",
-        "img/icons/search.png",
-        "img/icons/add.png",
-        "img/icons/heart.png",
-        "img/icons/profile.png"
+            "img/icons/home.png",
+            "img/icons/search.png",
+            "img/icons/add.png",
+            "img/icons/heart.png",
+            "img/icons/profile.png"
     };
 
     public static void setupFrame(JFrame frame, String title) {
@@ -63,7 +63,7 @@ public class InitializeUI {
         for (int i = 0; i < icons.length; i++) {
             JButton button = createIconButton(icons[i], actions[i]);
             navigationPanel.add(button);
-            if (i < icons.length-1)
+            if (i < icons.length - 1)
                 navigationPanel.add(Box.createHorizontalGlue());
         }
 
