@@ -12,9 +12,9 @@ But it's not all just socializing and sharing; the application should also prior
 
 DACS has their own database where they securely store all the images, user information and application related metadata. This database is not part of the specification for this project. Instead, the application has to load up a number of "txt" files that is stores all the app related data.
 
-The 'opportunity' that Cheapo Solutions perceives is that it has found some software in a university course material. This software is written in Java and is appropriately called "Quakstagram". It already has much of the functionality that the DACS want. Cheapo Solutions thinks that they will be able to adapt this existing system to their needs and reap the huge reward (€80,000) that the DACS is willing to offer.
+The 'opportunity' that Cheapo Solutions perceives is that it has found some software in a university course material. This software is written in Java and is appropriately called "Quackstagram". It already has much of the functionality that the DACS want. Cheapo Solutions thinks that they will be able to adapt this existing system to their needs and reap the huge reward (€80,000) that the DACS is willing to offer.
 
-You have just been taken on by Cheapo Solutions (being paid a miserable 30% of your BCS1430 module /annum) and they have tasked you with adapting the Quakstagram system to the needs of the DACS. You have over 7 weeks to achieve this. Specifically your job is to
+You have just been taken on by Cheapo Solutions (being paid a miserable 30% of your BCS1430 module /annum) and they have tasked you with adapting the Quackstagram system to the needs of the DACS. You have over 7 weeks to achieve this. Specifically your job is to
 
 1.  In-depth Requirement Analysis:
     1.  Conduct a thorough examination of the current Quackstagram codebase to extract all existing functionalities.

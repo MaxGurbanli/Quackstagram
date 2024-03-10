@@ -2,3 +2,5 @@ Xylo: Lorin
 Zara: Lorin
 Mystar: Lorin; Zara
 Lorin: Mystar; Zara
+max: Mystar; Lorin; Zara
+fef: Mystar; Lorin

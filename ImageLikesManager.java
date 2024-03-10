@@ -1,47 +1,69 @@
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ImageLikesManager {
 
-    private final String likesFilePath = "data/likes.txt";
+    private final LikesFileHandler fileHandler;
+    private Map<String, Set<String>> likesMap;
 
-    // Method to like an image
-    public void likeImage(String username, String imageID) throws IOException {
-        Map<String, Set<String>> likesMap = readLikes();
-        if (!likesMap.containsKey(imageID)) {
-            likesMap.put(imageID, new HashSet<>());
-        }
-        Set<String> users = likesMap.get(imageID);
-        if (users.add(username)) { // Only add and save if the user hasn't already liked the image
-            saveLikes(likesMap);
+    public ImageLikesManager(String filePath) {
+        this.fileHandler = new LikesFileHandler(filePath);
+        loadLikes();
+    }
+
+    private void loadLikes() {
+        try {
+            likesMap = fileHandler.readLikes();
+        } catch (IOException e) {
+            e.printStackTrace();
+            likesMap = null;
         }
     }
 
-    // Method to read likes from file
-    private Map<String, Set<String>> readLikes() throws IOException {
-        Map<String, Set<String>> likesMap = new HashMap<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(likesFilePath))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(":");
-                String imageID = parts[0];
-                Set<String> users = Arrays.stream(parts[1].split(",")).collect(Collectors.toSet());
-                likesMap.put(imageID, users);
+    public void addLike(String imageId, String username) {
+        Set<String> users = likesMap.computeIfAbsent(imageId, k -> new HashSet<>());
+        if (!users.contains(username)) {
+            users.add(username);
+            updateImageDetailsFile(imageId);
+        }
+    }
+
+    public void removeLike(String imageId, String username) {
+        if (likesMap.containsKey(imageId)) {
+            likesMap.get(imageId).remove(username);
+            updateImageDetailsFile(imageId);
+        }
+    }
+
+    public boolean hasLiked(String imageId, String username) {
+        Set<String> users = likesMap.getOrDefault(imageId, Collections.emptySet());
+        return users.contains(username);
+    }
+
+    public int getLikesCount(String imageId) {
+        return likesMap.getOrDefault(imageId, Collections.emptySet()).size();
+    }
+
+    private void updateImageDetailsFile(String imageId) {
+        Path path = Paths.get("img", "image_details.txt");
+        try {
+            List<String> lines = Files.readAllLines(path);
+            List<String> updatedLines = new ArrayList<>();
+            for (String line : lines) {
+                if (line.contains("ImageID: " + imageId)) {
+                    String[] parts = line.split(", ");
+                    parts[4] = "Likes: " + getLikesCount(imageId);
+                    updatedLines.add(String.join(", ", parts));
+                } else {
+                    updatedLines.add(line);
+                }
             }
-        }
-        return likesMap;
-    }
-
-    // Method to save likes to file
-    private void saveLikes(Map<String, Set<String>> likesMap) throws IOException {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(likesFilePath, false))) {
-            for (Map.Entry<String, Set<String>> entry : likesMap.entrySet()) {
-                String line = entry.getKey() + ":" + String.join(",", entry.getValue());
-                writer.write(line);
-                writer.newLine();
-            }
+            Files.write(path, updatedLines);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
-
 }
