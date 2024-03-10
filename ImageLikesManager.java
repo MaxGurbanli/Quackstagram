@@ -27,7 +27,6 @@ public class ImageLikesManager {
         Set<String> users = likesMap.computeIfAbsent(imageId, k -> new HashSet<>());
         if (!users.contains(username)) {
             users.add(username);
-            saveLikes();
             updateImageDetailsFile(imageId);
             System.out.println("User liked the image");
         }
@@ -39,7 +38,6 @@ public class ImageLikesManager {
     public void removeLike(String imageId, String username) {
         if (likesMap.containsKey(imageId)) {
             likesMap.get(imageId).remove(username);
-            saveLikes();
             updateImageDetailsFile(imageId);
         }
     }
@@ -51,14 +49,6 @@ public class ImageLikesManager {
 
     public int getLikesCount(String imageId) {
         return likesMap.getOrDefault(imageId, Collections.emptySet()).size();
-    }
-
-    private void saveLikes() {
-        try {
-            fileHandler.saveLikes(likesMap);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     private void updateImageDetailsFile(String imageId) {

@@ -28,14 +28,4 @@ public class LikesFileHandler {
         }
         return likesMap;
     }
-
-    public void saveLikes(Map<String, Set<String>> likesMap) throws IOException {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, false))) {
-            for (Map.Entry<String, Set<String>> entry : likesMap.entrySet()) {
-                String line = entry.getKey() + ":" + String.join(",", entry.getValue());
-                writer.write(line);
-                writer.newLine();
-            }
-        }
-    }
 }
