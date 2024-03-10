@@ -99,7 +99,6 @@ public class SignInUI extends JFrame {
     private void onSignInClicked(ActionEvent event) {
         String enteredUsername = txtUsername.getText();
         String enteredPassword = txtPassword.getText();
-        System.out.println(enteredUsername + " <-> " + enteredPassword);
         if (verifyCredentials(enteredUsername, enteredPassword)) {
             dispose();
 

@@ -28,10 +28,6 @@ public class ImageLikesManager {
         if (!users.contains(username)) {
             users.add(username);
             updateImageDetailsFile(imageId);
-            System.out.println("User liked the image");
-        }
-        else {
-            System.out.println("User already liked the image");
         }
     }
 

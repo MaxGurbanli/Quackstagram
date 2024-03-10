@@ -147,8 +147,6 @@ public class QuackstagramHomeUI extends JFrame {
             SwingUtilities.invokeLater(() -> likesLabel.setText("Likes: " + updatedLikes));
         }
         else {
-            System.out.println("User already liked the image");
-            // remove like
             imageLikesManager.removeLike(imageId, currentUser);
             int updatedLikes = imageLikesManager.getLikesCount(imageId);
             SwingUtilities.invokeLater(() -> likesLabel.setText("Likes: " + updatedLikes));

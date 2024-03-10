@@ -16,7 +16,6 @@ public class LikesFileHandler {
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(":");
                 String imageID = parts[0];
-                System.out.println(parts.length);
                 if (parts.length == 1) {
                     likesMap.put(imageID, new HashSet<>());
                     continue;
