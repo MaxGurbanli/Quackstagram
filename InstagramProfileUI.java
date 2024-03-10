@@ -22,7 +22,6 @@ public class InstagramProfileUI extends JFrame {
     private User currentUser; // User object to store the current user's information
 
     public InstagramProfileUI(User user) {
-        System.out.println("InstagramProfileUI with user var");
         this.currentUser = user;
         int imageCount = 0;
         int followersCount = 0;

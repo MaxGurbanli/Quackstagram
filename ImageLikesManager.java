@@ -1,4 +1,7 @@
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class ImageLikesManager {
@@ -16,7 +19,7 @@ public class ImageLikesManager {
             likesMap = fileHandler.readLikes();
         } catch (IOException e) {
             e.printStackTrace();
-            likesMap = null; // Consider appropriate error handling
+            likesMap = null;
         }
     }
 
@@ -25,6 +28,11 @@ public class ImageLikesManager {
         if (!users.contains(username)) {
             users.add(username);
             saveLikes();
+            updateImageDetailsFile(imageId);
+            System.out.println("User liked the image");
+        }
+        else {
+            System.out.println("User already liked the image");
         }
     }
 
@@ -32,6 +40,7 @@ public class ImageLikesManager {
         if (likesMap.containsKey(imageId)) {
             likesMap.get(imageId).remove(username);
             saveLikes();
+            updateImageDetailsFile(imageId);
         }
     }
 
@@ -48,8 +57,27 @@ public class ImageLikesManager {
         try {
             fileHandler.saveLikes(likesMap);
         } catch (IOException e) {
-            e.printStackTrace(); // Consider appropriate error handling
+            e.printStackTrace();
         }
     }
 
+    private void updateImageDetailsFile(String imageId) {
+        Path path = Paths.get("img", "image_details.txt");
+        try {
+            List<String> lines = Files.readAllLines(path);
+            List<String> updatedLines = new ArrayList<>();
+            for (String line : lines) {
+                if (line.contains("ImageID: " + imageId)) {
+                    String[] parts = line.split(", ");
+                    parts[4] = "Likes: " + getLikesCount(imageId);
+                    updatedLines.add(String.join(", ", parts));
+                } else {
+                    updatedLines.add(line);
+                }
+            }
+            Files.write(path, updatedLines);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
