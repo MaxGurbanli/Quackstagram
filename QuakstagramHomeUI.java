@@ -295,15 +295,6 @@ private String[][] createSampleData() {
     return sampleData;
 }
 
-    private JButton createIconButton(String iconPath) {
-        ImageIcon iconOriginal = new ImageIcon(iconPath);
-        Image iconScaled = iconOriginal.getImage().getScaledInstance(NAV_ICON_SIZE, NAV_ICON_SIZE, Image.SCALE_SMOOTH);
-        JButton button = new JButton(new ImageIcon(iconScaled));
-        button.setBorder(BorderFactory.createEmptyBorder());
-        button.setContentAreaFilled(false);
-        return button;
-    }
-
     private void displayImage(String[] postData) {
         imageViewPanel.removeAll(); // Clear previous content
 
