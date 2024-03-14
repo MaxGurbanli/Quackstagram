@@ -7,6 +7,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.awt.*;
 import java.nio.file.*;
+import java.util.ArrayList;
 import java.util.stream.Stream;
 
 public class InstagramProfileUI extends JFrame {
@@ -133,10 +134,7 @@ public class InstagramProfileUI extends JFrame {
         statsPanel.add(createStatLabel(Integer.toString(currentUser.getFollowingCount()), "Following"));
         statsPanel.setBorder(BorderFactory.createEmptyBorder(25, 0, 10, 0)); // Add some vertical padding
 
-        // Follow Button
         // Follow or Edit Profile Button
-        // followButton.addActionListener(e ->
-        // handleFollowAction(currentUser.getUsername()));
         JButton followButton;
         if (isCurrentUser) {
             followButton = new JButton("Edit Profile");
@@ -216,51 +214,57 @@ public class InstagramProfileUI extends JFrame {
 
     private void handleFollowAction(String usernameToFollow) {
         Path followingFilePath = Paths.get("data", "following.txt");
-        Path usersFilePath = Paths.get("data", "users.txt");
-        String currentUserUsername = "";
+        User loggedInUser = User.getLoggedInUser();
+        String loggedInUsername = loggedInUser.getUsername();
 
-        try {
-            // Read the current user's username from users.txt
-            try (BufferedReader reader = Files.newBufferedReader(usersFilePath)) {
+        // If currentUserUsername is not empty, process following.txt
+        if (loggedInUsername.isEmpty()) {
+            System.out.println("Please log in to follow users.");
+            return;
+        }
+
+        boolean found = false;
+        StringBuilder newContent = new StringBuilder();
+
+        // Read and process following.txt
+        if (Files.exists(followingFilePath)) {
+            try (BufferedReader reader = Files.newBufferedReader(followingFilePath)) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    String[] parts = line.split(":");
-                    currentUserUsername = parts[0];
-                }
-            }
-
-            // If currentUserUsername is not empty, process following.txt
-            if (!currentUserUsername.isEmpty()) {
-                boolean found = false;
-                StringBuilder newContent = new StringBuilder();
-
-                // Read and process following.txt
-                if (Files.exists(followingFilePath)) {
-                    try (BufferedReader reader = Files.newBufferedReader(followingFilePath)) {
-                        String line;
-                        while ((line = reader.readLine()) != null) {
-                            String[] parts = line.split(":");
-                            if (parts[0].trim().equals(currentUserUsername)) {
-                                found = true;
-                                if (!line.contains(usernameToFollow)) {
-                                    line = line.concat(line.endsWith(":") ? "" : "; ").concat(usernameToFollow);
+                    String[] parts = line.split(": ");
+                    if (parts[0].trim().equals(loggedInUsername)) {
+                        found = true;
+                        if (!line.contains(usernameToFollow)) {
+                            if (parts.length == 1) {
+                                line = parts[0] + ": " + usernameToFollow;
+                            } else {
+                                line = parts[0] + ": " + parts[1] + "; " + usernameToFollow;
+                            }
+                        } else {
+                            ArrayList<String> usernames = new ArrayList<>();
+                            for (String user : parts[1].split("; ")) {
+                                if (!user.trim().equals(usernameToFollow)) {
+                                    usernames.add(user.trim());
                                 }
                             }
-                            newContent.append(line).append("\n");
+                            line = parts[0] + ": " + String.join("; ", usernames);
                         }
                     }
+                    newContent.append(line).append("\n");
                 }
-
-                // If the current user was not found in following.txt, add them
-                if (!found) {
-                    newContent.append(currentUserUsername).append(": ").append(usernameToFollow).append("\n");
-                }
-
-                // Write the updated content back to following.txt
-                try (BufferedWriter writer = Files.newBufferedWriter(followingFilePath)) {
-                    writer.write(newContent.toString());
-                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+        }
+
+        // If the current user was not found in following.txt, add them
+        if (!found) {
+            newContent.append(loggedInUsername).append(": ").append(usernameToFollow).append("\n");
+        }
+
+        // Write the updated content back to following.txt
+        try (BufferedWriter writer = Files.newBufferedWriter(followingFilePath)) {
+            writer.write(newContent.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
