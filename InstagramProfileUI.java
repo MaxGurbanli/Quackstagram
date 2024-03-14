@@ -135,11 +135,11 @@ public class InstagramProfileUI extends JFrame {
         statsPanel.setBorder(BorderFactory.createEmptyBorder(25, 0, 10, 0)); // Add some vertical padding
 
         // Follow or Edit Profile Button
-        JButton followButton;
+        JButton followOrEditProfileButton;
         if (isCurrentUser) {
-            followButton = new JButton("Edit Profile");
+            followOrEditProfileButton = new JButton("Edit Profile");
         } else {
-            followButton = new JButton("Follow");
+            followOrEditProfileButton = new JButton("Follow");
 
             // Check if the current user is already being followed by the logged-in user
             Path followingFilePath = Paths.get("data", "following.txt");
@@ -151,7 +151,7 @@ public class InstagramProfileUI extends JFrame {
                         String[] followedUsers = parts[1].split(";");
                         for (String followedUser : followedUsers) {
                             if (followedUser.trim().equals(currentUser.getUsername())) {
-                                followButton.setText("Following");
+                                followOrEditProfileButton.setText("Following");
                                 break;
                             }
                         }
@@ -160,30 +160,42 @@ public class InstagramProfileUI extends JFrame {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            followButton.addActionListener(e -> {
-                handleFollowAction(currentUser.getUsername());
-                followButton.setText("Following");
+            followOrEditProfileButton.addActionListener(e -> {
+                String status = followOrEditProfileButton.getText();
+
+                if (status.equals("Follow")) {
+                    followOrEditProfileButton.setText("Following");
+                    handleFollowAction(currentUser.getUsername());
+                } else if (status.equals("Following")){
+                    followOrEditProfileButton.setText("Follow");
+                    handleFollowAction(currentUser.getUsername());
+                }
+                // else {
+                //     // Open the edit profile UI
+                //     EditProfileUI editProfileUI = new EditProfileUI(currentUser);
+                //     editProfileUI.setVisible(true);
+                // }
             });
         }
 
-        followButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        followButton.setFont(new Font("Arial", Font.BOLD, 12));
-        followButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, followButton.getMinimumSize().height)); // Make the
+        followOrEditProfileButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        followOrEditProfileButton.setFont(new Font("Arial", Font.BOLD, 12));
+        followOrEditProfileButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, followOrEditProfileButton.getMinimumSize().height)); // Make the
                                                                                                              // button
                                                                                                              // fill the
                                                                                                              // horizontal
                                                                                                              // space
-        followButton.setBackground(new Color(225, 228, 232)); // A soft, appealing color that complements the UI
-        followButton.setForeground(Color.BLACK);
-        followButton.setOpaque(true);
-        followButton.setBorderPainted(false);
-        followButton.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // Add some vertical padding
+        followOrEditProfileButton.setBackground(new Color(225, 228, 232)); // A soft, appealing color that complements the UI
+        followOrEditProfileButton.setForeground(Color.BLACK);
+        followOrEditProfileButton.setOpaque(true);
+        followOrEditProfileButton.setBorderPainted(false);
+        followOrEditProfileButton.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // Add some vertical padding
 
         // Add Stats and Follow Button to a combined Panel
         JPanel statsFollowPanel = new JPanel();
         statsFollowPanel.setLayout(new BoxLayout(statsFollowPanel, BoxLayout.Y_AXIS));
         statsFollowPanel.add(statsPanel);
-        statsFollowPanel.add(followButton);
+        statsFollowPanel.add(followOrEditProfileButton);
         topHeaderPanel.add(statsFollowPanel, BorderLayout.CENTER);
 
         headerPanel.add(topHeaderPanel);
