@@ -32,6 +32,7 @@ public class InitializeUI {
     public static void setupFrame(JFrame frame, String title) {
         frame.setTitle(title);
         frame.setSize(WIDTH, HEIGHT);
+        frame.setResizable(false);
         frame.setMinimumSize(new Dimension(WIDTH, HEIGHT));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());

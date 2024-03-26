@@ -19,26 +19,17 @@ public class SignInUI extends JFrame {
     private User newUser;
 
     public SignInUI() {
-        setTitle("Quackstagram - Register");
+        setTitle("Sign In");
         setSize(WIDTH, HEIGHT);
-        setMinimumSize(new Dimension(WIDTH, HEIGHT));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
         initializeSignInUI();
     }
 
     private void initializeSignInUI() {
-        configureMainFrame();
         add(createHeaderPanel(), BorderLayout.NORTH);
         add(createFieldsPanel(), BorderLayout.CENTER);
         add(createButtonPanel(), BorderLayout.SOUTH);
-    }
-
-    private void configureMainFrame() {
-        setTitle("Quackstagram - Sign In");
-        setSize(WIDTH, HEIGHT);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLayout(new BorderLayout(10, 10));
     }
 
     private JPanel createHeaderPanel() {

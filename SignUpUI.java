@@ -41,7 +41,7 @@ public class SignUpUI extends JFrame {
     }
 
     private void configureMainFrame() {
-        setTitle("Quackstagram - Register");
+        setTitle("Register");
         setSize(WIDTH, HEIGHT);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
