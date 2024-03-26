@@ -109,8 +109,8 @@ public class SignUpUI extends JFrame {
         String password = txtPassword.getText();
         String bio = txtBio.getText();
 
-        if (username.isEmpty() || password.isEmpty()) {
-            ErrorHandling.displayError(this, "Username and password cannot be empty.");
+        if (username.isEmpty() || password.isEmpty() || bio.isEmpty()) {
+            ErrorHandling.displayError(this, "Please fill out all fields");
             return;
         } else if (doesUsernameExist(username)) {
             ErrorHandling.displayError(this, "Username already exists. Please choose a different username.");
