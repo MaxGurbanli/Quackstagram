@@ -99,7 +99,7 @@ public class SignInUI extends JFrame {
                 profileUI.setVisible(true);
             });
         } else {
-            ErrorHandling.displayError(this, "Invalid username or password. Please try again.");
+            DisplayError.displayError(this, "Invalid username or password. Please try again.");
             }
     }
 

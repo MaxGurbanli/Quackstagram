@@ -165,7 +165,7 @@ public class QuackstagramHomeUI extends JFrame {
                 saveButton.setText("💾 Saved");
                 saveButton.setEnabled(false);
             } catch (IOException e) {
-                ErrorHandling.displayError(this, "Failed to save the image");
+                DisplayError.displayError(this, "Failed to save the image");
             }
         }
     }

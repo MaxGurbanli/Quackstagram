@@ -21,7 +21,7 @@ public class SignUpUI extends JFrame {
     private final String profilePhotoStoragePath = "img/storage/profile/";
 
     public SignUpUI() {
-        setTitle("Quackstagram - Register");
+        setTitle("Register");
         setSize(WIDTH, HEIGHT);
         setMinimumSize(new Dimension(WIDTH, HEIGHT));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -102,13 +102,13 @@ public class SignUpUI extends JFrame {
         String bio = txtBio.getText();
 
         if (username.isEmpty() || password.isEmpty() || bio.isEmpty()) {
-            ErrorHandling.displayError(this, "Please fill out all fields");
+            DisplayError.displayError(this, "Please fill out all fields");
             return;
         } else if (doesUsernameExist(username)) {
-            ErrorHandling.displayError(this, "Username already exists. Please choose a different username.");
+            DisplayError.displayError(this, "Username already exists. Please choose a different username.");
             return;
         } else if (password.length() < 6) {
-            ErrorHandling.displayError(this, "Password must be at least 6 characters long.");
+            DisplayError.displayError(this, "Password must be at least 6 characters long.");
             return;
         }
     
