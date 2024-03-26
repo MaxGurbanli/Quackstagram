@@ -55,29 +55,34 @@ public class SignUpUI extends JFrame {
         lblPhoto = UIComponentsUtil.createPhotoLabel("img/logos/DACS.png");
         JPanel photoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         photoPanel.add(lblPhoto);
-
+    
         JPanel fieldsPanel = new JPanel();
         fieldsPanel.setLayout(new BoxLayout(fieldsPanel, BoxLayout.Y_AXIS));
         fieldsPanel.setBorder(BorderFactory.createEmptyBorder(5, 20, 5, 20));
         fieldsPanel.add(Box.createVerticalStrut(10));
         fieldsPanel.add(photoPanel);
         fieldsPanel.add(Box.createVerticalStrut(10));
-
+    
+        // Initialize text fields before adding them
+        txtUsername = UIComponentsUtil.createTextField("", Color.BLACK);
+        txtPassword = UIComponentsUtil.createTextField("", Color.BLACK);
+        txtBio = UIComponentsUtil.createTextField("", Color.BLACK);
+    
         addField(fieldsPanel, "Username", txtUsername);
         addField(fieldsPanel, "Password", txtPassword);
         addField(fieldsPanel, "Bio", txtBio);
-
+    
         addPhotoUploadButton(fieldsPanel);
-
+    
         return fieldsPanel;
     }
-
+    
     private void addField(JPanel panel, String labelText, JTextField textField) {
         JLabel label = new JLabel(labelText);
-        textField = UIComponentsUtil.createTextField("", Color.BLACK);
         panel.add(label);
-        panel.add(textField);
+        panel.add(textField); // Use the passed textField directly without reinitializing it
     }
+    
 
     private void addPhotoUploadButton(JPanel panel) {
         btnUploadPhoto = UIComponentsUtil.createButton("Upload Photo", e -> handleProfilePictureUpload());
@@ -104,20 +109,27 @@ public class SignUpUI extends JFrame {
         String password = txtPassword.getText();
         String bio = txtBio.getText();
 
-        if (doesUsernameExist(username)) {
-            JOptionPane.showMessageDialog(this, "Username already exists. Please choose a different username.", "Error",
-                    JOptionPane.ERROR_MESSAGE);
-        } else {
-            saveCredentials(username, password, bio);
-            handleProfilePictureUpload();
-            dispose();
-
-            // Open the SignInUI frame
-            SwingUtilities.invokeLater(() -> {
-                SignInUI signInFrame = new SignInUI();
-                signInFrame.setVisible(true);
-            });
+        if (username.isEmpty() || password.isEmpty()) {
+            ErrorHandling.displayError(this, "Username and password cannot be empty.");
+            return;
+        } else if (doesUsernameExist(username)) {
+            ErrorHandling.displayError(this, "Username already exists. Please choose a different username.");
+            return;
+        } else if (password.length() < 6) {
+            ErrorHandling.displayError(this, "Password must be at least 6 characters long.");
+            return;
         }
+    
+        saveCredentials(username, password, bio);
+        handleProfilePictureUpload();
+        dispose();
+
+        // Open the SignInUI frame
+        SwingUtilities.invokeLater(() -> {
+            SignInUI signInFrame = new SignInUI();
+            signInFrame.setVisible(true);
+        });
+
     }
 
     private boolean doesUsernameExist(String username) {

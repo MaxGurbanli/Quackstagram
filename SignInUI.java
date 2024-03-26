@@ -108,8 +108,8 @@ public class SignInUI extends JFrame {
                 profileUI.setVisible(true);
             });
         } else {
-            System.out.println("Wrong password");
-        }
+            ErrorHandling.displayError(this, "Invalid username or password. Please try again.");
+            }
     }
 
     private void onRegisterNowClicked(ActionEvent event) {
