@@ -30,7 +30,6 @@ public class SignUpUI extends JFrame {
     }
 
     private void initializeUI() {
-        configureMainFrame();
         JPanel headerPanel = createHeaderPanel();
         JPanel fieldsPanel = createFieldsPanel();
         JPanel registerPanel = createRegisterPanel();
@@ -38,13 +37,6 @@ public class SignUpUI extends JFrame {
         add(headerPanel, BorderLayout.NORTH);
         add(fieldsPanel, BorderLayout.CENTER);
         add(registerPanel, BorderLayout.SOUTH);
-    }
-
-    private void configureMainFrame() {
-        setTitle("Register");
-        setSize(WIDTH, HEIGHT);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLayout(new BorderLayout(10, 10));
     }
 
     private JPanel createHeaderPanel() {
