@@ -115,11 +115,26 @@ public class QuackstagramHomeUI extends JFrame {
                 }
             });
 
+            // Check if post has been saved by user
+
+            JButton saveButton = new JButton("💾");
+            saveButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+            saveButton.setBackground(Color.GREEN); // Set the background color for the save button
+            saveButton.setOpaque(true);
+            saveButton.setBorderPainted(false); // Remove border
+            saveButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    handleSaveAction(imageId, saveButton);
+                }
+            });
+
             itemPanel.add(nameLabel);
             itemPanel.add(imageLabel);
             itemPanel.add(descriptionLabel);
             itemPanel.add(likesLabel);
             itemPanel.add(likeButton);
+            itemPanel.add(saveButton);
 
             panel.add(itemPanel);
 
@@ -136,6 +151,22 @@ public class QuackstagramHomeUI extends JFrame {
             spacingPanel.setPreferredSize(new Dimension(WIDTH - 10, 5)); // Set the height for spacing
             spacingPanel.setBackground(new Color(230, 230, 230)); // Grey color for spacing
             panel.add(spacingPanel);
+        }
+    }
+
+    private void handleSaveAction(String imageId, JButton saveButton) {
+        // Save the image to the user's PC
+        String currentUser = getCurrentUser();
+        if (currentUser != null) {
+            String sourcePath = "img/uploaded/" + imageId + ".png";
+            String destinationPath = "img/saved/" + currentUser + "_" + imageId + ".png";
+            try {
+                Files.copy(Paths.get(sourcePath), Paths.get(destinationPath));
+                saveButton.setText("💾 Saved");
+                saveButton.setEnabled(false);
+            } catch (IOException e) {
+                ErrorHandling.displayError(this, "Failed to save the image");
+            }
         }
     }
 
