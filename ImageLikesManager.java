@@ -1,7 +1,4 @@
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 public class ImageLikesManager {
@@ -27,14 +24,24 @@ public class ImageLikesManager {
         Set<String> users = likesMap.computeIfAbsent(imageId, k -> new HashSet<>());
         if (!users.contains(username)) {
             users.add(username);
-            updateImageDetailsFile(imageId);
+            LikesFileHandler likesFileHandler = new LikesFileHandler("data/likes.txt");
+            try {
+                likesFileHandler.writeLikes(likesMap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public void removeLike(String imageId, String username) {
         if (likesMap.containsKey(imageId)) {
             likesMap.get(imageId).remove(username);
-            updateImageDetailsFile(imageId);
+            LikesFileHandler likesFileHandler = new LikesFileHandler("data/likes.txt");
+            try {
+                likesFileHandler.writeLikes(likesMap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -47,23 +54,4 @@ public class ImageLikesManager {
         return likesMap.getOrDefault(imageId, Collections.emptySet()).size();
     }
 
-    private void updateImageDetailsFile(String imageId) {
-        Path path = Paths.get("img", "image_details.txt");
-        try {
-            List<String> lines = Files.readAllLines(path);
-            List<String> updatedLines = new ArrayList<>();
-            for (String line : lines) {
-                if (line.contains("ImageID: " + imageId)) {
-                    String[] parts = line.split(", ");
-                    parts[4] = "Likes: " + getLikesCount(imageId);
-                    updatedLines.add(String.join(", ", parts));
-                } else {
-                    updatedLines.add(line);
-                }
-            }
-            Files.write(path, updatedLines);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }

@@ -37,7 +37,7 @@ public class QuackstagramHomeUI extends JFrame {
         JPanel headerPanel = InitializeUI.createHeaderPanel("🐥 Quackstagram 🐥");
         homePanel = new JPanel(new BorderLayout());
         imageViewPanel = new JPanel(new BorderLayout());
-        imageLikesManager = new ImageLikesManager("data\\likes.txt");
+        imageLikesManager = new ImageLikesManager("data/likes.txt");
 
         initializeUI();
 
@@ -100,7 +100,9 @@ public class QuackstagramHomeUI extends JFrame {
             JLabel descriptionLabel = new JLabel(postData[1]);
             descriptionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-            JLabel likesLabel = new JLabel(postData[2]);
+            // Read the number of likes from likes.txt
+            int likesCount = imageLikesManager.getLikesCount(imageId);
+            JLabel likesLabel = new JLabel(likesCount + " likes");
             likesLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
             JButton likeButton = new JButton("❤");
@@ -174,14 +176,12 @@ public class QuackstagramHomeUI extends JFrame {
         String currentUser = getCurrentUser();
         if (currentUser != null && !imageLikesManager.hasLiked(imageId, currentUser)) {
             imageLikesManager.addLike(imageId, currentUser);
-            int updatedLikes = imageLikesManager.getLikesCount(imageId);
-            SwingUtilities.invokeLater(() -> likesLabel.setText("Likes: " + updatedLikes));
         }
         else {
             imageLikesManager.removeLike(imageId, currentUser);
-            int updatedLikes = imageLikesManager.getLikesCount(imageId);
-            SwingUtilities.invokeLater(() -> likesLabel.setText("Likes: " + updatedLikes));
         }
+        int updatedLikes = imageLikesManager.getLikesCount(imageId);
+        SwingUtilities.invokeLater(() -> likesLabel.setText(updatedLikes + " likes"));
     }
 
     private String getCurrentUser() {
@@ -221,7 +221,9 @@ public class QuackstagramHomeUI extends JFrame {
                 if (followedUsers.contains(imagePoster)) {
                     String imagePath = "img/uploaded/" + details[0].split(": ")[1] + ".png"; // Assuming PNG format
                     String description = details[2].split(": ")[1];
-                    String likes = "Likes: " + details[4].split(": ")[1];
+
+                    int numLikes = imageLikesManager.getLikesCount(details[0].split(": ")[1]);
+                    String likes = numLikes + " likes";
 
                     tempData[count++] = new String[] { imagePoster, description, likes, imagePath };
                 }
@@ -289,8 +291,7 @@ public class QuackstagramHomeUI extends JFrame {
         likeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handleLikeAction(imageId, likesLabel); // Update this line
-                refreshDisplayImage(postData, imageId); // Refresh the view
+                handleLikeAction(imageId, likesLabel);
             }
         });
 
@@ -309,25 +310,6 @@ public class QuackstagramHomeUI extends JFrame {
         imageViewPanel.repaint();
 
         cardLayout.show(cardPanel, "ImageView"); // Switch to the image view
-    }
-
-    private void refreshDisplayImage(String[] postData, String imageId) {
-        // Read updated likes count from image_details.txt
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get("img", "image_details.txt"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.contains("ImageID: " + imageId)) {
-                    String likes = line.split(", ")[4].split(": ")[1];
-                    postData[2] = "Likes: " + likes;
-                    break;
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // Call displayImage with updated postData
-        displayImage(postData);
     }
 
     private void openProfileUI() {

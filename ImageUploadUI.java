@@ -158,7 +158,7 @@ public class ImageUploadUI extends JFrame {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
         try (BufferedWriter writer = Files.newBufferedWriter(infoFilePath, StandardOpenOption.APPEND)) {
-            writer.write(String.format("ImageID: %s, Username: %s, Bio: %s, Timestamp: %s, Likes: 0", imageId, username,
+            writer.write(String.format("ImageID: %s, Username: %s, Bio: %s, Timestamp: %s", imageId, username,
                     bio, timestamp));
             writer.newLine();
         }
