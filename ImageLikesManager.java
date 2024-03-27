@@ -4,15 +4,29 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-public class ImageLikesManager {
-
+public class ImageLikesManager implements Subject {
+    private static ImageLikesManager instance;
     private final LikesFileHandler fileHandler;
     private Map<String, Set<String>> likesMap;
+    private List<Observer> observers = new ArrayList<>();
+    static String notification;
 
-    public ImageLikesManager(String filePath) {
+    ImageLikesManager(String filePath) {
         this.fileHandler = new LikesFileHandler(filePath);
         loadLikes();
     }
+
+    public static ImageLikesManager getInstance(String filePath) {
+        if (instance == null) {
+            synchronized (ImageLikesManager.class) {
+                if (instance == null) {
+                    instance = new ImageLikesManager(filePath);
+                }
+            }
+        }
+        return instance;
+    }
+
 
     private void loadLikes() {
         try {
@@ -28,6 +42,8 @@ public class ImageLikesManager {
         if (!users.contains(username)) {
             users.add(username);
             updateImageDetailsFile(imageId);
+            String notification = username + " liked your picture (" + imageId + ")";
+            notifyObservers(notification);
         }
     }
 
@@ -35,6 +51,7 @@ public class ImageLikesManager {
         if (likesMap.containsKey(imageId)) {
             likesMap.get(imageId).remove(username);
             updateImageDetailsFile(imageId);
+            notifyObservers(notification); 
         }
     }
 
@@ -65,5 +82,26 @@ public class ImageLikesManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void registerObserver(Observer observer) {
+        observers.add(observer);
+    }
+
+    @Override
+    public void removeObserver(Observer observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void notifyObservers(String notification) {
+        for (Observer observer : observers) {
+            observer.update(notification); 
+        }
+    }
+
+    public void setNotification(String notification) {
+        this.notification = notification;
     }
 }

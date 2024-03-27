@@ -9,12 +9,14 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
-public class NotificationsUI extends JFrame {
+public class NotificationsUI extends JFrame implements Observer {
+
+    private JPanel contentPanel;
 
     public NotificationsUI() {
         InitializeUI.setupFrame(this, "Notifications");
         JPanel headerPanel = InitializeUI.createHeaderPanel("Notifications 🐥");
-        JPanel mainContentPanel = createMainContentPanel();
+        contentPanel = createMainContentPanel();
         ActionListener[] actions = {
                 e -> openHomeUI(),
                 e -> exploreUI(),
@@ -24,24 +26,46 @@ public class NotificationsUI extends JFrame {
         };
         JPanel navigationPanel = InitializeUI.createNavigationPanel(actions);
 
-        InitializeUI.addComponents(this, headerPanel, mainContentPanel, navigationPanel);
+        InitializeUI.addComponents(this, headerPanel, contentPanel, navigationPanel);
+
+        // Register this instance as an observer of ImageLikesManager
+        String filePath = "data\\likes.txt";
+        ImageLikesManager instance = ImageLikesManager.getInstance(filePath);
+        instance.registerObserver(this);
     }
 
     private JPanel createMainContentPanel() {
-        JPanel contentPanel = new JPanel();
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JScrollPane scrollPane = new JScrollPane();
+        contentPanel = new JPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-        JScrollPane scrollPane = new JScrollPane(contentPanel);
+        scrollPane.setViewportView(contentPanel);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
-        String currentUsername = getCurrentUsername();
-        populateNotifications(contentPanel, currentUsername);
-
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
-        return mainPanel;
+        panel.add(scrollPane, BorderLayout.CENTER);
+        return panel;
     }
 
+    @Override
+    public void update(String notification) {
+        // Update UI with the new notification
+        JPanel notificationPanel = createNotificationPanel(ImageLikesManager.notification);
+        contentPanel.add(notificationPanel);
+        contentPanel.revalidate();
+        contentPanel.repaint();
+        populateNotifications(notificationPanel, getCurrentUsername());
+    }
+
+    private JPanel createNotificationPanel(String notificationMessage) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        JLabel label = new JLabel(notificationMessage);
+        panel.add(label, BorderLayout.CENTER);
+        return panel;
+    }
     private String getCurrentUsername() {
         try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
             String line = reader.readLine();
