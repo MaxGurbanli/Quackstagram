@@ -31,7 +31,6 @@ public class NotificationsUI extends JFrame implements Observer {
                 e -> openProfileUI()
         };
         JPanel navigationPanel = InitializeUI.createNavigationPanel(actions);
-        System.out.println("initialized");
 
         InitializeUI.addComponents(this, headerPanel, mainContentPanel, navigationPanel);
 
