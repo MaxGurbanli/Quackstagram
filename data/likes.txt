@@ -1,6 +1,9 @@
-Zara_1:max,Lorin
-Zara_2:max,Lorin
-Mystar_1:max,Lorin
-Mystar_2:max
-Lorin_2:max,Mystar,Zara,Xylo
-Lorin_1:max,Mystar,Zara,Xylo
+>>>>>>> Max:
+<<<<<<< HEAD:
+=======:
+Zara_1:
+Zara_2:max
+Mystar_1:max
+Mystar_2:
+Lorin_2:max
+Lorin_1:max

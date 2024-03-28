@@ -17,11 +17,6 @@ public class ImageLikesManager implements Subject {
     public void registerNotificationsUI(NotificationsUI notificationsUI) {
         registerObserver(notificationsUI);
     }
-    
-    
-    
-    
-
 
     private void loadLikes() {
         try {
