@@ -1,10 +1,14 @@
+package UI;
 import javax.swing.*;
+
+import Util.DisplayError;
+import Util.UIComponentsUtil;
+import Util.User;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 
 public class SignInUI extends JFrame {
@@ -19,26 +23,17 @@ public class SignInUI extends JFrame {
     private User newUser;
 
     public SignInUI() {
-        setTitle("Quackstagram - Register");
+        setTitle("Sign In");
         setSize(WIDTH, HEIGHT);
-        setMinimumSize(new Dimension(WIDTH, HEIGHT));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
         initializeSignInUI();
     }
 
     private void initializeSignInUI() {
-        configureMainFrame();
         add(createHeaderPanel(), BorderLayout.NORTH);
         add(createFieldsPanel(), BorderLayout.CENTER);
         add(createButtonPanel(), BorderLayout.SOUTH);
-    }
-
-    private void configureMainFrame() {
-        setTitle("Quackstagram - Sign In");
-        setSize(WIDTH, HEIGHT);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLayout(new BorderLayout(10, 10));
     }
 
     private JPanel createHeaderPanel() {
@@ -104,11 +99,11 @@ public class SignInUI extends JFrame {
 
             // Open the SignInUI frame
             SwingUtilities.invokeLater(() -> {
-                InstagramProfileUI profileUI = new InstagramProfileUI(newUser);
+                ProfileUI profileUI = new ProfileUI(newUser);
                 profileUI.setVisible(true);
             });
         } else {
-            System.out.println("Wrong password");
+            DisplayError.displayError(this, "Invalid username or password. Please try again.");
         }
     }
 
@@ -131,8 +126,8 @@ public class SignInUI extends JFrame {
                 if (credentials[0].equals(username) && credentials[1].equals(password)) {
                     String bio = credentials[2];
                     // Create User object and save information
-                    newUser = new User(username, bio, password); // Assuming User constructor takes these parameters
-                    saveUserInformation(newUser);
+                    newUser = new User(username, bio, password);
+                    User.setLoggedInUser(newUser);
 
                     return true;
                 }
@@ -141,20 +136,5 @@ public class SignInUI extends JFrame {
             e.printStackTrace();
         }
         return false;
-    }
-
-    private void saveUserInformation(User user) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/users.txt", false))) {
-            writer.write(user.toString()); // Implement a suitable toString method in User class
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            SignInUI frame = new SignInUI();
-            frame.setVisible(true);
-        });
     }
 }

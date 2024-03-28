@@ -1,5 +1,12 @@
+package UI;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+
+import Util.DisplayError;
+import Util.ImageLikesManager;
+import Util.InitializeUI;
+import Util.User;
+
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -15,7 +22,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class QuackstagramHomeUI extends JFrame {
+public class HomeUI extends JFrame {
     private static final int WIDTH = 300;
     private static final int HEIGHT = 500;
     private static final int IMAGE_WIDTH = WIDTH - 100;
@@ -27,8 +34,8 @@ public class QuackstagramHomeUI extends JFrame {
     private JPanel imageViewPanel;
     private ImageLikesManager imageLikesManager;
 
-    public QuackstagramHomeUI() {
-        InitializeUI.setupFrame(this, "Quakstagram Home");
+    public HomeUI() {
+        InitializeUI.setupFrame(this, "Home");
 
         // Initialize the CardLayout before using it in the cardPanel
         cardLayout = new CardLayout();
@@ -100,7 +107,9 @@ public class QuackstagramHomeUI extends JFrame {
             JLabel descriptionLabel = new JLabel(postData[1]);
             descriptionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-            JLabel likesLabel = new JLabel(postData[2]);
+            // Read the number of likes from likes.txt
+            int likesCount = imageLikesManager.getLikesCount(imageId);
+            JLabel likesLabel = new JLabel(likesCount + " likes");
             likesLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
             JButton likeButton = new JButton("❤");
@@ -115,11 +124,26 @@ public class QuackstagramHomeUI extends JFrame {
                 }
             });
 
+            // Check if post has been saved by user
+
+            JButton saveButton = new JButton("💾");
+            saveButton.setAlignmentX(Component.LEFT_ALIGNMENT);
+            saveButton.setBackground(Color.GREEN); // Set the background color for the save button
+            saveButton.setOpaque(true);
+            saveButton.setBorderPainted(false); // Remove border
+            saveButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    handleSaveAction(imageId, saveButton);
+                }
+            });
+
             itemPanel.add(nameLabel);
             itemPanel.add(imageLabel);
             itemPanel.add(descriptionLabel);
             itemPanel.add(likesLabel);
             itemPanel.add(likeButton);
+            itemPanel.add(saveButton);
 
             panel.add(itemPanel);
 
@@ -139,44 +163,38 @@ public class QuackstagramHomeUI extends JFrame {
         }
     }
 
-    private void handleLikeAction(String imageId, JLabel likesLabel) {
-        String currentUser = getCurrentUser();
-        if (currentUser != null && !imageLikesManager.hasLiked(imageId, currentUser)) {
-            imageLikesManager.addLike(imageId, currentUser);
-            int updatedLikes = imageLikesManager.getLikesCount(imageId);
-            SwingUtilities.invokeLater(() -> likesLabel.setText("Likes: " + updatedLikes));
-        }
-        else {
-            imageLikesManager.removeLike(imageId, currentUser);
-            int updatedLikes = imageLikesManager.getLikesCount(imageId);
-            SwingUtilities.invokeLater(() -> likesLabel.setText("Likes: " + updatedLikes));
+    private void handleSaveAction(String imageId, JButton saveButton) {
+        // Save the image to the user's PC
+        String currentUser = User.getLoggedInUser().getUsername();
+        if (currentUser != null) {
+            String sourcePath = "img/uploaded/" + imageId + ".png";
+            String destinationPath = "img/saved/" + currentUser + "_" + imageId + ".png";
+            try {
+                Files.copy(Paths.get(sourcePath), Paths.get(destinationPath));
+                saveButton.setText("💾 Saved");
+                saveButton.setEnabled(false);
+            } catch (IOException e) {
+                DisplayError.displayError(this, "Failed to save the image");
+            }
         }
     }
 
-    private String getCurrentUser() {
-        try {
-            String result = Files.readAllLines(Paths.get("data\\users.txt")).get(0);
-            int iend = result.indexOf(":");
-            String user = result.substring(0, iend);
-            return user;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+    private void handleLikeAction(String imageId, JLabel likesLabel) {
+        String currentUser = User.getLoggedInUser().getUsername();
+        if (currentUser != null && !imageLikesManager.hasLiked(imageId, currentUser)) {
+
+            imageLikesManager.addLike(imageId, currentUser);
+        } else {
+            imageLikesManager.removeLike(imageId, currentUser);
         }
+        int updatedLikes = imageLikesManager.getLikesCount(imageId);
+        SwingUtilities.invokeLater(() -> likesLabel.setText(updatedLikes + " likes"));
     }
 
     private String[][] createSampleData() {
-        String currentUser = "";
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
-            String line = reader.readLine();
-            if (line != null) {
-                currentUser = line.split(":")[0].trim();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String currentUsername = User.getLoggedInUser().getUsername();
 
-        Set<String> followedUsers = getFollowedUsers(currentUser);
+        Set<String> followedUsers = getFollowedUsers(currentUsername);
 
         // Temporary structure to hold the data
         String[][] tempData = new String[100][]; // Assuming a maximum of 100 posts for simplicity
@@ -190,7 +208,9 @@ public class QuackstagramHomeUI extends JFrame {
                 if (followedUsers.contains(imagePoster)) {
                     String imagePath = "img/uploaded/" + details[0].split(": ")[1] + ".png"; // Assuming PNG format
                     String description = details[2].split(": ")[1];
-                    String likes = "Likes: " + details[4].split(": ")[1];
+
+                    int numLikes = imageLikesManager.getLikesCount(details[0].split(": ")[1]);
+                    String likes = numLikes + " likes";
 
                     tempData[count++] = new String[] { imagePoster, description, likes, imagePath };
                 }
@@ -226,7 +246,7 @@ public class QuackstagramHomeUI extends JFrame {
         imageViewPanel.removeAll(); // Clear previous content
 
         String imageId = new File(postData[3]).getName().split("\\.")[0];
-        JLabel likesLabel = new JLabel(postData[2]); // Update this line
+        JLabel likesLabel = new JLabel(imageLikesManager.getLikesCount(imageId) + " likes");
 
         // Display the image
         JLabel fullSizeImageLabel = new JLabel();
@@ -258,8 +278,7 @@ public class QuackstagramHomeUI extends JFrame {
         likeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handleLikeAction(imageId, likesLabel); // Update this line
-                refreshDisplayImage(postData, imageId); // Refresh the view
+                handleLikeAction(imageId, likesLabel);
             }
         });
 
@@ -267,7 +286,7 @@ public class QuackstagramHomeUI extends JFrame {
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.add(new JLabel(postData[1])); // Description
-        infoPanel.add(new JLabel(postData[2])); // Likes
+        infoPanel.add(likesLabel); // Likes count
         infoPanel.add(likeButton);
 
         imageViewPanel.add(fullSizeImageLabel, BorderLayout.CENTER);
@@ -280,66 +299,40 @@ public class QuackstagramHomeUI extends JFrame {
         cardLayout.show(cardPanel, "ImageView"); // Switch to the image view
     }
 
-    private void refreshDisplayImage(String[] postData, String imageId) {
-        // Read updated likes count from image_details.txt
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get("img", "image_details.txt"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.contains("ImageID: " + imageId)) {
-                    String likes = line.split(", ")[4].split(": ")[1];
-                    postData[2] = "Likes: " + likes;
-                    break;
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // Call displayImage with updated postData
-        displayImage(postData);
-    }
-
     private void openProfileUI() {
-        // Open InstagramProfileUI frame
+        // Open QuackstagramProfileUI frame
         this.dispose();
         User user = User.getLoggedInUser();
-        InstagramProfileUI profileUI = new InstagramProfileUI(user);
+        ProfileUI profileUI = new ProfileUI(user);
         profileUI.setVisible(true);
     }
 
     private void notificationsUI() {
-        // Open InstagramProfileUI frame
+        // Open QuackstagramProfileUI frame
         this.dispose();
         NotificationsUI notificationsUI = new NotificationsUI();
         notificationsUI.setVisible(true);
     }
 
     private void ImageUploadUI() {
-        // Open InstagramProfileUI frame
+        // Open QuackstagramProfileUI frame
         this.dispose();
         ImageUploadUI upload = new ImageUploadUI();
         upload.setVisible(true);
     }
 
     private void openHomeUI() {
-        // Open InstagramProfileUI frame
+        // Open QuackstagramProfileUI frame
         this.dispose();
-        QuackstagramHomeUI homeUI = new QuackstagramHomeUI();
+        HomeUI homeUI = new HomeUI();
         homeUI.setVisible(true);
     }
 
     private void exploreUI() {
-        // Open InstagramProfileUI frame
+        // Open QuackstagramProfileUI frame
         this.dispose();
         ExploreUI explore = new ExploreUI();
         explore.setVisible(true);
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            SignInUI frame = new SignInUI();
-            frame.setVisible(true);
-        });
     }
 
 }

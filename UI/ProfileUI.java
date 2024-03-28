@@ -1,4 +1,7 @@
+package UI;
 import javax.swing.*;
+
+import Util.User;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -7,9 +10,10 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.awt.*;
 import java.nio.file.*;
+import java.util.ArrayList;
 import java.util.stream.Stream;
 
-public class InstagramProfileUI extends JFrame {
+public class ProfileUI extends JFrame {
 
     private static final int WIDTH = 300;
     private static final int HEIGHT = 500;
@@ -21,7 +25,7 @@ public class InstagramProfileUI extends JFrame {
     private JPanel navigationPanel; // Panel for the navigation
     private User currentUser; // User object to store the current user's information
 
-    public InstagramProfileUI(User user) {
+    public ProfileUI(User user) {
         this.currentUser = user;
         int imageCount = 0;
         int followersCount = 0;
@@ -104,7 +108,7 @@ public class InstagramProfileUI extends JFrame {
 
         // Header Panel
         JPanel headerPanel = new JPanel();
-        try (Stream<String> lines = Files.lines(Paths.get("data", "users.txt"))) {
+        try (Stream<String> lines = Files.lines(Paths.get("data", "user.txt"))) {
             isCurrentUser = lines.anyMatch(line -> line.startsWith(currentUser.getUsername() + ":"));
         } catch (IOException e) {
             e.printStackTrace(); // Log or handle the exception as appropriate
@@ -133,15 +137,16 @@ public class InstagramProfileUI extends JFrame {
         statsPanel.add(createStatLabel(Integer.toString(currentUser.getFollowingCount()), "Following"));
         statsPanel.setBorder(BorderFactory.createEmptyBorder(25, 0, 10, 0)); // Add some vertical padding
 
-        // Follow Button
         // Follow or Edit Profile Button
-        // followButton.addActionListener(e ->
-        // handleFollowAction(currentUser.getUsername()));
-        JButton followButton;
+        JButton followOrEditProfileButton;
         if (isCurrentUser) {
-            followButton = new JButton("Edit Profile");
+            followOrEditProfileButton = new JButton("Edit Profile");
+            followOrEditProfileButton.addActionListener(e -> {
+                openEditProfileUI();
+            });
+            
         } else {
-            followButton = new JButton("Follow");
+            followOrEditProfileButton = new JButton("Follow");
 
             // Check if the current user is already being followed by the logged-in user
             Path followingFilePath = Paths.get("data", "following.txt");
@@ -153,7 +158,7 @@ public class InstagramProfileUI extends JFrame {
                         String[] followedUsers = parts[1].split(";");
                         for (String followedUser : followedUsers) {
                             if (followedUser.trim().equals(currentUser.getUsername())) {
-                                followButton.setText("Following");
+                                followOrEditProfileButton.setText("Following");
                                 break;
                             }
                         }
@@ -162,30 +167,45 @@ public class InstagramProfileUI extends JFrame {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            followButton.addActionListener(e -> {
-                handleFollowAction(currentUser.getUsername());
-                followButton.setText("Following");
+            followOrEditProfileButton.addActionListener(e -> {
+                String status = followOrEditProfileButton.getText();
+
+                if (status.equals("Follow")) {
+                    followOrEditProfileButton.setText("Following");
+                    handleFollowAction(currentUser.getUsername());
+                } else if (status.equals("Following")) {
+                    followOrEditProfileButton.setText("Follow");
+                    handleFollowAction(currentUser.getUsername());
+                }
+                // else {
+                // // Open the edit profile UI
+                // EditProfileUI editProfileUI = new EditProfileUI(currentUser);
+                // editProfileUI.setVisible(true);
+                // }
             });
         }
 
-        followButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        followButton.setFont(new Font("Arial", Font.BOLD, 12));
-        followButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, followButton.getMinimumSize().height)); // Make the
-                                                                                                             // button
-                                                                                                             // fill the
-                                                                                                             // horizontal
-                                                                                                             // space
-        followButton.setBackground(new Color(225, 228, 232)); // A soft, appealing color that complements the UI
-        followButton.setForeground(Color.BLACK);
-        followButton.setOpaque(true);
-        followButton.setBorderPainted(false);
-        followButton.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // Add some vertical padding
+        followOrEditProfileButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        followOrEditProfileButton.setFont(new Font("Arial", Font.BOLD, 12));
+        followOrEditProfileButton
+                .setMaximumSize(new Dimension(Integer.MAX_VALUE, followOrEditProfileButton.getMinimumSize().height)); // Make
+                                                                                                                      // the
+        // button
+        // fill the
+        // horizontal
+        // space
+        followOrEditProfileButton.setBackground(new Color(225, 228, 232)); // A soft, appealing color that complements
+                                                                           // the UI
+        followOrEditProfileButton.setForeground(Color.BLACK);
+        followOrEditProfileButton.setOpaque(true);
+        followOrEditProfileButton.setBorderPainted(false);
+        followOrEditProfileButton.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // Add some vertical padding
 
         // Add Stats and Follow Button to a combined Panel
         JPanel statsFollowPanel = new JPanel();
         statsFollowPanel.setLayout(new BoxLayout(statsFollowPanel, BoxLayout.Y_AXIS));
         statsFollowPanel.add(statsPanel);
-        statsFollowPanel.add(followButton);
+        statsFollowPanel.add(followOrEditProfileButton);
         topHeaderPanel.add(statsFollowPanel, BorderLayout.CENTER);
 
         headerPanel.add(topHeaderPanel);
@@ -216,51 +236,57 @@ public class InstagramProfileUI extends JFrame {
 
     private void handleFollowAction(String usernameToFollow) {
         Path followingFilePath = Paths.get("data", "following.txt");
-        Path usersFilePath = Paths.get("data", "users.txt");
-        String currentUserUsername = "";
+        User loggedInUser = User.getLoggedInUser();
+        String loggedInUsername = loggedInUser.getUsername();
 
-        try {
-            // Read the current user's username from users.txt
-            try (BufferedReader reader = Files.newBufferedReader(usersFilePath)) {
+        // If currentUserUsername is not empty, process following.txt
+        if (loggedInUsername.isEmpty()) {
+            System.out.println("Please log in to follow users.");
+            return;
+        }
+
+        boolean found = false;
+        StringBuilder newContent = new StringBuilder();
+
+        // Read and process following.txt
+        if (Files.exists(followingFilePath)) {
+            try (BufferedReader reader = Files.newBufferedReader(followingFilePath)) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    String[] parts = line.split(":");
-                    currentUserUsername = parts[0];
-                }
-            }
-
-            // If currentUserUsername is not empty, process following.txt
-            if (!currentUserUsername.isEmpty()) {
-                boolean found = false;
-                StringBuilder newContent = new StringBuilder();
-
-                // Read and process following.txt
-                if (Files.exists(followingFilePath)) {
-                    try (BufferedReader reader = Files.newBufferedReader(followingFilePath)) {
-                        String line;
-                        while ((line = reader.readLine()) != null) {
-                            String[] parts = line.split(":");
-                            if (parts[0].trim().equals(currentUserUsername)) {
-                                found = true;
-                                if (!line.contains(usernameToFollow)) {
-                                    line = line.concat(line.endsWith(":") ? "" : "; ").concat(usernameToFollow);
+                    String[] parts = line.split(": ");
+                    if (parts[0].trim().equals(loggedInUsername)) {
+                        found = true;
+                        if (!line.contains(usernameToFollow)) {
+                            if (parts.length == 1) {
+                                line = parts[0] + ": " + usernameToFollow;
+                            } else {
+                                line = parts[0] + ": " + parts[1] + "; " + usernameToFollow;
+                            }
+                        } else {
+                            ArrayList<String> usernames = new ArrayList<>();
+                            for (String user : parts[1].split("; ")) {
+                                if (!user.trim().equals(usernameToFollow)) {
+                                    usernames.add(user.trim());
                                 }
                             }
-                            newContent.append(line).append("\n");
+                            line = parts[0] + ": " + String.join("; ", usernames);
                         }
                     }
+                    newContent.append(line).append("\n");
                 }
-
-                // If the current user was not found in following.txt, add them
-                if (!found) {
-                    newContent.append(currentUserUsername).append(": ").append(usernameToFollow).append("\n");
-                }
-
-                // Write the updated content back to following.txt
-                try (BufferedWriter writer = Files.newBufferedWriter(followingFilePath)) {
-                    writer.write(newContent.toString());
-                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
+        }
+
+        // If the current user was not found in following.txt, add them
+        if (!found) {
+            newContent.append(loggedInUsername).append(": ").append(usernameToFollow).append("\n");
+        }
+
+        // Write the updated content back to following.txt
+        try (BufferedWriter writer = Files.newBufferedWriter(followingFilePath)) {
+            writer.write(newContent.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -385,7 +411,7 @@ public class InstagramProfileUI extends JFrame {
 
     private void openHomeUI() {
         this.dispose();
-        QuackstagramHomeUI homeUI = new QuackstagramHomeUI();
+        HomeUI homeUI = new HomeUI();
         homeUI.setVisible(true);
     }
 
@@ -394,5 +420,11 @@ public class InstagramProfileUI extends JFrame {
         ExploreUI explore = new ExploreUI();
         explore.setVisible(true);
     }
+    private void openEditProfileUI() {
+        this.dispose(); // Close current profile UI
+        EditProfileUI editProfileUI = new EditProfileUI(currentUser); // Open edit profile UI
+        editProfileUI.setVisible(true);
+        }
+    
 
 }

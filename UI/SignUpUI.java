@@ -1,3 +1,4 @@
+package UI;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -5,6 +6,9 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import Util.DisplayError;
+import Util.UIComponentsUtil;
 
 public class SignUpUI extends JFrame {
 
@@ -21,7 +25,7 @@ public class SignUpUI extends JFrame {
     private final String profilePhotoStoragePath = "img/storage/profile/";
 
     public SignUpUI() {
-        setTitle("Quackstagram - Register");
+        setTitle("Register");
         setSize(WIDTH, HEIGHT);
         setMinimumSize(new Dimension(WIDTH, HEIGHT));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -30,7 +34,6 @@ public class SignUpUI extends JFrame {
     }
 
     private void initializeUI() {
-        configureMainFrame();
         JPanel headerPanel = createHeaderPanel();
         JPanel fieldsPanel = createFieldsPanel();
         JPanel registerPanel = createRegisterPanel();
@@ -38,13 +41,6 @@ public class SignUpUI extends JFrame {
         add(headerPanel, BorderLayout.NORTH);
         add(fieldsPanel, BorderLayout.CENTER);
         add(registerPanel, BorderLayout.SOUTH);
-    }
-
-    private void configureMainFrame() {
-        setTitle("Quackstagram - Register");
-        setSize(WIDTH, HEIGHT);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLayout(new BorderLayout(10, 10));
     }
 
     private JPanel createHeaderPanel() {
@@ -63,6 +59,11 @@ public class SignUpUI extends JFrame {
         fieldsPanel.add(photoPanel);
         fieldsPanel.add(Box.createVerticalStrut(10));
 
+        // Initialize text fields before adding them
+        txtUsername = UIComponentsUtil.createTextField("", Color.BLACK);
+        txtPassword = UIComponentsUtil.createTextField("", Color.BLACK);
+        txtBio = UIComponentsUtil.createTextField("", Color.BLACK);
+
         addField(fieldsPanel, "Username", txtUsername);
         addField(fieldsPanel, "Password", txtPassword);
         addField(fieldsPanel, "Bio", txtBio);
@@ -74,9 +75,8 @@ public class SignUpUI extends JFrame {
 
     private void addField(JPanel panel, String labelText, JTextField textField) {
         JLabel label = new JLabel(labelText);
-        textField = UIComponentsUtil.createTextField("", Color.BLACK);
         panel.add(label);
-        panel.add(textField);
+        panel.add(textField); // Use the passed textField directly without reinitializing it
     }
 
     private void addPhotoUploadButton(JPanel panel) {
@@ -104,20 +104,27 @@ public class SignUpUI extends JFrame {
         String password = txtPassword.getText();
         String bio = txtBio.getText();
 
-        if (doesUsernameExist(username)) {
-            JOptionPane.showMessageDialog(this, "Username already exists. Please choose a different username.", "Error",
-                    JOptionPane.ERROR_MESSAGE);
-        } else {
-            saveCredentials(username, password, bio);
-            handleProfilePictureUpload();
-            dispose();
-
-            // Open the SignInUI frame
-            SwingUtilities.invokeLater(() -> {
-                SignInUI signInFrame = new SignInUI();
-                signInFrame.setVisible(true);
-            });
+        if (username.isEmpty() || password.isEmpty() || bio.isEmpty()) {
+            DisplayError.displayError(this, "Please fill out all fields");
+            return;
+        } else if (doesUsernameExist(username)) {
+            DisplayError.displayError(this, "Username already exists. Please choose a different username.");
+            return;
+        } else if (password.length() < 6) {
+            DisplayError.displayError(this, "Password must be at least 6 characters long.");
+            return;
         }
+
+        saveCredentials(username, password, bio);
+        handleProfilePictureUpload();
+        dispose();
+
+        // Open the SignInUI frame
+        SwingUtilities.invokeLater(() -> {
+            SignInUI signInFrame = new SignInUI();
+            signInFrame.setVisible(true);
+        });
+
     }
 
     private boolean doesUsernameExist(String username) {

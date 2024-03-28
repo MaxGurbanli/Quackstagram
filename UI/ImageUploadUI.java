@@ -1,9 +1,13 @@
+package UI;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import Util.InitializeUI;
+import Util.User;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -25,11 +29,11 @@ public class ImageUploadUI extends JFrame {
         JPanel contentPanel = initializeContentPanel();
 
         ActionListener[] actions = {
-            e -> openHomeUI(),
-            e -> exploreUI(),
-            e -> UploadImageUI(),
-            e -> notificationsUI(),
-            e -> openProfileUI()
+                e -> openHomeUI(),
+                e -> exploreUI(),
+                e -> UploadImageUI(),
+                e -> notificationsUI(),
+                e -> openProfileUI()
         };
         JPanel navigationPanel = InitializeUI.createNavigationPanel(actions);
 
@@ -76,7 +80,7 @@ public class ImageUploadUI extends JFrame {
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
             try {
-                String username = readUsername(); // Read username from users.txt
+                String username = User.getLoggedInUser().getUsername();
                 int imageId = getNextImageId(username);
                 String fileExtension = getFileExtension(selectedFile);
                 String newFileName = username + "_" + imageId + "." + fileExtension;
@@ -158,7 +162,7 @@ public class ImageUploadUI extends JFrame {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
         try (BufferedWriter writer = Files.newBufferedWriter(infoFilePath, StandardOpenOption.APPEND)) {
-            writer.write(String.format("ImageID: %s, Username: %s, Bio: %s, Timestamp: %s, Likes: 0", imageId, username,
+            writer.write(String.format("ImageID: %s, Username: %s, Bio: %s, Timestamp: %s", imageId, username,
                     bio, timestamp));
             writer.newLine();
         }
@@ -174,28 +178,10 @@ public class ImageUploadUI extends JFrame {
         return name.substring(lastIndexOf + 1);
     }
 
-    private void saveBioAction(ActionEvent event) {
-        // Here you would handle saving the bio text
-        String bioText = bioTextArea.getText();
-        // For example, save the bio text to a file or database
-        JOptionPane.showMessageDialog(this, "Caption saved: " + bioText);
-    }
-
-    private String readUsername() throws IOException {
-        Path usersFilePath = Paths.get("data", "users.txt");
-        try (BufferedReader reader = Files.newBufferedReader(usersFilePath)) {
-            String line = reader.readLine();
-            if (line != null) {
-                return line.split(":")[0]; // Extract the username from the first line
-            }
-        }
-        return null; // Return null if no username is found
-    }
-
     private void openHomeUI() {
-        // Open InstagramProfileUI frame
+        // Open QuackstagramProfileUI frame
         this.dispose();
-        QuackstagramHomeUI homeUI = new QuackstagramHomeUI();
+        HomeUI homeUI = new HomeUI();
         homeUI.setVisible(true);
     }
 
@@ -220,10 +206,10 @@ public class ImageUploadUI extends JFrame {
     }
 
     private void openProfileUI() {
-        // Open InstagramProfileUI frame
+        // Open QuackstagramProfileUI frame
         this.dispose();
         User user = User.getLoggedInUser();
-        InstagramProfileUI profileUI = new InstagramProfileUI(user);
+        ProfileUI profileUI = new ProfileUI(user);
         profileUI.setVisible(true);
     }
 

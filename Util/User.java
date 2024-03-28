@@ -1,5 +1,8 @@
+package Util;
 import java.util.List;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -7,7 +10,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 // Represents a user on Quackstagram
-class User {
+public class User {
     private String username;
     private String bio;
     private String password;
@@ -85,9 +88,17 @@ class User {
         return username + ":" + bio + ":" + password; // Format as needed
     }
 
+    public static void setLoggedInUser(User user) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/user.txt", false))) {
+            writer.write(user.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static User getLoggedInUser() {
         String loggedInUsername = "";
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "user.txt"))) {
             String line = reader.readLine();
             if (line != null) {
                 loggedInUsername = line.split(":")[0].trim();
@@ -99,17 +110,30 @@ class User {
     }
 
     public boolean isCurrentUser() {
-        Path usersFilePath = Paths.get("data", "users.txt");
-        try (BufferedReader reader = Files.newBufferedReader(usersFilePath)) {
-            String line = reader.readLine();
-            if (line != null) {
-                String currentUsername = line.split(":")[0];
-                return this.username.equals(currentUsername);
+        String currentUsername = getLoggedInUser().getUsername();
+        return this.username.equals(currentUsername);
+    }
+
+    public static User getUserByImageId(String imageId) {
+        // read image_details.txt to find the current image by imageId and the person to
+        // whom the image belongs
+        // Sample: ImageID: Lorin_1, Username: Lorin, Bio: In the cookie jar my hand was
+        // not., Timestamp: 2023-12-17 19:07:43
+        Path imageDetailsFilePath = Paths.get("img", "image_details.txt");
+        try (BufferedReader reader = Files.newBufferedReader(imageDetailsFilePath)) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                String currentImageId = parts[0].split(":")[1].trim();
+                if (currentImageId.equals(imageId)) {
+                    String username = parts[1].split(":")[1].trim();
+                    return new User(username);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return false;
+        return null;
     }
 
 }

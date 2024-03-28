@@ -1,5 +1,11 @@
+package UI;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+
+import Util.ImageLikesManager;
+import Util.InitializeUI;
+import Util.User;
+
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -10,7 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.*;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.stream.Stream;
@@ -19,8 +25,10 @@ public class ExploreUI extends JFrame {
 
     private static final int WIDTH = 300;
     private static final int IMAGE_SIZE = WIDTH / 3; // Size for each image in the grid
+    private static final Color LIKE_BUTTON_COLOR = new Color(255, 90, 95);
 
     JPanel navigationPanel;
+    ImageLikesManager imageLikesManager;
 
     public ExploreUI() {
         InitializeUI.setupFrame(this, "Explore");
@@ -34,6 +42,7 @@ public class ExploreUI extends JFrame {
                 e -> openProfileUI()
         };
         navigationPanel = InitializeUI.createNavigationPanel(actions);
+        imageLikesManager = new ImageLikesManager("data\\likes.txt");
 
         InitializeUI.addComponents(this, headerPanel, mainContentPanel, navigationPanel);
     }
@@ -63,7 +72,7 @@ public class ExploreUI extends JFrame {
                     imageLabel.addMouseListener(new MouseAdapter() {
                         @Override
                         public void mouseClicked(MouseEvent e) {
-                            displayImage(imageFile.getPath()); // Call method to display the clicked image
+                            displayImage(imageFile.getPath());
                         }
                     });
                     imageGridPanel.add(imageLabel);
@@ -107,13 +116,12 @@ public class ExploreUI extends JFrame {
                 username = parts[1].split(": ")[1];
                 bio = parts[2].split(": ")[1];
                 timestampString = parts[3].split(": ")[1];
-                likes = Integer.parseInt(parts[4].split(": ")[1]);
+                likes = imageLikesManager.getLikesCount(imageId);
             }
         } catch (IOException ex) {
             ex.printStackTrace();
             // Handle exception
         }
-
         // Calculate time since posting
         String timeSincePosting = "Unknown";
         if (!timestampString.isEmpty()) {
@@ -177,14 +185,21 @@ public class ExploreUI extends JFrame {
             revalidate();
             repaint();
         });
-        final String finalUsername = username;
 
+        final String finalUsername = username;
         usernameLabel.addActionListener(e -> {
             User user = new User(finalUsername); // Assuming User class has a constructor that takes a username
-            InstagramProfileUI profileUI = new InstagramProfileUI(user);
+            ProfileUI profileUI = new ProfileUI(user);
             profileUI.setVisible(true);
             dispose(); // Close the current frame
         });
+
+        JButton likeButton = new JButton("Like");
+        likeButton.setBackground(LIKE_BUTTON_COLOR);
+        likeButton.addActionListener(e -> {
+            handleLikeAction(imageId, likesLabel);
+        });
+        bottomPanel.add(likeButton);
 
         // Container panel for image and details
         JPanel containerPanel = new JPanel(new BorderLayout());
@@ -201,37 +216,50 @@ public class ExploreUI extends JFrame {
         repaint();
     }
 
+    private void handleLikeAction(String imageId, JLabel likesLabel) {
+        String currentUser = User.getLoggedInUser().getUsername();
+        if (currentUser != null && !imageLikesManager.hasLiked(imageId, currentUser)) {
+            imageLikesManager.addLike(imageId, currentUser);
+            int updatedLikes = imageLikesManager.getLikesCount(imageId);
+            likesLabel.setText("Likes: " + updatedLikes);
+        } else {
+            imageLikesManager.removeLike(imageId, currentUser);
+            int updatedLikes = imageLikesManager.getLikesCount(imageId);
+            likesLabel.setText("Likes: " + updatedLikes);
+        }
+    }
+
     private void ImageUploadUI() {
-        // Open InstagramProfileUI frame
+        // Open QuackstagramProfileUI frame
         this.dispose();
         ImageUploadUI upload = new ImageUploadUI();
         upload.setVisible(true);
     }
 
     private void openProfileUI() {
-        // Open InstagramProfileUI frame
+        // Open QuackstagramProfileUI frame
         this.dispose();
         User user = User.getLoggedInUser();
-        InstagramProfileUI profileUI = new InstagramProfileUI(user);
+        ProfileUI profileUI = new ProfileUI(user);
         profileUI.setVisible(true);
     }
 
     private void notificationsUI() {
-        // Open InstagramProfileUI frame
+        // Open QuackstagramProfileUI frame
         this.dispose();
         NotificationsUI notificationsUI = new NotificationsUI();
         notificationsUI.setVisible(true);
     }
 
     private void openHomeUI() {
-        // Open InstagramProfileUI frame
+        // Open QuackstagramProfileUI frame
         this.dispose();
-        QuackstagramHomeUI homeUI = new QuackstagramHomeUI();
+        HomeUI homeUI = new HomeUI();
         homeUI.setVisible(true);
     }
 
     private void exploreUI() {
-        // Open InstagramProfileUI frame
+        // Open QuackstagramProfileUI frame
         this.dispose();
         ExploreUI explore = new ExploreUI();
         explore.setVisible(true);
