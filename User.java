@@ -112,4 +112,24 @@ class User {
         return false;
     }
 
+    public static User getUserByImageId (String imageId) {
+        // read image_details.txt to find the current image by imageId and the person to whom the image belongs
+        // Sample: ImageID: Lorin_1, Username: Lorin, Bio: In the cookie jar my hand was not., Timestamp: 2023-12-17 19:07:43
+        Path imageDetailsFilePath = Paths.get("img", "image_details.txt");
+        try (BufferedReader reader = Files.newBufferedReader(imageDetailsFilePath)) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                String currentImageId = parts[0].split(":")[1].trim();
+                if (currentImageId.equals(imageId)) {
+                    String username = parts[1].split(":")[1].trim();
+                    return new User(username);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

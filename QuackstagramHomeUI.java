@@ -26,7 +26,6 @@ public class QuackstagramHomeUI extends JFrame {
     private JPanel homePanel;
     private JPanel imageViewPanel;
     private ImageLikesManager imageLikesManager;
-    private NotificationsUI notificationsUI;
     
 
     public QuackstagramHomeUI() {
@@ -39,8 +38,7 @@ public class QuackstagramHomeUI extends JFrame {
         JPanel headerPanel = InitializeUI.createHeaderPanel("🐥 Quackstagram 🐥");
         homePanel = new JPanel(new BorderLayout());
         imageViewPanel = new JPanel(new BorderLayout());
-        notificationsUI = new NotificationsUI();
-        imageLikesManager = new ImageLikesManager("data\\likes.txt", notificationsUI);
+        imageLikesManager = new ImageLikesManager("data\\likes.txt");
 
         initializeUI();
 

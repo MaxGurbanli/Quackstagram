@@ -13,15 +13,16 @@ import java.time.temporal.ChronoUnit;
 
 public class NotificationsUI extends JFrame implements Observer {
 
-    private JTextArea notificationArea;
     private JScrollPane scrollPane;
+    private ImageLikesManager imageLikesManager;
+    private JPanel mainContentPanel;
 
     public NotificationsUI() {
         InitializeUI.setupFrame(this, "Notifications");
         JPanel headerPanel = InitializeUI.createHeaderPanel("Notifications ");
         JPanel mainContentPanel = createMainContentPanel();
         String likesFilePath = "data/likes.txt";
-        ImageLikesManager imageLikesManager = new ImageLikesManager(likesFilePath, this);
+        imageLikesManager = new ImageLikesManager(likesFilePath, this);
         imageLikesManager.registerObserver(this);
         ActionListener[] actions = {
                 e -> openHomeUI(),
@@ -35,16 +36,14 @@ public class NotificationsUI extends JFrame implements Observer {
 
         InitializeUI.addComponents(this, headerPanel, mainContentPanel, navigationPanel);
 
-        
         initializeObservers();
         loadNotifications();
-        notificationArea.setText(""); 
     }
 
-    private void generateAndWriteNotification(String username, String likedUsername, String imageId) {
+    private void generateAndWriteNotification(String likerUsername, String imagePosterUsername, String imageId) {
         // Generate notification message
         System.out.println("generating notification");
-        String notificationMessage = username + ";" + likedUsername + ";" + imageId + ";" + LocalDateTime.now();
+        String notificationMessage = imagePosterUsername + ";" + likerUsername + ";" + imageId + ";" + LocalDateTime.now();
 
         // Write notification message to file
         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get("data", "notifications.txt"),
@@ -59,13 +58,13 @@ public class NotificationsUI extends JFrame implements Observer {
     }
 
     private JPanel createMainContentPanel() {
-        JPanel contentPanel = new JPanel(new BorderLayout());
-
-        notificationArea = new JTextArea();
-        scrollPane = new JScrollPane(notificationArea); // Initialize the JScrollPane
-        contentPanel.add(scrollPane, BorderLayout.CENTER);
-
-        return contentPanel;
+        mainContentPanel = new JPanel();
+        mainContentPanel.setLayout(new BoxLayout(mainContentPanel, BoxLayout.Y_AXIS));
+        scrollPane = new JScrollPane(mainContentPanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setPreferredSize(new Dimension(800, 500));
+        return mainContentPanel;
     }
 
     @Override
@@ -75,59 +74,59 @@ public class NotificationsUI extends JFrame implements Observer {
 
     private void initializeObservers() {
         String likesFilePath = "data/likes.txt";
-        ImageLikesManager imageLikesManager = new ImageLikesManager(likesFilePath, this); // Register NotificationsUI as observer
+        ImageLikesManager imageLikesManager = new ImageLikesManager(likesFilePath, this); // Register NotificationsUI as
+                                                                                          // observer
         imageLikesManager.registerObserver(this);
     }
 
     public void displayNotification(String notification) {
-        SwingUtilities.invokeLater(() -> {
-            notificationArea.append(notification + "\n");
-            // Scroll to the bottom to show the latest notification
-            JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
-            verticalScrollBar.setValue(verticalScrollBar.getMaximum());
-        });
+        JLabel notificationLabel = new JLabel(notification);
+        mainContentPanel.add(notificationLabel);
+        mainContentPanel.revalidate();
+        mainContentPanel.repaint();
     }
 
-    void handleLikeEvent(String likedUsername, String imageId) {
+    public void handleLikeEvent(String imageId) {
         // Get current logged-in user
-        String currentUser = getCurrentUsername();
+        User currentUser = User.getLoggedInUser();
+        String currentUsername = currentUser.getUsername();
+        User imagePoster = User.getUserByImageId(imageId);
+        String imagePosterUsername = imagePoster.getUsername();
+
+        System.out.println(currentUsername + " liked " + imagePosterUsername + "'s image");
 
         // Generate and write notification only if the liked user is not the current
         // user
-        if (!likedUsername.equals(currentUser)) {
-            System.out.println("calling generateAndWriteNotification");
-            generateAndWriteNotification(currentUser, likedUsername, imageId);
+        
+        if (currentUser == imagePoster) {
+            System.out.println("User liked their own image");
+            return;
         }
+
+        generateAndWriteNotification(currentUsername, imagePosterUsername, imageId);
     }
 
     private void loadNotifications() {
-        String currentUsername = getCurrentUsername();
+        String currentUsername = User.getLoggedInUser().getUsername();
         if (!currentUsername.isEmpty()) {
-            populateNotifications(notificationArea, currentUsername);
+            populateNotifications(mainContentPanel, currentUsername);
         }
     }
 
-    private String getCurrentUsername() {
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
-            String line = reader.readLine();
-            if (line != null) {
-                return line.split(":")[0].trim();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
 
-    private void populateNotifications(JTextArea textArea, String currentUsername) {
+    private void populateNotifications(JPanel mainContentPanel, String currentUsername) {
         try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "notifications.txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(";");
-                if (parts[0].trim().equals(currentUsername)) {
-                    String notificationMessage = parts[1].trim() + " liked your picture - "
-                            + getElapsedTime(parts[3].trim()) + " ago";
-                    textArea.append(notificationMessage + "\n");
+                String[] notificationDetails = line.split(";");
+                String imagePosterUsername = notificationDetails[0];
+                String likerUsername = notificationDetails[1];
+                String imageId = notificationDetails[2];
+                String timestamp = notificationDetails[3];
+                if (currentUsername.equals(imagePosterUsername)) {
+                    String notificationMessage = likerUsername + " liked your image " + imageId + " " + getElapsedTime(timestamp) + " ago";
+                    JLabel notificationLabel = new JLabel(notificationMessage);
+                    mainContentPanel.add(notificationLabel);
                 }
             }
         } catch (IOException e) {
@@ -136,21 +135,19 @@ public class NotificationsUI extends JFrame implements Observer {
     }
 
     private String getElapsedTime(String timestamp) {
-        LocalDateTime timeOfNotification = LocalDateTime.parse(timestamp,
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        long daysBetween = ChronoUnit.DAYS.between(timeOfNotification, LocalDateTime.now());
-        long minutesBetween = ChronoUnit.MINUTES.between(timeOfNotification, LocalDateTime.now()) % 60;
-
-        StringBuilder timeElapsed = new StringBuilder();
-        if (daysBetween > 0) {
-            timeElapsed.append(daysBetween).append(" day").append(daysBetween > 1 ? "s" : "");
+        // Parse string in the following format: 2024-03-28T12:13:28.483811200
+        LocalDateTime notificationTime = LocalDateTime.parse(timestamp);
+        LocalDateTime currentTime = LocalDateTime.now();
+        long seconds = ChronoUnit.SECONDS.between(notificationTime, currentTime);
+        if (seconds < 60) {
+            return seconds + " seconds";
+        } else if (seconds < 3600) {
+            return seconds / 60 + " minutes";
+        } else if (seconds < 86400) {
+            return seconds / 3600 + " hours";
+        } else {
+            return seconds / 86400 + " days";
         }
-        if (minutesBetween > 0) {
-            if (daysBetween > 0)
-                timeElapsed.append(" and ");
-            timeElapsed.append(minutesBetween).append(" minute").append(minutesBetween > 1 ? "s" : "");
-        }
-        return timeElapsed.toString();
     }
 
     private void ImageUploadUI() {

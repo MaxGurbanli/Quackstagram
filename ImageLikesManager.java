@@ -1,7 +1,5 @@
-import java.io.*;
 import java.io.IOException;
 import java.util.*;
-
 
 public class ImageLikesManager implements Subject {
 
@@ -9,11 +7,12 @@ public class ImageLikesManager implements Subject {
     private Map<String, Set<String>> likesMap;
     private LikesFileHandler fileHandler; // Define fileHandler as a field
     private NotificationsUI notificationsUI;
-    
 
     public ImageLikesManager(String filePath) {
         this.fileHandler = new LikesFileHandler(filePath);
         this.likesMap = loadLikes();
+        this.notificationsUI = new NotificationsUI();
+        registerObserver(notificationsUI);
     }
 
     public ImageLikesManager(String filePath, NotificationsUI notificationsUI) {
@@ -22,10 +21,7 @@ public class ImageLikesManager implements Subject {
         if (notificationsUI != null) { // Register NotificationsUI if provided
             registerObserver(notificationsUI);
         }
-        this.notificationsUI = notificationsUI;
     }
-   
-
 
     private Map<String, Set<String>> loadLikes() {
         try {
@@ -44,12 +40,14 @@ public class ImageLikesManager implements Subject {
             notifyObservers(imageId, username, true);
             saveLikes();
             if (notificationsUI != null) {
-                notificationsUI.handleLikeEvent(username, imageId);
+                System.out.println("handling like event");
+                notificationsUI.handleLikeEvent(imageId);
             } else {
                 System.out.println("NotificationsUI is null");
             }
         }
     }
+
     public void removeLike(String imageId, String username) {
         if (likesMap.containsKey(imageId)) {
             likesMap.get(imageId).remove(username);
@@ -80,7 +78,7 @@ public class ImageLikesManager implements Subject {
     @Override
     public void notifyObservers(String imageId, String username, boolean liked) {
         String notification = liked ? username + " liked your picture: " + imageId
-                                     : username + " unliked your picture: " + imageId;
+                : username + " unliked your picture: " + imageId;
         for (Observer observer : observers) {
             observer.update(notification);
         }
