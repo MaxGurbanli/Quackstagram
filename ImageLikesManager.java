@@ -22,6 +22,7 @@ public class ImageLikesManager implements Subject {
         if (notificationsUI != null) { // Register NotificationsUI if provided
             registerObserver(notificationsUI);
         }
+        this.notificationsUI = notificationsUI;
     }
    
 

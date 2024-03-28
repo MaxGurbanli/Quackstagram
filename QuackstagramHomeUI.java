@@ -40,7 +40,7 @@ public class QuackstagramHomeUI extends JFrame {
         homePanel = new JPanel(new BorderLayout());
         imageViewPanel = new JPanel(new BorderLayout());
         notificationsUI = new NotificationsUI();
-        imageLikesManager = new ImageLikesManager("data/likes.txt", notificationsUI);
+        imageLikesManager = new ImageLikesManager("data\\likes.txt", notificationsUI);
 
         initializeUI();
 
@@ -262,7 +262,7 @@ public class QuackstagramHomeUI extends JFrame {
         imageViewPanel.removeAll(); // Clear previous content
 
         String imageId = new File(postData[3]).getName().split("\\.")[0];
-        JLabel likesLabel = new JLabel(postData[2]); // Update this line
+        JLabel likesLabel = new JLabel(imageLikesManager.getLikesCount(imageId) + " likes");
 
         // Display the image
         JLabel fullSizeImageLabel = new JLabel();
@@ -302,7 +302,7 @@ public class QuackstagramHomeUI extends JFrame {
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
         infoPanel.add(new JLabel(postData[1])); // Description
-        infoPanel.add(new JLabel(postData[2])); // Likes
+        infoPanel.add(likesLabel); // Likes count
         infoPanel.add(likeButton);
 
         imageViewPanel.add(fullSizeImageLabel, BorderLayout.CENTER);

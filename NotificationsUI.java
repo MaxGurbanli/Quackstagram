@@ -31,6 +31,7 @@ public class NotificationsUI extends JFrame implements Observer {
                 e -> openProfileUI()
         };
         JPanel navigationPanel = InitializeUI.createNavigationPanel(actions);
+        System.out.println("initialized");
 
         InitializeUI.addComponents(this, headerPanel, mainContentPanel, navigationPanel);
 
@@ -42,6 +43,7 @@ public class NotificationsUI extends JFrame implements Observer {
 
     private void generateAndWriteNotification(String username, String likedUsername, String imageId) {
         // Generate notification message
+        System.out.println("generating notification");
         String notificationMessage = username + ";" + likedUsername + ";" + imageId + ";" + LocalDateTime.now();
 
         // Write notification message to file
@@ -49,7 +51,9 @@ public class NotificationsUI extends JFrame implements Observer {
                 StandardOpenOption.APPEND)) {
             writer.write(notificationMessage);
             writer.newLine();
+            System.out.println("notification written");
         } catch (IOException e) {
+            System.out.println("Error writing notification");
             e.printStackTrace();
         }
     }
@@ -91,6 +95,7 @@ public class NotificationsUI extends JFrame implements Observer {
         // Generate and write notification only if the liked user is not the current
         // user
         if (!likedUsername.equals(currentUser)) {
+            System.out.println("calling generateAndWriteNotification");
             generateAndWriteNotification(currentUser, likedUsername, imageId);
         }
     }
