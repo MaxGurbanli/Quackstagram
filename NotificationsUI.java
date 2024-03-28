@@ -2,14 +2,19 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
-public class NotificationsUI extends JFrame {
+public class NotificationsUI extends JFrame implements Observer {
+
+    private JTextArea notificationArea;
+    private JScrollPane scrollPane;
 
     public NotificationsUI() {
         InitializeUI.setupFrame(this, "Notifications");
@@ -25,21 +30,66 @@ public class NotificationsUI extends JFrame {
         JPanel navigationPanel = InitializeUI.createNavigationPanel(actions);
 
         InitializeUI.addComponents(this, headerPanel, mainContentPanel, navigationPanel);
+
+        // Initialize observers and load notifications
+        initializeObservers();
+        loadNotifications();
+    }
+
+    private void generateAndWriteNotification(String username, String likedUsername, String imageId) {
+        // Generate notification message
+        String notificationMessage = username + ";" + likedUsername + ";" + imageId + ";" + LocalDateTime.now();
+
+        // Write notification message to file
+        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get("data", "notifications.txt"), StandardOpenOption.APPEND)) {
+            writer.write(notificationMessage);
+            writer.newLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private JPanel createMainContentPanel() {
-        JPanel contentPanel = new JPanel();
-        contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-        JScrollPane scrollPane = new JScrollPane(contentPanel);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        JPanel contentPanel = new JPanel(new BorderLayout());
 
+        notificationArea = new JTextArea();
+        scrollPane = new JScrollPane(notificationArea); // Initialize the JScrollPane
+        contentPanel.add(scrollPane, BorderLayout.CENTER);
+
+        return contentPanel;
+    }
+
+    private void initializeObservers() {
+        String likesFilePath = "data/likes.txt";
+    ImageLikesManager imageLikesManager = new ImageLikesManager(likesFilePath, this);
+    imageLikesManager.registerObserver(this);
+    }
+
+    @Override
+    public void update(String notification) {
+        SwingUtilities.invokeLater(() -> {
+            notificationArea.append(notification + "\n");
+            // Scroll to the bottom to show the latest notification
+            JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
+            verticalScrollBar.setValue(verticalScrollBar.getMaximum());
+        });
+    }
+
+    void handleLikeEvent(String likedUsername, String imageId) {
+        // Get current logged-in user
+        String currentUser = getCurrentUsername();
+
+        // Generate and write notification only if the liked user is not the current user
+        if (!likedUsername.equals(currentUser)) {
+            generateAndWriteNotification(currentUser, likedUsername, imageId);
+        }
+    }
+
+    private void loadNotifications() {
         String currentUsername = getCurrentUsername();
-        populateNotifications(contentPanel, currentUsername);
-
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
-        return mainPanel;
+        if (!currentUsername.isEmpty()) {
+            populateNotifications(notificationArea, currentUsername);
+        }
     }
 
     private String getCurrentUsername() {
@@ -54,7 +104,7 @@ public class NotificationsUI extends JFrame {
         return "";
     }
 
-    private void populateNotifications(JPanel contentPanel, String currentUsername) {
+    private void populateNotifications(JTextArea textArea, String currentUsername) {
         try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "notifications.txt"))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -62,10 +112,7 @@ public class NotificationsUI extends JFrame {
                 if (parts[0].trim().equals(currentUsername)) {
                     String notificationMessage = parts[1].trim() + " liked your picture - "
                             + getElapsedTime(parts[3].trim()) + " ago";
-                    JPanel notificationPanel = new JPanel(new BorderLayout());
-                    notificationPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-                    notificationPanel.add(new JLabel(notificationMessage), BorderLayout.CENTER);
-                    contentPanel.add(notificationPanel);
+                    textArea.append(notificationMessage + "\n");
                 }
             }
         } catch (IOException e) {

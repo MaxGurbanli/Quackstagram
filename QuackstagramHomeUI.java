@@ -26,6 +26,8 @@ public class QuackstagramHomeUI extends JFrame {
     private JPanel homePanel;
     private JPanel imageViewPanel;
     private ImageLikesManager imageLikesManager;
+    private NotificationsUI notificationsUI;
+    
 
     public QuackstagramHomeUI() {
         InitializeUI.setupFrame(this, "Quakstagram Home");
@@ -37,7 +39,8 @@ public class QuackstagramHomeUI extends JFrame {
         JPanel headerPanel = InitializeUI.createHeaderPanel("🐥 Quackstagram 🐥");
         homePanel = new JPanel(new BorderLayout());
         imageViewPanel = new JPanel(new BorderLayout());
-        imageLikesManager = new ImageLikesManager("data/likes.txt");
+        notificationsUI = new NotificationsUI();
+        imageLikesManager = new ImageLikesManager("data/likes.txt", notificationsUI);
 
         initializeUI();
 
@@ -175,9 +178,9 @@ public class QuackstagramHomeUI extends JFrame {
     private void handleLikeAction(String imageId, JLabel likesLabel) {
         String currentUser = getCurrentUser();
         if (currentUser != null && !imageLikesManager.hasLiked(imageId, currentUser)) {
+            
             imageLikesManager.addLike(imageId, currentUser);
-        }
-        else {
+        } else {
             imageLikesManager.removeLike(imageId, currentUser);
         }
         int updatedLikes = imageLikesManager.getLikesCount(imageId);

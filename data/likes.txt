@@ -1,6 +1,6 @@
-Zara_1:max
-Zara_2:max
-Mystar_1:max
+Zara_1:max,Lorin
+Zara_2:max,Lorin
+Mystar_1:max,Lorin
 Mystar_2:max
-Lorin_2:max
-Lorin_1:max
+Lorin_2:max,Mystar,Zara,Xylo
+Lorin_1:max,Mystar,Zara,Xylo

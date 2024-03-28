@@ -94,20 +94,24 @@ public class ExploreUI extends JFrame {
         // Extract image ID from the imagePath
         String imageId = new File(imagePath).getName().split("\\.")[0];
 
-        // Read image details
-        String username = "";
-        String bio = "";
+        String username = "Unknown";
+        String bio = "No bio available";
         String timestampString = "";
         int likes = 0;
+    
+        // Read image details
+
         Path detailsPath = Paths.get("img", "image_details.txt");
         try (Stream<String> lines = Files.lines(detailsPath)) {
             String details = lines.filter(line -> line.contains("ImageID: " + imageId)).findFirst().orElse("");
             if (!details.isEmpty()) {
                 String[] parts = details.split(", ");
-                username = parts[1].split(": ")[1];
-                bio = parts[2].split(": ")[1];
-                timestampString = parts[3].split(": ")[1];
-                likes = Integer.parseInt(parts[4].split(": ")[1]);
+                if (parts.length >= 5) {
+                    username = parts[1].split(": ")[1];
+                    bio = parts[2].split(": ")[1];
+                    timestampString = parts[3].split(": ")[1];
+                    likes = Integer.parseInt(parts[4].split(": ")[1]);
+                }
             }
         } catch (IOException ex) {
             ex.printStackTrace();
