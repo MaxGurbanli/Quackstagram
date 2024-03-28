@@ -1,5 +1,10 @@
+package UI;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import Util.InitializeUI;
+import Util.User;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

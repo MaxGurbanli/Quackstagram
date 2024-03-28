@@ -1,4 +1,11 @@
+package UI;
 import javax.swing.*;
+
+import Util.ImageLikesManager;
+import Util.InitializeUI;
+import Util.Observer;
+import Util.User;
+
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;

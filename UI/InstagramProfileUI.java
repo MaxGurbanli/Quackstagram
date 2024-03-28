@@ -1,4 +1,7 @@
+package UI;
 import javax.swing.*;
+
+import Util.User;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;

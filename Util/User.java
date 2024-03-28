@@ -1,3 +1,4 @@
+package Util;
 import java.util.List;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -9,7 +10,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 // Represents a user on Quackstagram
-class User {
+public class User {
     private String username;
     private String bio;
     private String password;

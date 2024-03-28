@@ -1,5 +1,12 @@
+package UI;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+
+import Util.DisplayError;
+import Util.ImageLikesManager;
+import Util.InitializeUI;
+import Util.User;
+
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -326,13 +333,6 @@ public class QuackstagramHomeUI extends JFrame {
         this.dispose();
         ExploreUI explore = new ExploreUI();
         explore.setVisible(true);
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            SignInUI frame = new SignInUI();
-            frame.setVisible(true);
-        });
     }
 
 }

@@ -1,3 +1,4 @@
+package UI;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -5,6 +6,9 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import Util.DisplayError;
+import Util.UIComponentsUtil;
 
 public class SignUpUI extends JFrame {
 

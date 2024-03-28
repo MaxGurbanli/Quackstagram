@@ -1,5 +1,11 @@
+package UI;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+
+import Util.ImageLikesManager;
+import Util.InitializeUI;
+import Util.User;
+
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;

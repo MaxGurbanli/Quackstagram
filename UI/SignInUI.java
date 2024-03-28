@@ -1,4 +1,10 @@
+package UI;
 import javax.swing.*;
+
+import Util.DisplayError;
+import Util.UIComponentsUtil;
+import Util.User;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
@@ -130,12 +136,5 @@ public class SignInUI extends JFrame {
             e.printStackTrace();
         }
         return false;
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            SignInUI frame = new SignInUI();
-            frame.setVisible(true);
-        });
     }
 }

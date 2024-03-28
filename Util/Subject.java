@@ -1,3 +1,4 @@
+package Util;
 public interface Subject {
     void registerObserver(Observer observer);
 
