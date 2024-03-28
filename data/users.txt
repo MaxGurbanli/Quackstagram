@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 max:meow:123
+=======
+Xylo:Fierce warrior, not solo:Password
+>>>>>>> 698abd1115027ff5272467db2394785dc3a2329d
