@@ -141,6 +141,10 @@ public class ProfileUI extends JFrame {
         JButton followOrEditProfileButton;
         if (isCurrentUser) {
             followOrEditProfileButton = new JButton("Edit Profile");
+            followOrEditProfileButton.addActionListener(e -> {
+                EditProfileUI editProfileUI = new EditProfileUI();
+                editProfileUI.setVisible(true);
+            });
         } else {
             followOrEditProfileButton = new JButton("Follow");
 
