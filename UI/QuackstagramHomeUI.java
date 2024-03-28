@@ -35,7 +35,7 @@ public class QuackstagramHomeUI extends JFrame {
     private ImageLikesManager imageLikesManager;
 
     public QuackstagramHomeUI() {
-        InitializeUI.setupFrame(this, "Quakstagram Home");
+        InitializeUI.setupFrame(this, "Home");
 
         // Initialize the CardLayout before using it in the cardPanel
         cardLayout = new CardLayout();
