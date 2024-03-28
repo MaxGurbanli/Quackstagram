@@ -19,6 +19,7 @@ public class ExploreUI extends JFrame {
 
     private static final int WIDTH = 300;
     private static final int IMAGE_SIZE = WIDTH / 3; // Size for each image in the grid
+    private ImageLikesManager imageLikesManager;
 
     JPanel navigationPanel;
 
@@ -34,6 +35,7 @@ public class ExploreUI extends JFrame {
                 e -> openProfileUI()
         };
         navigationPanel = InitializeUI.createNavigationPanel(actions);
+        imageLikesManager = new ImageLikesManager("data/likes.txt");
 
         InitializeUI.addComponents(this, headerPanel, mainContentPanel, navigationPanel);
     }
@@ -107,7 +109,7 @@ public class ExploreUI extends JFrame {
                 username = parts[1].split(": ")[1];
                 bio = parts[2].split(": ")[1];
                 timestampString = parts[3].split(": ")[1];
-                likes = Integer.parseInt(parts[4].split(": ")[1]);
+                likes = imageLikesManager.getLikesCount(imageId);
             }
         } catch (IOException ex) {
             ex.printStackTrace();
