@@ -99,7 +99,7 @@ public class SignInUI extends JFrame {
 
             // Open the SignInUI frame
             SwingUtilities.invokeLater(() -> {
-                InstagramProfileUI profileUI = new InstagramProfileUI(newUser);
+                ProfileUI profileUI = new ProfileUI(newUser);
                 profileUI.setVisible(true);
             });
         } else {

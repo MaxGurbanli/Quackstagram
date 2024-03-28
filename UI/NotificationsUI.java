@@ -157,36 +157,36 @@ public class NotificationsUI extends JFrame implements Observer {
     }
 
     private void ImageUploadUI() {
-        // Open InstagramProfileUI frame
+        // Open QuackstagramProfileUI frame
         this.dispose();
         ImageUploadUI upload = new ImageUploadUI();
         upload.setVisible(true);
     }
 
     private void openProfileUI() {
-        // Open InstagramProfileUI frame
+        // Open QuackstagramProfileUI frame
         this.dispose();
         User user = User.getLoggedInUser();
-        InstagramProfileUI profileUI = new InstagramProfileUI(user);
+        ProfileUI profileUI = new ProfileUI(user);
         profileUI.setVisible(true);
     }
 
     private void notificationsUI() {
-        // Open InstagramProfileUI frame
+        // Open QuackstagramProfileUI frame
         this.dispose();
         NotificationsUI notificationsUI = new NotificationsUI();
         notificationsUI.setVisible(true);
     }
 
     private void openHomeUI() {
-        // Open InstagramProfileUI frame
+        // Open QuackstagramProfileUI frame
         this.dispose();
-        QuackstagramHomeUI homeUI = new QuackstagramHomeUI();
+        HomeUI homeUI = new HomeUI();
         homeUI.setVisible(true);
     }
 
     private void exploreUI() {
-        // Open InstagramProfileUI frame
+        // Open QuackstagramProfileUI frame
         this.dispose();
         ExploreUI explore = new ExploreUI();
         explore.setVisible(true);

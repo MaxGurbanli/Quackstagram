@@ -178,17 +178,10 @@ public class ImageUploadUI extends JFrame {
         return name.substring(lastIndexOf + 1);
     }
 
-    private void saveBioAction(ActionEvent event) {
-        // Here you would handle saving the bio text
-        String bioText = bioTextArea.getText();
-        // For example, save the bio text to a file or database
-        JOptionPane.showMessageDialog(this, "Caption saved: " + bioText);
-    }
-
     private void openHomeUI() {
-        // Open InstagramProfileUI frame
+        // Open QuackstagramProfileUI frame
         this.dispose();
-        QuackstagramHomeUI homeUI = new QuackstagramHomeUI();
+        HomeUI homeUI = new HomeUI();
         homeUI.setVisible(true);
     }
 
@@ -213,10 +206,10 @@ public class ImageUploadUI extends JFrame {
     }
 
     private void openProfileUI() {
-        // Open InstagramProfileUI frame
+        // Open QuackstagramProfileUI frame
         this.dispose();
         User user = User.getLoggedInUser();
-        InstagramProfileUI profileUI = new InstagramProfileUI(user);
+        ProfileUI profileUI = new ProfileUI(user);
         profileUI.setVisible(true);
     }
 

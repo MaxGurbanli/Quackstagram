@@ -13,7 +13,7 @@ import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
-public class InstagramProfileUI extends JFrame {
+public class ProfileUI extends JFrame {
 
     private static final int WIDTH = 300;
     private static final int HEIGHT = 500;
@@ -25,7 +25,7 @@ public class InstagramProfileUI extends JFrame {
     private JPanel navigationPanel; // Panel for the navigation
     private User currentUser; // User object to store the current user's information
 
-    public InstagramProfileUI(User user) {
+    public ProfileUI(User user) {
         this.currentUser = user;
         int imageCount = 0;
         int followersCount = 0;
@@ -407,7 +407,7 @@ public class InstagramProfileUI extends JFrame {
 
     private void openHomeUI() {
         this.dispose();
-        QuackstagramHomeUI homeUI = new QuackstagramHomeUI();
+        HomeUI homeUI = new HomeUI();
         homeUI.setVisible(true);
     }
 
