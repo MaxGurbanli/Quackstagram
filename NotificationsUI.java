@@ -34,6 +34,8 @@ public class NotificationsUI extends JFrame implements Observer {
         // Initialize observers and load notifications
         initializeObservers();
         loadNotifications();
+        notificationArea.setText(""); // Clear existing notifications
+
     }
 
     private void generateAndWriteNotification(String username, String likedUsername, String imageId) {
@@ -41,7 +43,8 @@ public class NotificationsUI extends JFrame implements Observer {
         String notificationMessage = username + ";" + likedUsername + ";" + imageId + ";" + LocalDateTime.now();
 
         // Write notification message to file
-        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get("data", "notifications.txt"), StandardOpenOption.APPEND)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get("data", "notifications.txt"),
+                StandardOpenOption.APPEND)) {
             writer.write(notificationMessage);
             writer.newLine();
         } catch (IOException e) {
@@ -59,14 +62,18 @@ public class NotificationsUI extends JFrame implements Observer {
         return contentPanel;
     }
 
-    private void initializeObservers() {
-        String likesFilePath = "data/likes.txt";
-    ImageLikesManager imageLikesManager = new ImageLikesManager(likesFilePath, this);
-    imageLikesManager.registerObserver(this);
-    }
-
     @Override
     public void update(String notification) {
+        displayNotification(notification);
+    }
+
+    private void initializeObservers() {
+        String likesFilePath = "data/likes.txt";
+        ImageLikesManager imageLikesManager = new ImageLikesManager(likesFilePath, this);
+        imageLikesManager.registerObserver(this);
+    }
+
+    public void displayNotification(String notification) {
         SwingUtilities.invokeLater(() -> {
             notificationArea.append(notification + "\n");
             // Scroll to the bottom to show the latest notification
@@ -79,7 +86,8 @@ public class NotificationsUI extends JFrame implements Observer {
         // Get current logged-in user
         String currentUser = getCurrentUsername();
 
-        // Generate and write notification only if the liked user is not the current user
+        // Generate and write notification only if the liked user is not the current
+        // user
         if (!likedUsername.equals(currentUser)) {
             generateAndWriteNotification(currentUser, likedUsername, imageId);
         }
