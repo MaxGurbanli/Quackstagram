@@ -2,9 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 
 public class SignInUI extends JFrame {
@@ -123,7 +121,7 @@ public class SignInUI extends JFrame {
                     String bio = credentials[2];
                     // Create User object and save information
                     newUser = new User(username, bio, password); // Assuming User constructor takes these parameters
-                    saveUserInformation(newUser);
+                    User.setLoggedInUser(newUser);
 
                     return true;
                 }
@@ -132,14 +130,6 @@ public class SignInUI extends JFrame {
             e.printStackTrace();
         }
         return false;
-    }
-
-    private void saveUserInformation(User user) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/users.txt", false))) {
-            writer.write(user.toString()); // Implement a suitable toString method in User class
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public static void main(String[] args) {

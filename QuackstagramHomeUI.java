@@ -159,7 +159,7 @@ public class QuackstagramHomeUI extends JFrame {
 
     private void handleSaveAction(String imageId, JButton saveButton) {
         // Save the image to the user's PC
-        String currentUser = getCurrentUser();
+        String currentUser = User.getLoggedInUser().getUsername();
         if (currentUser != null) {
             String sourcePath = "img/uploaded/" + imageId + ".png";
             String destinationPath = "img/saved/" + currentUser + "_" + imageId + ".png";
@@ -174,7 +174,7 @@ public class QuackstagramHomeUI extends JFrame {
     }
 
     private void handleLikeAction(String imageId, JLabel likesLabel) {
-        String currentUser = getCurrentUser();
+        String currentUser = User.getLoggedInUser().getUsername();
         if (currentUser != null && !imageLikesManager.hasLiked(imageId, currentUser)) {
             
             imageLikesManager.addLike(imageId, currentUser);
@@ -184,31 +184,10 @@ public class QuackstagramHomeUI extends JFrame {
         int updatedLikes = imageLikesManager.getLikesCount(imageId);
         SwingUtilities.invokeLater(() -> likesLabel.setText(updatedLikes + " likes"));
     }
-
-    private String getCurrentUser() {
-        try {
-            String result = Files.readAllLines(Paths.get("data\\users.txt")).get(0);
-            int iend = result.indexOf(":");
-            String user = result.substring(0, iend);
-            return user;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
     private String[][] createSampleData() {
-        String currentUser = "";
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
-            String line = reader.readLine();
-            if (line != null) {
-                currentUser = line.split(":")[0].trim();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String currentUsername = User.getLoggedInUser().getUsername();
 
-        Set<String> followedUsers = getFollowedUsers(currentUser);
+        Set<String> followedUsers = getFollowedUsers(currentUsername);
 
         // Temporary structure to hold the data
         String[][] tempData = new String[100][]; // Assuming a maximum of 100 posts for simplicity

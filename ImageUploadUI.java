@@ -3,7 +3,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -76,7 +75,7 @@ public class ImageUploadUI extends JFrame {
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
             try {
-                String username = readUsername(); // Read username from users.txt
+                String username = User.getLoggedInUser().getUsername();
                 int imageId = getNextImageId(username);
                 String fileExtension = getFileExtension(selectedFile);
                 String newFileName = username + "_" + imageId + "." + fileExtension;
@@ -179,17 +178,6 @@ public class ImageUploadUI extends JFrame {
         String bioText = bioTextArea.getText();
         // For example, save the bio text to a file or database
         JOptionPane.showMessageDialog(this, "Caption saved: " + bioText);
-    }
-
-    private String readUsername() throws IOException {
-        Path usersFilePath = Paths.get("data", "users.txt");
-        try (BufferedReader reader = Files.newBufferedReader(usersFilePath)) {
-            String line = reader.readLine();
-            if (line != null) {
-                return line.split(":")[0]; // Extract the username from the first line
-            }
-        }
-        return null; // Return null if no username is found
     }
 
     private void openHomeUI() {

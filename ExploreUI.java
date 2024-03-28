@@ -214,7 +214,7 @@ public class ExploreUI extends JFrame {
            }
        
            private void handleLikeAction(String imageId, JLabel likesLabel) {
-               String currentUser = getCurrentUser();
+               String currentUser = User.getLoggedInUser().getUsername();
                if (currentUser != null && !imageLikesManager.hasLiked(imageId, currentUser)) {
                    imageLikesManager.addLike(imageId, currentUser);
                    int updatedLikes = imageLikesManager.getLikesCount(imageId);
@@ -225,17 +225,7 @@ public class ExploreUI extends JFrame {
                    likesLabel.setText("Likes: " + updatedLikes);
                }
            }
-       
-           private String getCurrentUser() {
-               try {
-                   String result = Files.readAllLines(Paths.get("data\\users.txt")).get(0);
-                   int iend = result.indexOf(":");
-                   return result.substring(0, iend);
-               } catch (IOException e) {
-                   e.printStackTrace();
-                   return null;
-               }
-           }
+    
        
            private void ImageUploadUI() {
                // Open InstagramProfileUI frame

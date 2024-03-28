@@ -1,5 +1,6 @@
 Zara_1:max,Lorin
 Zara_2:max,Lorin
+max_2:Zara
 Mystar_1:max
 Mystar_2:
 Lorin_2:max

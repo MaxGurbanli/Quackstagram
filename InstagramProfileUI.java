@@ -105,7 +105,7 @@ public class InstagramProfileUI extends JFrame {
 
         // Header Panel
         JPanel headerPanel = new JPanel();
-        try (Stream<String> lines = Files.lines(Paths.get("data", "users.txt"))) {
+        try (Stream<String> lines = Files.lines(Paths.get("data", "user.txt"))) {
             isCurrentUser = lines.anyMatch(line -> line.startsWith(currentUser.getUsername() + ":"));
         } catch (IOException e) {
             e.printStackTrace(); // Log or handle the exception as appropriate
