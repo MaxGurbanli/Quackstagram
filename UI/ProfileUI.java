@@ -141,6 +141,7 @@ public class ProfileUI extends JFrame {
         JButton followOrEditProfileButton;
         if (isCurrentUser) {
             followOrEditProfileButton = new JButton("Edit Profile");
+            openEditProfileUI();
         } else {
             followOrEditProfileButton = new JButton("Follow");
 
@@ -416,5 +417,11 @@ public class ProfileUI extends JFrame {
         ExploreUI explore = new ExploreUI();
         explore.setVisible(true);
     }
+    private void openEditProfileUI() {
+        this.dispose(); // Close current profile UI
+        EditProfileUI editProfileUI = new EditProfileUI(currentUser); // Open edit profile UI
+        editProfileUI.setVisible(true);
+        }
+    
 
 }
