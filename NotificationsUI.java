@@ -34,24 +34,13 @@ public class NotificationsUI extends JFrame {
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
-        String currentUsername = getCurrentUsername();
+        User currentUser = User.getLoggedInUser();
+        String currentUsername = currentUser.getUsername();
         populateNotifications(contentPanel, currentUsername);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(scrollPane, BorderLayout.CENTER);
         return mainPanel;
-    }
-
-    private String getCurrentUsername() {
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "users.txt"))) {
-            String line = reader.readLine();
-            if (line != null) {
-                return line.split(":")[0].trim();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return "";
     }
 
     private void populateNotifications(JPanel contentPanel, String currentUsername) {
