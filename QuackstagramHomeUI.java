@@ -26,7 +26,6 @@ public class QuackstagramHomeUI extends JFrame {
     private JPanel homePanel;
     private JPanel imageViewPanel;
     private ImageLikesManager imageLikesManager;
-    
 
     public QuackstagramHomeUI() {
         InitializeUI.setupFrame(this, "Quakstagram Home");
@@ -176,7 +175,7 @@ public class QuackstagramHomeUI extends JFrame {
     private void handleLikeAction(String imageId, JLabel likesLabel) {
         String currentUser = User.getLoggedInUser().getUsername();
         if (currentUser != null && !imageLikesManager.hasLiked(imageId, currentUser)) {
-            
+
             imageLikesManager.addLike(imageId, currentUser);
         } else {
             imageLikesManager.removeLike(imageId, currentUser);
@@ -184,6 +183,7 @@ public class QuackstagramHomeUI extends JFrame {
         int updatedLikes = imageLikesManager.getLikesCount(imageId);
         SwingUtilities.invokeLater(() -> likesLabel.setText(updatedLikes + " likes"));
     }
+
     private String[][] createSampleData() {
         String currentUsername = User.getLoggedInUser().getUsername();
 

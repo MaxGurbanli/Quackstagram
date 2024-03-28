@@ -166,26 +166,29 @@ public class InstagramProfileUI extends JFrame {
                 if (status.equals("Follow")) {
                     followOrEditProfileButton.setText("Following");
                     handleFollowAction(currentUser.getUsername());
-                } else if (status.equals("Following")){
+                } else if (status.equals("Following")) {
                     followOrEditProfileButton.setText("Follow");
                     handleFollowAction(currentUser.getUsername());
                 }
                 // else {
-                //     // Open the edit profile UI
-                //     EditProfileUI editProfileUI = new EditProfileUI(currentUser);
-                //     editProfileUI.setVisible(true);
+                // // Open the edit profile UI
+                // EditProfileUI editProfileUI = new EditProfileUI(currentUser);
+                // editProfileUI.setVisible(true);
                 // }
             });
         }
 
         followOrEditProfileButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         followOrEditProfileButton.setFont(new Font("Arial", Font.BOLD, 12));
-        followOrEditProfileButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, followOrEditProfileButton.getMinimumSize().height)); // Make the
-                                                                                                             // button
-                                                                                                             // fill the
-                                                                                                             // horizontal
-                                                                                                             // space
-        followOrEditProfileButton.setBackground(new Color(225, 228, 232)); // A soft, appealing color that complements the UI
+        followOrEditProfileButton
+                .setMaximumSize(new Dimension(Integer.MAX_VALUE, followOrEditProfileButton.getMinimumSize().height)); // Make
+                                                                                                                      // the
+        // button
+        // fill the
+        // horizontal
+        // space
+        followOrEditProfileButton.setBackground(new Color(225, 228, 232)); // A soft, appealing color that complements
+                                                                           // the UI
         followOrEditProfileButton.setForeground(Color.BLACK);
         followOrEditProfileButton.setOpaque(true);
         followOrEditProfileButton.setBorderPainted(false);

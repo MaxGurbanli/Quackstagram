@@ -113,9 +113,11 @@ class User {
         return this.username.equals(currentUsername);
     }
 
-    public static User getUserByImageId (String imageId) {
-        // read image_details.txt to find the current image by imageId and the person to whom the image belongs
-        // Sample: ImageID: Lorin_1, Username: Lorin, Bio: In the cookie jar my hand was not., Timestamp: 2023-12-17 19:07:43
+    public static User getUserByImageId(String imageId) {
+        // read image_details.txt to find the current image by imageId and the person to
+        // whom the image belongs
+        // Sample: ImageID: Lorin_1, Username: Lorin, Bio: In the cookie jar my hand was
+        // not., Timestamp: 2023-12-17 19:07:43
         Path imageDetailsFilePath = Paths.get("img", "image_details.txt");
         try (BufferedReader reader = Files.newBufferedReader(imageDetailsFilePath)) {
             String line;

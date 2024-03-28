@@ -47,7 +47,9 @@ public class ExploreUI extends JFrame {
         JPanel searchPanel = new JPanel(new BorderLayout());
         JTextField searchField = new JTextField(" Search Users");
         searchPanel.add(searchField, BorderLayout.CENTER);
-        searchPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, searchField.getPreferredSize().height)); // Limit the height
+        searchPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, searchField.getPreferredSize().height)); // Limit
+                                                                                                             // the
+                                                                                                             // height
 
         // Image Grid
         JPanel imageGridPanel = new JPanel(new GridLayout(0, 3, 2, 2)); // 3 columns, auto rows
@@ -151,116 +153,110 @@ public class ExploreUI extends JFrame {
         bottomPanel.add(bioTextArea, BorderLayout.CENTER);
         bottomPanel.add(likesLabel, BorderLayout.SOUTH);
 
-         // Adding the components to the frame
-         add(topPanel, BorderLayout.NORTH);
-         add(imageLabel, BorderLayout.CENTER);
-         add(bottomPanel, BorderLayout.SOUTH);
- 
+        // Adding the components to the frame
+        add(topPanel, BorderLayout.NORTH);
+        add(imageLabel, BorderLayout.CENTER);
+        add(bottomPanel, BorderLayout.SOUTH);
 
-               // Re-add the header and navigation panels
-               add(InitializeUI.createHeaderPanel("Explore"), BorderLayout.NORTH);
-               add(navigationPanel, BorderLayout.SOUTH);
-       
-               // Panel for the back button
-               JPanel backButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-               JButton backButton = new JButton("Back");
-       
-               // Make the button take up the full width
-               backButton.setPreferredSize(new Dimension(WIDTH - 20, backButton.getPreferredSize().height));
-       
-               backButtonPanel.add(backButton);
-       
-               backButton.addActionListener(e -> {
-                   getContentPane().removeAll();
-                   add(InitializeUI.createHeaderPanel("Explore"), BorderLayout.NORTH);
-                   add(createMainContentPanel(), BorderLayout.CENTER);
-                   add(navigationPanel, BorderLayout.SOUTH);
-                   revalidate();
-                   repaint();
-               });
-       
-               final String finalUsername = username;
-               usernameLabel.addActionListener(e -> {
-                   User user = new User(finalUsername); // Assuming User class has a constructor that takes a username
-                   InstagramProfileUI profileUI = new InstagramProfileUI(user);
-                   profileUI.setVisible(true);
-                   dispose(); // Close the current frame
-               });
-       
-               JButton likeButton = new JButton("Like");
-               likeButton.setBackground(LIKE_BUTTON_COLOR);
-               likeButton.addActionListener(e -> {
-                   handleLikeAction(imageId, likesLabel);
-               });
-               bottomPanel.add(likeButton);
-       
-               // Container panel for image and details
-               JPanel containerPanel = new JPanel(new BorderLayout());
-       
-               containerPanel.add(topPanel, BorderLayout.NORTH);
-               containerPanel.add(imageLabel, BorderLayout.CENTER);
-               containerPanel.add(bottomPanel, BorderLayout.SOUTH);
-       
-              
-               
-       
-               // Add the container panel and back button panel to the frame
-               add(backButtonPanel, BorderLayout.NORTH);
-               add(containerPanel, BorderLayout.CENTER);
-              
-       
-               revalidate();
-               repaint();
-           }
-       
-           private void handleLikeAction(String imageId, JLabel likesLabel) {
-               String currentUser = User.getLoggedInUser().getUsername();
-               if (currentUser != null && !imageLikesManager.hasLiked(imageId, currentUser)) {
-                   imageLikesManager.addLike(imageId, currentUser);
-                   int updatedLikes = imageLikesManager.getLikesCount(imageId);
-                   likesLabel.setText("Likes: " + updatedLikes);
-               } else {
-                   imageLikesManager.removeLike(imageId, currentUser);
-                   int updatedLikes = imageLikesManager.getLikesCount(imageId);
-                   likesLabel.setText("Likes: " + updatedLikes);
-               }
-           }
-    
-       
-           private void ImageUploadUI() {
-               // Open InstagramProfileUI frame
-               this.dispose();
-               ImageUploadUI upload = new ImageUploadUI();
-               upload.setVisible(true);
-           }
-       
-           private void openProfileUI() {
-               // Open InstagramProfileUI frame
-               this.dispose();
-               User user = User.getLoggedInUser();
-               InstagramProfileUI profileUI = new InstagramProfileUI(user);
-               profileUI.setVisible(true);
-           }
-       
-           private void notificationsUI() {
-               // Open InstagramProfileUI frame
-               this.dispose();
-               NotificationsUI notificationsUI = new NotificationsUI();
-               notificationsUI.setVisible(true);
-           }
-       
-           private void openHomeUI() {
-               // Open InstagramProfileUI frame
-               this.dispose();
-               QuackstagramHomeUI homeUI = new QuackstagramHomeUI();
-               homeUI.setVisible(true);
-           }
-       
-           private void exploreUI() {
-               // Open InstagramProfileUI frame
-               this.dispose();
-               ExploreUI explore = new ExploreUI();
-               explore.setVisible(true);
-           }
-       
-       }
+        // Re-add the header and navigation panels
+        add(InitializeUI.createHeaderPanel("Explore"), BorderLayout.NORTH);
+        add(navigationPanel, BorderLayout.SOUTH);
+
+        // Panel for the back button
+        JPanel backButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JButton backButton = new JButton("Back");
+
+        // Make the button take up the full width
+        backButton.setPreferredSize(new Dimension(WIDTH - 20, backButton.getPreferredSize().height));
+
+        backButtonPanel.add(backButton);
+
+        backButton.addActionListener(e -> {
+            getContentPane().removeAll();
+            add(InitializeUI.createHeaderPanel("Explore"), BorderLayout.NORTH);
+            add(createMainContentPanel(), BorderLayout.CENTER);
+            add(navigationPanel, BorderLayout.SOUTH);
+            revalidate();
+            repaint();
+        });
+
+        final String finalUsername = username;
+        usernameLabel.addActionListener(e -> {
+            User user = new User(finalUsername); // Assuming User class has a constructor that takes a username
+            InstagramProfileUI profileUI = new InstagramProfileUI(user);
+            profileUI.setVisible(true);
+            dispose(); // Close the current frame
+        });
+
+        JButton likeButton = new JButton("Like");
+        likeButton.setBackground(LIKE_BUTTON_COLOR);
+        likeButton.addActionListener(e -> {
+            handleLikeAction(imageId, likesLabel);
+        });
+        bottomPanel.add(likeButton);
+
+        // Container panel for image and details
+        JPanel containerPanel = new JPanel(new BorderLayout());
+
+        containerPanel.add(topPanel, BorderLayout.NORTH);
+        containerPanel.add(imageLabel, BorderLayout.CENTER);
+        containerPanel.add(bottomPanel, BorderLayout.SOUTH);
+
+        // Add the container panel and back button panel to the frame
+        add(backButtonPanel, BorderLayout.NORTH);
+        add(containerPanel, BorderLayout.CENTER);
+
+        revalidate();
+        repaint();
+    }
+
+    private void handleLikeAction(String imageId, JLabel likesLabel) {
+        String currentUser = User.getLoggedInUser().getUsername();
+        if (currentUser != null && !imageLikesManager.hasLiked(imageId, currentUser)) {
+            imageLikesManager.addLike(imageId, currentUser);
+            int updatedLikes = imageLikesManager.getLikesCount(imageId);
+            likesLabel.setText("Likes: " + updatedLikes);
+        } else {
+            imageLikesManager.removeLike(imageId, currentUser);
+            int updatedLikes = imageLikesManager.getLikesCount(imageId);
+            likesLabel.setText("Likes: " + updatedLikes);
+        }
+    }
+
+    private void ImageUploadUI() {
+        // Open InstagramProfileUI frame
+        this.dispose();
+        ImageUploadUI upload = new ImageUploadUI();
+        upload.setVisible(true);
+    }
+
+    private void openProfileUI() {
+        // Open InstagramProfileUI frame
+        this.dispose();
+        User user = User.getLoggedInUser();
+        InstagramProfileUI profileUI = new InstagramProfileUI(user);
+        profileUI.setVisible(true);
+    }
+
+    private void notificationsUI() {
+        // Open InstagramProfileUI frame
+        this.dispose();
+        NotificationsUI notificationsUI = new NotificationsUI();
+        notificationsUI.setVisible(true);
+    }
+
+    private void openHomeUI() {
+        // Open InstagramProfileUI frame
+        this.dispose();
+        QuackstagramHomeUI homeUI = new QuackstagramHomeUI();
+        homeUI.setVisible(true);
+    }
+
+    private void exploreUI() {
+        // Open InstagramProfileUI frame
+        this.dispose();
+        ExploreUI explore = new ExploreUI();
+        explore.setVisible(true);
+    }
+
+}

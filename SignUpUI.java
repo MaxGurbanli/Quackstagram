@@ -47,34 +47,33 @@ public class SignUpUI extends JFrame {
         lblPhoto = UIComponentsUtil.createPhotoLabel("img/logos/DACS.png");
         JPanel photoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         photoPanel.add(lblPhoto);
-    
+
         JPanel fieldsPanel = new JPanel();
         fieldsPanel.setLayout(new BoxLayout(fieldsPanel, BoxLayout.Y_AXIS));
         fieldsPanel.setBorder(BorderFactory.createEmptyBorder(5, 20, 5, 20));
         fieldsPanel.add(Box.createVerticalStrut(10));
         fieldsPanel.add(photoPanel);
         fieldsPanel.add(Box.createVerticalStrut(10));
-    
+
         // Initialize text fields before adding them
         txtUsername = UIComponentsUtil.createTextField("", Color.BLACK);
         txtPassword = UIComponentsUtil.createTextField("", Color.BLACK);
         txtBio = UIComponentsUtil.createTextField("", Color.BLACK);
-    
+
         addField(fieldsPanel, "Username", txtUsername);
         addField(fieldsPanel, "Password", txtPassword);
         addField(fieldsPanel, "Bio", txtBio);
-    
+
         addPhotoUploadButton(fieldsPanel);
-    
+
         return fieldsPanel;
     }
-    
+
     private void addField(JPanel panel, String labelText, JTextField textField) {
         JLabel label = new JLabel(labelText);
         panel.add(label);
         panel.add(textField); // Use the passed textField directly without reinitializing it
     }
-    
 
     private void addPhotoUploadButton(JPanel panel) {
         btnUploadPhoto = UIComponentsUtil.createButton("Upload Photo", e -> handleProfilePictureUpload());
@@ -111,7 +110,7 @@ public class SignUpUI extends JFrame {
             DisplayError.displayError(this, "Password must be at least 6 characters long.");
             return;
         }
-    
+
         saveCredentials(username, password, bio);
         handleProfilePictureUpload();
         dispose();

@@ -98,7 +98,7 @@ public class SignInUI extends JFrame {
             });
         } else {
             DisplayError.displayError(this, "Invalid username or password. Please try again.");
-            }
+        }
     }
 
     private void onRegisterNowClicked(ActionEvent event) {
@@ -120,7 +120,7 @@ public class SignInUI extends JFrame {
                 if (credentials[0].equals(username) && credentials[1].equals(password)) {
                     String bio = credentials[2];
                     // Create User object and save information
-                    newUser = new User(username, bio, password); // Assuming User constructor takes these parameters
+                    newUser = new User(username, bio, password);
                     User.setLoggedInUser(newUser);
 
                     return true;

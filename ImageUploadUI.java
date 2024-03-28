@@ -24,11 +24,11 @@ public class ImageUploadUI extends JFrame {
         JPanel contentPanel = initializeContentPanel();
 
         ActionListener[] actions = {
-            e -> openHomeUI(),
-            e -> exploreUI(),
-            e -> UploadImageUI(),
-            e -> notificationsUI(),
-            e -> openProfileUI()
+                e -> openHomeUI(),
+                e -> exploreUI(),
+                e -> UploadImageUI(),
+                e -> notificationsUI(),
+                e -> openProfileUI()
         };
         JPanel navigationPanel = InitializeUI.createNavigationPanel(actions);
 

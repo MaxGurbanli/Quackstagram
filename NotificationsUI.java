@@ -41,7 +41,8 @@ public class NotificationsUI extends JFrame implements Observer {
     private void generateAndWriteNotification(String likerUsername, String imagePosterUsername, String imageId) {
         // Generate notification message
         System.out.println("generating notification");
-        String notificationMessage = imagePosterUsername + ";" + likerUsername + ";" + imageId + ";" + LocalDateTime.now();
+        String notificationMessage = imagePosterUsername + ";" + likerUsername + ";" + imageId + ";"
+                + LocalDateTime.now();
 
         // Write notification message to file
         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get("data", "notifications.txt"),
@@ -95,7 +96,7 @@ public class NotificationsUI extends JFrame implements Observer {
 
         // Generate and write notification only if the liked user is not the current
         // user
-        
+
         if (currentUser == imagePoster) {
             System.out.println("User liked their own image");
             return;
@@ -111,7 +112,6 @@ public class NotificationsUI extends JFrame implements Observer {
         }
     }
 
-
     private void populateNotifications(JPanel mainContentPanel, String currentUsername) {
         try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "notifications.txt"))) {
             String line;
@@ -122,7 +122,8 @@ public class NotificationsUI extends JFrame implements Observer {
                 String imageId = notificationDetails[2];
                 String timestamp = notificationDetails[3];
                 if (currentUsername.equals(imagePosterUsername)) {
-                    String notificationMessage = likerUsername + " liked your image " + imageId + " " + getElapsedTime(timestamp) + " ago";
+                    String notificationMessage = likerUsername + " liked your image " + imageId + " "
+                            + getElapsedTime(timestamp) + " ago";
                     JLabel notificationLabel = new JLabel(notificationMessage);
                     mainContentPanel.add(notificationLabel);
                 }
