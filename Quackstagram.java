@@ -1,4 +1,4 @@
-package UI;
+import UI.SignInUI;
 
 public class Quackstagram {
     public static void main(String[] args) {
