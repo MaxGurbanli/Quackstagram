@@ -1,19 +1,6 @@
-<<<<<<< HEAD
->>>>>>> Max:
-<<<<<<< HEAD:
-=======:
 Zara_1:
 Zara_2:max
 Mystar_1:max
 Mystar_2:
 Lorin_2:max
 Lorin_1:max
-=======
-Xylo_2:Xylo
-Zara_1:max,Lorin
-Zara_2:max,Lorin
-Mystar_1:max,Lorin
-Mystar_2:max
-Lorin_2:max,Mystar,Zara
-Lorin_1:max,Mystar,Zara
->>>>>>> 698abd1115027ff5272467db2394785dc3a2329d
