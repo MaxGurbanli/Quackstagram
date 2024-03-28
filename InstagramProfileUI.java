@@ -102,7 +102,6 @@ public class InstagramProfileUI extends JFrame {
         boolean isCurrentUser = false;
         User loggedInUser = User.getLoggedInUser();
         String loggedInUsername = loggedInUser.getUsername();
-
         // Header Panel
         JPanel headerPanel = new JPanel();
         try (Stream<String> lines = Files.lines(Paths.get("data", "users.txt"))) {
@@ -138,6 +137,10 @@ public class InstagramProfileUI extends JFrame {
         JButton followOrEditProfileButton;
         if (isCurrentUser) {
             followOrEditProfileButton = new JButton("Edit Profile");
+            followOrEditProfileButton.addActionListener(e -> {
+            openEditProfileUI();
+            });
+
         } else {
             followOrEditProfileButton = new JButton("Follow");
 
@@ -205,7 +208,7 @@ public class InstagramProfileUI extends JFrame {
         profileNameAndBioPanel.setLayout(new BorderLayout());
         profileNameAndBioPanel.setBackground(new Color(249, 249, 249));
 
-        JLabel profileNameLabel = new JLabel(currentUser.getUsername());
+        JLabel profileNameLabel = new JLabel(loggedInUser.getUsername());
         profileNameLabel.setFont(new Font("Arial", Font.BOLD, 14));
         profileNameLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10)); // Padding on the sides
 
@@ -410,5 +413,11 @@ public class InstagramProfileUI extends JFrame {
         ExploreUI explore = new ExploreUI();
         explore.setVisible(true);
     }
+    private void openEditProfileUI() {
+        this.dispose(); // Close current profile UI
+        EditProfileUI editProfileUI = new EditProfileUI(currentUser); // Open edit profile UI
+        editProfileUI.setVisible(true);
+    }
+
 
 }

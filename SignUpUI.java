@@ -166,6 +166,12 @@ public class SignUpUI extends JFrame {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/usernames.txt", true))) {
+            writer.write(username);
+            writer.newLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void openSignInUI() {

@@ -15,6 +15,7 @@ class User {
     private int followersCount;
     private int followingCount;
     private List<Picture> pictures;
+    private String displayName;
 
     public User(String username, String bio, String password) {
         this.username = username;
@@ -37,7 +38,6 @@ class User {
         postsCount++;
     }
 
-    // Getter methods for user details
     public String getUsername() {
         return username;
     }

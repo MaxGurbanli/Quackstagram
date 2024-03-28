@@ -115,14 +115,24 @@ public class SignInUI extends JFrame {
     }
 
     private boolean verifyCredentials(String username, String password) {
-        try (BufferedReader reader = new BufferedReader(new FileReader("data/credentials.txt"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] credentials = line.split(":");
-                if (credentials[0].equals(username) && credentials[1].equals(password)) {
-                    String bio = credentials[2];
+        try (BufferedReader usernameReader = new BufferedReader(new FileReader("data/usernames.txt"));
+             BufferedReader credentialsReader = new BufferedReader(new FileReader("data/credentials.txt"))) {
+
+            String usernameLine;
+            String credentialsLine;
+
+            while ((usernameLine = usernameReader.readLine()) != null &&
+                    (credentialsLine = credentialsReader.readLine()) != null) {
+                String[] usernames = usernameLine.split(":");
+                String[] credentials = credentialsLine.split(":");
+
+                // Check if the username and password match
+                if (usernames.length >= 1 && credentials.length >= 2 &&
+                        usernames[0].equals(username) && credentials[1].equals(password)) {
+                    String bio = credentials.length >= 3 ? credentials[2] : "";
+
                     // Create User object and save information
-                    newUser = new User(username, bio, password); // Assuming User constructor takes these parameters
+                    newUser = new User(credentials[0], bio, password); // Assuming User constructor takes these parameters
                     saveUserInformation(newUser);
 
                     return true;
@@ -133,6 +143,7 @@ public class SignInUI extends JFrame {
         }
         return false;
     }
+
 
     private void saveUserInformation(User user) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/users.txt", false))) {
