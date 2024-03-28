@@ -18,8 +18,11 @@ public class NotificationsUI extends JFrame implements Observer {
 
     public NotificationsUI() {
         InitializeUI.setupFrame(this, "Notifications");
-        JPanel headerPanel = InitializeUI.createHeaderPanel("Notifications 🐥");
+        JPanel headerPanel = InitializeUI.createHeaderPanel("Notifications ");
         JPanel mainContentPanel = createMainContentPanel();
+        String likesFilePath = "data/likes.txt";
+        ImageLikesManager imageLikesManager = new ImageLikesManager(likesFilePath, this);
+        imageLikesManager.registerObserver(this);
         ActionListener[] actions = {
                 e -> openHomeUI(),
                 e -> exploreUI(),
@@ -31,11 +34,10 @@ public class NotificationsUI extends JFrame implements Observer {
 
         InitializeUI.addComponents(this, headerPanel, mainContentPanel, navigationPanel);
 
-        // Initialize observers and load notifications
+        
         initializeObservers();
         loadNotifications();
-        notificationArea.setText(""); // Clear existing notifications
-
+        notificationArea.setText(""); 
     }
 
     private void generateAndWriteNotification(String username, String likedUsername, String imageId) {
@@ -69,7 +71,7 @@ public class NotificationsUI extends JFrame implements Observer {
 
     private void initializeObservers() {
         String likesFilePath = "data/likes.txt";
-        ImageLikesManager imageLikesManager = new ImageLikesManager(likesFilePath, this);
+        ImageLikesManager imageLikesManager = new ImageLikesManager(likesFilePath, this); // Register NotificationsUI as observer
         imageLikesManager.registerObserver(this);
     }
 

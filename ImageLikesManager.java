@@ -2,34 +2,38 @@ import java.io.*;
 import java.io.IOException;
 import java.util.*;
 
+
 public class ImageLikesManager implements Subject {
+
     private List<Observer> observers = new ArrayList<>();
     private Map<String, Set<String>> likesMap;
     private LikesFileHandler fileHandler; // Define fileHandler as a field
     private NotificationsUI notificationsUI;
+    
+
+    public ImageLikesManager(String filePath) {
+        this.fileHandler = new LikesFileHandler(filePath);
+        this.likesMap = loadLikes();
+    }
 
     public ImageLikesManager(String filePath, NotificationsUI notificationsUI) {
         this.fileHandler = new LikesFileHandler(filePath);
-        this.notificationsUI = notificationsUI;
-        loadLikes();
+        this.likesMap = loadLikes();
+        if (notificationsUI != null) { // Register NotificationsUI if provided
+            registerObserver(notificationsUI);
+        }
     }
-
-    public void registerNotificationsUI(NotificationsUI notificationsUI) {
-        registerObserver(notificationsUI);
-    }
-    
-    
-    
-    
+   
 
 
-    private void loadLikes() {
+    private Map<String, Set<String>> loadLikes() {
         try {
             likesMap = fileHandler.readLikes();
         } catch (IOException e) {
             e.printStackTrace();
             likesMap = null;
         }
+        return likesMap;
     }
 
     public void addLike(String imageId, String username) {
