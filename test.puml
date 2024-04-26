@@ -28,8 +28,19 @@ entity "Follow" as follow {
   target : User
 }
 
+entity "Notification" as notification {
+  + user : User
+  --
+  target : User
+  post : Post
+  date : Date
+  time : Time
+}
+
 user "1" -- "0..*" post
 user "1" -- "0..*" like
 user "1" -- "0..*" follow
+user "1" -- "0..*" notification
+notification "1" -- "1" post
 post "1" -- "0..*" like
 @enduml
