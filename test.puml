@@ -1,0 +1,35 @@
+@startuml QuackstagramERD
+entity "User" as user {
+  + username : String
+  --
+  bio : String
+  password : String
+  postsCount : Integer
+  followersCount : Integer
+  followingCount : Integer
+}
+
+entity "Post" as post {
+  + imagePath : String
+  --
+  caption : String
+  likesCount : Integer
+}
+
+entity "Like" as like {
+  + user : User
+  --
+  post : Post
+}
+
+entity "Follow" as follow {
+  + user : User
+  --
+  target : User
+}
+
+user "1" -- "0..*" post
+user "1" -- "0..*" like
+user "1" -- "0..*" follow
+post "1" -- "0..*" like
+@enduml
