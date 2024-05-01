@@ -16,7 +16,7 @@ entity "Post" as post {
   likesCount : Integer
 }
 
-entity "Like" as like {
+entity "PostLike" as postlike {
   + user : User
   --
   post : Post
@@ -38,9 +38,9 @@ entity "Notification" as notification {
 }
 
 user "1" -- "0..*" post
-user "1" -- "0..*" like
+user "1" -- "0..*" postlike
 user "1" -- "0..*" follow
 user "1" -- "0..*" notification
 notification "1" -- "1" post
-post "1" -- "0..*" like
+post "1" -- "0..*" postlike
 @enduml
