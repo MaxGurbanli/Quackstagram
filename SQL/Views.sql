@@ -18,3 +18,6 @@ SELECT target AS username, COUNT(*) AS notifications_count
 FROM Notification
 GROUP BY target
 HAVING COUNT(*) > 0;
+
+CREATE INDEX ind_postlike_username ON PostLike(username);
+CREATE INDEX ind_notification_target ON Notification(target);
