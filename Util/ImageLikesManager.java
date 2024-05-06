@@ -2,6 +2,10 @@ package Util;
 import java.io.IOException;
 import java.util.*;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+
 import UI.NotificationsUI;
 
 public class ImageLikesManager implements Subject {
@@ -93,6 +97,23 @@ public class ImageLikesManager implements Subject {
     }
 
     public int getLikesCount(String imageId) {
-        return likesMap.getOrDefault(imageId, Collections.emptySet()).size();
+        int likesCount = 0;
+        try {
+            // Connect to the database
+            Connection conn = DatabaseConnection.getConnection();
+            Statement stmt = conn.createStatement();
+    
+            // Execute a SQL query to get likes count
+            ResultSet rs = stmt.executeQuery("SELECT COUNT(*) AS likesCount FROM PictureLike WHERE pictureId = '" + imageId + "'");
+    
+            if (rs.next()) {
+                likesCount = rs.getInt("likesCount");
+            }
+    
+            conn.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return likesCount;
     }
 }

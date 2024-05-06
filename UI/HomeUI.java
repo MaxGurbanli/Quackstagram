@@ -2,10 +2,16 @@ package UI;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
+import Util.DatabaseConnection;
 import Util.DisplayError;
 import Util.ImageLikesManager;
 import Util.InitializeUI;
 import Util.User;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -13,12 +19,10 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -193,50 +197,58 @@ public class HomeUI extends JFrame {
 
     private String[][] createSampleData() {
         String currentUsername = User.getLoggedInUser().getUsername();
-
+    
         Set<String> followedUsers = getFollowedUsers(currentUsername);
-
+    
         // Temporary structure to hold the data
         String[][] tempData = new String[100][]; // Assuming a maximum of 100 posts for simplicity
         int count = 0;
-
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get("img", "image_details.txt"))) {
-            String line;
-            while ((line = reader.readLine()) != null && count < tempData.length) {
-                String[] details = line.split(", ");
-                String imagePoster = details[1].split(": ")[1];
-                if (followedUsers.contains(imagePoster)) {
-                    String imagePath = "img/uploaded/" + details[0].split(": ")[1] + ".png"; // Assuming PNG format
-                    String description = details[2].split(": ")[1];
-
-                    int numLikes = imageLikesManager.getLikesCount(details[0].split(": ")[1]);
-                    String likes = numLikes + " likes";
-
-                    tempData[count++] = new String[] { imagePoster, description, likes, imagePath };
-                }
+    
+        try {
+            // Connect to the database
+            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/your_database", "username", "password");
+            Statement stmt = conn.createStatement();
+    
+            // Execute a SQL query to get image details
+            ResultSet rs = stmt.executeQuery("SELECT * FROM Picture WHERE author IN (SELECT targetId FROM Follow WHERE followerId = (SELECT id FROM User WHERE username = '" + currentUsername + "'))");
+    
+            while (rs.next() && count < tempData.length) {
+                String imagePoster = rs.getString("author");
+                String imagePath = "img/uploaded/" + rs.getString("imagePath") + ".png"; // Assuming PNG format
+                String description = rs.getString("caption");
+    
+                int numLikes = imageLikesManager.getLikesCount(rs.getString("id"));
+                String likes = numLikes + " likes";
+    
+                tempData[count++] = new String[] { imagePoster, description, likes, imagePath };
             }
-        } catch (IOException e) {
+    
+            conn.close();
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
+    
         // Transfer the data to the final array
         String[][] sampleData = new String[count][];
         System.arraycopy(tempData, 0, sampleData, 0, count);
-
+    
         return sampleData;
     }
-
+    
     private Set<String> getFollowedUsers(String currentUser) {
         Set<String> followedUsers = new HashSet<>();
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "following.txt"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.startsWith(currentUser + ":")) {
-                    Collections.addAll(followedUsers, line.split(":")[1].trim().split("; "));
-                    break;
-                }
+        try {
+            // Get the singleton database connection
+            Connection conn = DatabaseConnection.getConnection();
+            Statement stmt = conn.createStatement();
+
+            // Execute a SQL query to get followed users
+            ResultSet rs = stmt.executeQuery("SELECT targetId FROM Follow WHERE followerId = (SELECT id FROM User WHERE username = '" + currentUser + "')");
+
+            while (rs.next()) {
+                followedUsers.add(rs.getString("targetId"));
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return followedUsers;
