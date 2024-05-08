@@ -4,45 +4,41 @@ entity "User" as user {
   --
   bio : varchar(255)
   password : varchar(255)
-  postsCount : int
+  picturesCount : int
   followersCount : int
   followingCount : int
 }
 
-entity "Post" as post {
-  + id : int
+entity "Picture" as picture {
+  author : User
   --
   imagePath : varchar(255)
   caption : varchar(255)
   likesCount : int
-  username : User
 }
 
-entity "PostLike" as postlike {
-  + id : int
-  --
+entity "PictureLike" as picturelike {
   username : User
-  postId : Post
+  --
+  pictureId : Post
 }
 
 entity "Follow" as follow {
-  + id : int
+  + username : User
   --
-  username : User
   target : User
 }
 
 entity "Notification" as notification {
-  + id : int
-  --
   username : User
-  target : User
+  --
+  type : varchar(255)
 }
 
-user "1" -- "0..*" post
-user "1" -- "0..*" postlike
+user "1" -- "0..*" picture
+user "1" -- "0..*" picturelike
 user "1" -- "0..*" follow
 user "1" -- "0..*" notification
-notification "1" -- "1" post
-post "1" -- "0..*" postlike
+notification "1" -- "1" picture
+picture "1" -- "0..*" picturelike
 @enduml
