@@ -1,15 +1,15 @@
 @startuml QuackstagramERD
+
 entity "User" as user {
+  + id : int
   + username : varchar(255)
   --
   bio : varchar(255)
   password : varchar(255)
-  picturesCount : int
-  followersCount : int
-  followingCount : int
 }
 
 entity "Picture" as picture {
+  + id : int
   author : User
   --
   imagePath : varchar(255)
@@ -18,27 +18,59 @@ entity "Picture" as picture {
 }
 
 entity "PictureLike" as picturelike {
-  username : User
+  + id : int
+  liker : User
   --
-  pictureId : Post
+  picture : Picture
 }
 
 entity "Follow" as follow {
-  + username : User
+  + id : int
+  follower : User
   --
   target : User
 }
 
 entity "Notification" as notification {
-  username : User
+  + id : int
+  notifier : User
   --
-  type : varchar(255)
+  type : NotificationType
+  picture : Picture
+}
+
+entity "PictureCount" as piccount {
+  + userId : int
+  --
+  count : int
+}
+
+entity "FollowersCount" as fcount {
+  + userId : int
+  --
+  count : int
+}
+
+entity "FollowingCount" as flcount {
+  + userId : int
+  --
+  count : int
+}
+
+entity "NotificationType" as ntype {
+  + typeId : int
+  --
+  description : varchar(255)
 }
 
 user "1" -- "0..*" picture
 user "1" -- "0..*" picturelike
 user "1" -- "0..*" follow
 user "1" -- "0..*" notification
-notification "1" -- "1" picture
+user "1" -- "1" piccount
+user "1" -- "1" fcount
+user "1" -- "1" flcount
+notification "0..*" -- "1" picture
 picture "1" -- "0..*" picturelike
+
 @enduml
