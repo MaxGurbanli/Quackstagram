@@ -1,74 +1,20 @@
 package Util;
-import java.io.IOException;
 import java.util.*;
-
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
-
 import UI.NotificationsUI;
 
 public class ImageLikesManager implements Subject {
 
     private List<Observer> observers = new ArrayList<>();
-    private Map<String, Set<String>> likesMap;
-    private LikesFileHandler fileHandler; // Define fileHandler as a field
     private NotificationsUI notificationsUI;
 
-    public ImageLikesManager(String filePath) {
-        this.fileHandler = new LikesFileHandler(filePath);
-        this.likesMap = loadLikes();
+    public ImageLikesManager() {
         this.notificationsUI = new NotificationsUI();
         registerObserver(notificationsUI);
     }
 
-    public ImageLikesManager(String filePath, NotificationsUI notificationsUI) {
-        this.fileHandler = new LikesFileHandler(filePath);
-        this.likesMap = loadLikes();
+    public ImageLikesManager(NotificationsUI notificationsUI) {
         if (notificationsUI != null) { // Register NotificationsUI if provided
             registerObserver(notificationsUI);
-        }
-    }
-
-    private Map<String, Set<String>> loadLikes() {
-        try {
-            likesMap = fileHandler.readLikes();
-        } catch (IOException e) {
-            e.printStackTrace();
-            likesMap = null;
-        }
-        return likesMap;
-    }
-
-    public void addLike(String imageId, String username) {
-        Set<String> users = likesMap.computeIfAbsent(imageId, k -> new HashSet<>());
-        if (!users.contains(username)) {
-            users.add(username);
-            notifyObservers(imageId, username, true);
-            saveLikes();
-            if (notificationsUI != null) {
-                System.out.println("handling like event");
-                notificationsUI.handleLikeEvent(imageId);
-            } else {
-                System.out.println("NotificationsUI is null");
-            }
-        }
-    }
-
-    public void removeLike(String imageId, String username) {
-        if (likesMap.containsKey(imageId)) {
-            likesMap.get(imageId).remove(username);
-            notifyObservers(imageId, username, false); // Notify observers about the unlike
-            saveLikes(); // Save likes after removing a like
-        }
-    }
-
-    private void saveLikes() {
-        // Save likes to file
-        try {
-            fileHandler.writeLikes(likesMap);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -83,37 +29,13 @@ public class ImageLikesManager implements Subject {
     }
 
     @Override
-    public void notifyObservers(String imageId, String username, boolean liked) {
-        String notification = liked ? username + " liked your picture: " + imageId
-                : username + " unliked your picture: " + imageId;
+    public void notifyObservers(String imagePath, String username, boolean liked) {
+        Picture picture = Picture.getPictureByPath(imagePath);
+        User author = picture.getAuthor();
+        String notification = liked ? username + " liked " + author.getUsername() + "'s picture: " + imagePath
+                : username + " unliked " + author.getUsername() + "'s picture: " + imagePath;
         for (Observer observer : observers) {
             observer.update(notification);
         }
-    }
-
-    public boolean hasLiked(String imageId, String username) {
-        Set<String> users = likesMap.getOrDefault(imageId, Collections.emptySet());
-        return users.contains(username);
-    }
-
-    public int getLikesCount(String imageId) {
-        int likesCount = 0;
-        try {
-            // Connect to the database
-            Connection conn = DatabaseConnection.getConnection();
-            Statement stmt = conn.createStatement();
-    
-            // Execute a SQL query to get likes count
-            ResultSet rs = stmt.executeQuery("SELECT COUNT(*) AS likesCount FROM PictureLike WHERE pictureId = '" + imageId + "'");
-    
-            if (rs.next()) {
-                likesCount = rs.getInt("likesCount");
-            }
-    
-            conn.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return likesCount;
     }
 }

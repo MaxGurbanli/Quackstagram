@@ -10,21 +10,21 @@ CREATE TABLE User (
 );
 
 CREATE TABLE Picture (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  imagePath VARCHAR(255),
+  imagePath VARCHAR(255) PRIMARY KEY,
   caption VARCHAR(255),
-  likesCount INT DEFAULT 0,
   authorId INT,
+  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (authorId) REFERENCES User(id)
 );
 
 CREATE TABLE PictureLike (
   id INT AUTO_INCREMENT PRIMARY KEY,
   likerId INT,
-  pictureId INT,
+  imagePath VARCHAR(255),
   FOREIGN KEY (likerId) REFERENCES User(id),
-  FOREIGN KEY (pictureId) REFERENCES Picture(id)
+  FOREIGN KEY (imagePath) REFERENCES Picture(imagePath)
 );
+
 
 CREATE TABLE Follow (
   id INT AUTO_INCREMENT PRIMARY KEY,
@@ -37,11 +37,12 @@ CREATE TABLE Follow (
 CREATE TABLE Notification (
   id INT AUTO_INCREMENT PRIMARY KEY,
   notifierId INT,
-  typeId INT,
-  pictureId INT,
+  targetId INT,
+  imagePath VARCHAR(255),
+  timestamp TIMESTAMP,
   FOREIGN KEY (notifierId) REFERENCES User(id),
-  FOREIGN KEY (typeId) REFERENCES NotificationType(typeId),
-  FOREIGN KEY (pictureId) REFERENCES Picture(id)
+  FOREIGN KEY (targetId) REFERENCES User(id),
+  FOREIGN KEY (imagePath) REFERENCES Picture(imagePath)
 );
 
 CREATE TABLE PictureCount (

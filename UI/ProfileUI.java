@@ -71,10 +71,6 @@ public class ProfileUI extends JFrame {
         String bio = user.getBio();
         currentUser.setBio(bio);
 
-        currentUser.setFollowersCount(followersCount);
-        currentUser.setFollowingCount(followingCount);
-        currentUser.setPostCount(imageCount);
-
         setTitle("Profile");
         setSize(WIDTH, HEIGHT);
         setMinimumSize(new Dimension(WIDTH, HEIGHT));

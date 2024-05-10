@@ -33,6 +33,5 @@ public class DatabaseConnection {
     public static void main(String[] args) {
         Connection conn = DatabaseConnection.getConnection();
         System.out.println(conn);
-        DatabaseConnection.closeConnection();
     }
 }

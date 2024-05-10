@@ -2,8 +2,10 @@ package UI;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
+import Util.DatabaseConnection;
 import Util.ImageLikesManager;
 import Util.InitializeUI;
+import Util.Picture;
 import Util.User;
 
 import java.awt.*;
@@ -13,13 +15,13 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.stream.Stream;
 
 public class ExploreUI extends JFrame {
 
@@ -42,7 +44,6 @@ public class ExploreUI extends JFrame {
                 e -> openProfileUI()
         };
         navigationPanel = InitializeUI.createNavigationPanel(actions);
-        imageLikesManager = new ImageLikesManager("data\\likes.txt");
 
         InitializeUI.addComponents(this, headerPanel, mainContentPanel, navigationPanel);
     }
@@ -92,7 +93,12 @@ public class ExploreUI extends JFrame {
         return mainContentPanel;
     }
 
-    private void displayImage(String imagePath) {
+    private void displayImage(String fullImagePath) {
+
+        String imagePath = fullImagePath.substring(fullImagePath.lastIndexOf("\\") + 1);
+        String fileExtension = fullImagePath.substring(fullImagePath.lastIndexOf(".") + 1);
+        imagePath = imagePath.replace("." + fileExtension, "") + "." + fileExtension;
+
         getContentPane().removeAll();
         setLayout(new BorderLayout());
 
@@ -100,27 +106,28 @@ public class ExploreUI extends JFrame {
         add(InitializeUI.createHeaderPanel("Explore"), BorderLayout.NORTH);
         add(navigationPanel, BorderLayout.SOUTH);
 
-        // Extract image ID from the imagePath
-        String imageId = new File(imagePath).getName().split("\\.")[0];
-
         // Read image details
         String username = "";
         String bio = "";
         String timestampString = "";
         int likes = 0;
-        Path detailsPath = Paths.get("img", "image_details.txt");
-        try (Stream<String> lines = Files.lines(detailsPath)) {
-            String details = lines.filter(line -> line.contains("ImageID: " + imageId)).findFirst().orElse("");
-            if (!details.isEmpty()) {
-                String[] parts = details.split(", ");
-                username = parts[1].split(": ")[1];
-                bio = parts[2].split(": ")[1];
-                timestampString = parts[3].split(": ")[1];
-                likes = imageLikesManager.getLikesCount(imageId);
+        try {
+            Connection connection = DatabaseConnection.getConnection();
+            String query = "SELECT * FROM Picture WHERE imagePath = ?";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, imagePath);
+            ResultSet resultSet = statement.executeQuery();
+            if (resultSet.next()) {
+            User author = User.getUserByUserId(resultSet.getInt("authorId"));
+            username = author.getUsername();
+            bio = resultSet.getString("caption");
+            timestampString = resultSet.getString("timestamp");
+            Picture picture = new Picture(imagePath, bio);
+            
+            likes = picture.getLikesCount();
             }
-        } catch (IOException ex) {
+        } catch (SQLException ex) {
             ex.printStackTrace();
-            // Handle exception
         }
         // Calculate time since posting
         String timeSincePosting = "Unknown";
@@ -144,7 +151,7 @@ public class ExploreUI extends JFrame {
         JLabel imageLabel = new JLabel();
         imageLabel.setHorizontalAlignment(JLabel.CENTER);
         try {
-            BufferedImage originalImage = ImageIO.read(new File(imagePath));
+            BufferedImage originalImage = ImageIO.read(new File(fullImagePath));
             ImageIcon imageIcon = new ImageIcon(originalImage);
             imageLabel.setIcon(imageIcon);
         } catch (IOException ex) {
@@ -194,10 +201,11 @@ public class ExploreUI extends JFrame {
             dispose(); // Close the current frame
         });
 
+        final String finalImagePath = imagePath;
         JButton likeButton = new JButton("Like");
         likeButton.setBackground(LIKE_BUTTON_COLOR);
         likeButton.addActionListener(e -> {
-            handleLikeAction(imageId, likesLabel);
+            handleLikeAction(finalImagePath, likesLabel);
         });
         bottomPanel.add(likeButton);
 
@@ -216,15 +224,16 @@ public class ExploreUI extends JFrame {
         repaint();
     }
 
-    private void handleLikeAction(String imageId, JLabel likesLabel) {
-        String currentUser = User.getLoggedInUser().getUsername();
-        if (currentUser != null && !imageLikesManager.hasLiked(imageId, currentUser)) {
-            imageLikesManager.addLike(imageId, currentUser);
-            int updatedLikes = imageLikesManager.getLikesCount(imageId);
+    private void handleLikeAction(String imagePath, JLabel likesLabel) {
+        Picture picture = Picture.getPictureByPath(imagePath);
+        User currentUser = User.getLoggedInUser();
+        if (currentUser != null && !picture.hasLiked(currentUser)) {
+            picture.addLike(currentUser);
+            int updatedLikes = picture.getLikesCount();
             likesLabel.setText("Likes: " + updatedLikes);
         } else {
-            imageLikesManager.removeLike(imageId, currentUser);
-            int updatedLikes = imageLikesManager.getLikesCount(imageId);
+            picture.removeLike(currentUser);
+            int updatedLikes = picture.getLikesCount();
             likesLabel.setText("Likes: " + updatedLikes);
         }
     }

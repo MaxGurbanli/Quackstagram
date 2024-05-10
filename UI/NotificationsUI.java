@@ -1,19 +1,18 @@
 package UI;
 import javax.swing.*;
 
+import Util.DatabaseConnection;
 import Util.ImageLikesManager;
 import Util.InitializeUI;
 import Util.Observer;
 import Util.User;
+import Util.Picture;
 
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
@@ -27,8 +26,7 @@ public class NotificationsUI extends JFrame implements Observer {
         InitializeUI.setupFrame(this, "Notifications");
         JPanel headerPanel = InitializeUI.createHeaderPanel("Notifications ");
         JPanel mainContentPanel = createMainContentPanel();
-        String likesFilePath = "data/likes.txt";
-        imageLikesManager = new ImageLikesManager(likesFilePath, this);
+        imageLikesManager = new ImageLikesManager(this);
         imageLikesManager.registerObserver(this);
         ActionListener[] actions = {
                 e -> openHomeUI(),
@@ -45,21 +43,17 @@ public class NotificationsUI extends JFrame implements Observer {
         loadNotifications();
     }
 
-    private void generateAndWriteNotification(String likerUsername, String imagePosterUsername, String imageId) {
-        // Generate notification message
-        System.out.println("generating notification");
-        String notificationMessage = imagePosterUsername + ";" + likerUsername + ";" + imageId + ";"
-                + LocalDateTime.now();
-
-        // Write notification message to file
-        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get("data", "notifications.txt"),
-                StandardOpenOption.APPEND)) {
-            writer.write(notificationMessage);
-            writer.newLine();
-            System.out.println("notification written");
-        } catch (IOException e) {
-            System.out.println("Error writing notification");
-            e.printStackTrace();
+    private void generateAndWriteNotification(String likerUsername, String imagePosterUsername, String imagePath) {
+        // write notification to database
+        Connection conn = DatabaseConnection.getConnection();
+        String sql = "INSERT INTO notifications (notifierId, targetId, imagePath) VALUES (?, ?, ?)";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, likerUsername);
+            pstmt.setString(2, imagePosterUsername);
+            pstmt.setString(3, imagePath);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -79,8 +73,7 @@ public class NotificationsUI extends JFrame implements Observer {
     }
 
     private void initializeObservers() {
-        String likesFilePath = "data/likes.txt";
-        ImageLikesManager imageLikesManager = new ImageLikesManager(likesFilePath, this); // Register NotificationsUI as
+        ImageLikesManager imageLikesManager = new ImageLikesManager(this); // Register NotificationsUI as
                                                                                           // observer
         imageLikesManager.registerObserver(this);
     }
@@ -92,11 +85,11 @@ public class NotificationsUI extends JFrame implements Observer {
         mainContentPanel.repaint();
     }
 
-    public void handleLikeEvent(String imageId) {
-        // Get current logged-in user
+    public void handleLikeEvent(String imagePath) {
         User currentUser = User.getLoggedInUser();
         String currentUsername = currentUser.getUsername();
-        User imagePoster = User.getUserByImageId(imageId);
+        Picture picture = Picture.getPictureByPath(imagePath);
+        User imagePoster = picture.getAuthor();
         String imagePosterUsername = imagePoster.getUsername();
 
         System.out.println(currentUsername + " liked " + imagePosterUsername + "'s image");
@@ -109,7 +102,7 @@ public class NotificationsUI extends JFrame implements Observer {
             return;
         }
 
-        generateAndWriteNotification(currentUsername, imagePosterUsername, imageId);
+        generateAndWriteNotification(currentUsername, imagePosterUsername, imagePath);
     }
 
     private void loadNotifications() {
@@ -120,24 +113,25 @@ public class NotificationsUI extends JFrame implements Observer {
     }
 
     private void populateNotifications(JPanel mainContentPanel, String currentUsername) {
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "notifications.txt"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] notificationDetails = line.split(";");
-                String imagePosterUsername = notificationDetails[0];
-                String likerUsername = notificationDetails[1];
-                String imageId = notificationDetails[2];
-                String timestamp = notificationDetails[3];
-                if (currentUsername.equals(imagePosterUsername)) {
-                    String notificationMessage = likerUsername + " liked your image " + imageId + " "
-                            + getElapsedTime(timestamp) + " ago";
-                    JLabel notificationLabel = new JLabel(notificationMessage);
-                    mainContentPanel.add(notificationLabel);
-                }
+        Connection conn = DatabaseConnection.getConnection();
+        String sql = "SELECT * FROM notifications WHERE targetId = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, currentUsername);
+            java.sql.ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                String notifierId = rs.getString("notifierId");
+                String imagePath = rs.getString("imagePath");
+                String notification = getNotificationString(notifierId, imagePath);
+                displayNotification(notification);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
+    }
+
+    private String getNotificationString(String notifierId, String imagePath) {
+        String notification = notifierId + " liked your image: " + imagePath + " " + getElapsedTime("2024-03-28T12:13:28.483811200");
+        return notification;
     }
 
     private String getElapsedTime(String timestamp) {

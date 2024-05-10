@@ -1,7 +1,0 @@
-Xylo: Lorin
-Zara: Lorin
-Mystar: Lorin; Zara
-Lorin: Mystar; Zara
-max: Mystar; Zara; Lorin
-fef: Mystar; Lorin
-max2: max

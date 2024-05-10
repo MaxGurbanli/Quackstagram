@@ -4,12 +4,11 @@ import javax.swing.*;
 
 import Util.DatabaseConnection;
 import Util.DisplayError;
-import Util.ImageLikesManager;
 import Util.InitializeUI;
+import Util.Picture;
 import Util.User;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
@@ -23,8 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.Set;
 
 public class HomeUI extends JFrame {
     private static final int WIDTH = 300;
@@ -36,7 +33,6 @@ public class HomeUI extends JFrame {
     private JPanel cardPanel;
     private JPanel homePanel;
     private JPanel imageViewPanel;
-    private ImageLikesManager imageLikesManager;
 
     public HomeUI() {
         InitializeUI.setupFrame(this, "Home");
@@ -48,7 +44,6 @@ public class HomeUI extends JFrame {
         JPanel headerPanel = InitializeUI.createHeaderPanel("🐥 Quackstagram 🐥");
         homePanel = new JPanel(new BorderLayout());
         imageViewPanel = new JPanel(new BorderLayout());
-        imageLikesManager = new ImageLikesManager("data\\likes.txt");
 
         initializeUI();
 
@@ -95,7 +90,7 @@ public class HomeUI extends JFrame {
             imageLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
             imageLabel.setPreferredSize(new Dimension(IMAGE_WIDTH, IMAGE_HEIGHT));
             imageLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK)); // Add border to image label
-            String imageId = new File(postData[3]).getName().split("\\.")[0];
+            String imagePath = new File(postData[3]).getName();
             try {
                 BufferedImage originalImage = ImageIO.read(new File(postData[3]));
                 BufferedImage croppedImage = originalImage.getSubimage(0, 0,
@@ -112,7 +107,8 @@ public class HomeUI extends JFrame {
             descriptionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
             // Read the number of likes from likes.txt
-            int likesCount = imageLikesManager.getLikesCount(imageId);
+            Picture picture = Picture.getPictureByPath(imagePath);
+            int likesCount = picture.getLikesCount();
             JLabel likesLabel = new JLabel(likesCount + " likes");
             likesLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
@@ -124,21 +120,34 @@ public class HomeUI extends JFrame {
             likeButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    handleLikeAction(imageId, likesLabel);
+                    handleLikeAction(imagePath, likesLabel);
                 }
             });
 
             // Check if post has been saved by user
+            String currentUser = User.getLoggedInUser().getUsername();
+            String savedImagePath = "img/saved/" + currentUser + "_" + imagePath;
+            File savedImageFile = new File(savedImagePath);
+            boolean isSaved = savedImageFile.exists();
 
-            JButton saveButton = new JButton("💾");
+            JButton saveButton = new JButton();
+
+            if (isSaved) {
+                saveButton.setText("💾 Saved");
+                saveButton.setEnabled(false);
+            } else {
+                saveButton.setText("💾 Save");
+            }
             saveButton.setAlignmentX(Component.LEFT_ALIGNMENT);
             saveButton.setBackground(Color.GREEN); // Set the background color for the save button
             saveButton.setOpaque(true);
             saveButton.setBorderPainted(false); // Remove border
+
+
             saveButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    handleSaveAction(imageId, saveButton);
+                    handleSaveAction(imagePath, saveButton);
                 }
             });
 
@@ -167,12 +176,12 @@ public class HomeUI extends JFrame {
         }
     }
 
-    private void handleSaveAction(String imageId, JButton saveButton) {
+    private void handleSaveAction(String imagePath, JButton saveButton) {
         // Save the image to the user's PC
         String currentUser = User.getLoggedInUser().getUsername();
         if (currentUser != null) {
-            String sourcePath = "img/uploaded/" + imageId + ".png";
-            String destinationPath = "img/saved/" + currentUser + "_" + imageId + ".png";
+            String sourcePath = "img/uploaded/" + imagePath;
+            String destinationPath = "img/saved/" + currentUser + "_" + imagePath;
             try {
                 Files.copy(Paths.get(sourcePath), Paths.get(destinationPath));
                 saveButton.setText("💾 Saved");
@@ -183,22 +192,30 @@ public class HomeUI extends JFrame {
         }
     }
 
-    private void handleLikeAction(String imageId, JLabel likesLabel) {
-        String currentUser = User.getLoggedInUser().getUsername();
-        if (currentUser != null && !imageLikesManager.hasLiked(imageId, currentUser)) {
+    private void handleLikeAction(String imagePath, JLabel likesLabel) {
+        User currentUser = User.getLoggedInUser();
+        Picture picture = Picture.getPictureByPath(imagePath);
 
-            imageLikesManager.addLike(imageId, currentUser);
-        } else {
-            imageLikesManager.removeLike(imageId, currentUser);
+        if (currentUser != null && picture != null) {
+            if (picture.hasLiked(currentUser)) {
+                picture.removeLike(User.getLoggedInUser());
+                updateLikesCount(likesLabel, -1);
+            } else {
+                picture.addLike(User.getLoggedInUser());
+                picture.addLike(currentUser);
+                updateLikesCount(likesLabel, 1);
+            }
         }
-        int updatedLikes = imageLikesManager.getLikesCount(imageId);
-        SwingUtilities.invokeLater(() -> likesLabel.setText(updatedLikes + " likes"));
+    }
+
+    private void updateLikesCount(JLabel likesLabel, int increment) {
+        String currentLikes = likesLabel.getText();
+        int updatedLikes = Integer.parseInt(currentLikes.split(" ")[0]) + increment;
+        likesLabel.setText(updatedLikes + " likes");
     }
 
     private String[][] createSampleData() {
         String currentUsername = User.getLoggedInUser().getUsername();
-    
-        Set<String> followedUsers = getFollowedUsers(currentUsername);
     
         // Temporary structure to hold the data
         String[][] tempData = new String[100][]; // Assuming a maximum of 100 posts for simplicity
@@ -206,24 +223,25 @@ public class HomeUI extends JFrame {
     
         try {
             // Connect to the database
-            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/your_database", "username", "password");
+            Connection conn = DatabaseConnection.getConnection();
             Statement stmt = conn.createStatement();
     
             // Execute a SQL query to get image details
-            ResultSet rs = stmt.executeQuery("SELECT * FROM Picture WHERE author IN (SELECT targetId FROM Follow WHERE followerId = (SELECT id FROM User WHERE username = '" + currentUsername + "'))");
+            ResultSet rs = stmt.executeQuery("SELECT * FROM Picture WHERE authorId IN (SELECT targetId FROM Follow WHERE followerId = (SELECT id FROM User WHERE username = '" + currentUsername + "'))");
     
             while (rs.next() && count < tempData.length) {
-                String imagePoster = rs.getString("author");
-                String imagePath = "img/uploaded/" + rs.getString("imagePath") + ".png"; // Assuming PNG format
+                // Get image poster name using authorId to fetch 
+                Picture picture = Picture.getPictureByPath(rs.getString("imagePath"));
+                String imagePoster = User.getUserByUserId(rs.getInt("authorId")).getUsername();
+                String imagePath = "img/uploaded/" + rs.getString("imagePath");
                 String description = rs.getString("caption");
     
-                int numLikes = imageLikesManager.getLikesCount(rs.getString("id"));
+                int numLikes = picture.getLikesCount();
                 String likes = numLikes + " likes";
     
                 tempData[count++] = new String[] { imagePoster, description, likes, imagePath };
             }
-    
-            conn.close();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -234,31 +252,13 @@ public class HomeUI extends JFrame {
     
         return sampleData;
     }
-    
-    private Set<String> getFollowedUsers(String currentUser) {
-        Set<String> followedUsers = new HashSet<>();
-        try {
-            // Get the singleton database connection
-            Connection conn = DatabaseConnection.getConnection();
-            Statement stmt = conn.createStatement();
-
-            // Execute a SQL query to get followed users
-            ResultSet rs = stmt.executeQuery("SELECT targetId FROM Follow WHERE followerId = (SELECT id FROM User WHERE username = '" + currentUser + "')");
-
-            while (rs.next()) {
-                followedUsers.add(rs.getString("targetId"));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return followedUsers;
-    }
 
     private void displayImage(String[] postData) {
         imageViewPanel.removeAll(); // Clear previous content
 
-        String imageId = new File(postData[3]).getName().split("\\.")[0];
-        JLabel likesLabel = new JLabel(imageLikesManager.getLikesCount(imageId) + " likes");
+        String imagePath = new File(postData[3]).getName().split("\\.")[0];
+        Picture picture = Picture.getPictureByPath(imagePath);
+        JLabel likesLabel = new JLabel(picture.getAuthor() + " likes");
 
         // Display the image
         JLabel fullSizeImageLabel = new JLabel();
@@ -290,7 +290,7 @@ public class HomeUI extends JFrame {
         likeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handleLikeAction(imageId, likesLabel);
+                handleLikeAction(imagePath, likesLabel);
             }
         });
 
