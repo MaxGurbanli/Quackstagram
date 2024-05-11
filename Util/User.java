@@ -59,6 +59,10 @@ public class User {
         return bio;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
     public String getUserId() {
         Connection conn = DatabaseConnection.getConnection();
         try (Statement stmt = conn.createStatement()) {
@@ -71,6 +75,30 @@ public class User {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+        // Update the username in the database
+        Connection conn = DatabaseConnection.getConnection();
+        try (Statement stmt = conn.createStatement()) {
+            String query = "UPDATE User SET Username = '" + username + "' WHERE Username = '" + this.username + "'";
+            stmt.executeUpdate(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+        // Update the password in the database
+        Connection conn = DatabaseConnection.getConnection();
+        try (Statement stmt = conn.createStatement()) {
+            String query = "UPDATE User SET Password = '" + password + "' WHERE Username = '" + username + "'";
+            stmt.executeUpdate(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void setBio(String bio) {
@@ -216,5 +244,21 @@ public class User {
         }
         return 0;
     }
+
+    public static boolean doesUsernameExist(String username) {
+        Connection conn = DatabaseConnection.getConnection();
+        String sql = "SELECT 1 FROM User WHERE username = ?";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            ResultSet rs = pstmt.executeQuery();
+
+            return rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 
 }

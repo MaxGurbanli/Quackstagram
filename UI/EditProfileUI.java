@@ -3,20 +3,20 @@ package UI;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import Util.DisplayError;
 import Util.User;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.io.File;
-import java.io.IOException;
-import javax.swing.JFileChooser;
 
 public class EditProfileUI extends JFrame {
 
     private static final int WIDTH = 300;
-    private static final int HEIGHT = 200;
+    private static final int HEIGHT = 500;
+    private JTextField txtUsername;
     private JTextField txtPassword;
     private JTextArea txtBio;
     private JButton btnChangePfp;
@@ -36,6 +36,8 @@ public class EditProfileUI extends JFrame {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
+        txtUsername = new JTextField(user.getUsername());
+        panel.add(createFieldPanel("Username", txtUsername));
         txtBio = new JTextArea(user.getBio());
         JScrollPane scrollPane = new JScrollPane(txtBio);
         scrollPane.setPreferredSize(new Dimension(200, 100));
@@ -50,13 +52,8 @@ public class EditProfileUI extends JFrame {
                 openPfpChooser();
             }
         });
+        btnSave.addActionListener(e -> saveProfile());
         panel.add(btnChangePfp);
-        btnSave.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                saveProfile();
-            }
-        });
         panel.add(btnSave);
 
         add(panel, BorderLayout.CENTER);
@@ -70,116 +67,49 @@ public class EditProfileUI extends JFrame {
     }
 
     private void saveProfile() {
+        String newUsername = txtUsername.getText();
         String newBio = txtBio.getText();
         String newPassword = txtPassword.getText();
+        
+        boolean usernameChanged = !newUsername.equals(user.getUsername());
+        boolean bioChanged = !newBio.equals(user.getBio());
+        boolean passwordChanged = !newPassword.isEmpty() && !newPassword.equals(user.getPassword());
+    
+        if (bioChanged) {
+            user.setBio(newBio);
+        }
+        if (passwordChanged) {
 
-        // Update username in the file
-        updateBioInCredentials(user.getUsername(), newBio);
-        updatePasswordInCredentials(user.getUsername(), newPassword);
+             if (newPassword.length() < 6) {
+                DisplayError.displayError(this, "Password must be at least 6 characters long.");
+                return;
+            }
+
+            user.setPassword(newPassword);
+        }
+
+        if (usernameChanged) {
+            if (newUsername.isEmpty()) {
+                DisplayError.displayError(this, "Username cannot be empty.");
+                return;
+            } else if (newUsername.equals(user.getUsername())) {
+                DisplayError.displayError(this, "Username cannot be the same as the current username.");
+                return;
+            } else if (User.doesUsernameExist(newUsername)) {
+                DisplayError.displayError(this, "Username already exists. Please choose a different username.");
+                return;
+            } else if (!newUsername.matches("^[a-zA-Z0-9]*$")) {
+                DisplayError.displayError(this, "Username can only contain alphanumeric characters.");
+                return;
+            }
+            user.setUsername(newUsername);
+        }
+    
         dispose();
-
-        // Update the user object
-        user.setBio(newBio);
         ProfileUI profileUI = new ProfileUI(user);
         profileUI.setVisible(true);
     }
-
-    private void updatePasswordInCredentials(String username, String newPassword) {
-        if (newPassword.isEmpty())
-            return;
-        File credentialsFile = new File("data/credentials.txt");
-        File tempCredentialsFile = new File("data/credentials_temp.txt");
-
-        BufferedReader credentialsReader = null;
-        BufferedWriter credentialsWriter = null;
-
-        try {
-            credentialsReader = new BufferedReader(new FileReader(credentialsFile));
-            credentialsWriter = new BufferedWriter(new FileWriter(tempCredentialsFile));
-
-            String credentialsLine;
-
-            while ((credentialsLine = credentialsReader.readLine()) != null) {
-                String[] parts = credentialsLine.split(":");
-                if (parts.length == 3 && parts[0].equals(username)) {
-                    credentialsLine = parts[0] + ":" + newPassword + ":" + parts[2];
-                }
-                credentialsWriter.write(credentialsLine);
-                credentialsWriter.newLine();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            // Close all file streams in a finally block
-            try {
-                if (credentialsReader != null)
-                    credentialsReader.close();
-                if (credentialsWriter != null)
-                    credentialsWriter.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        // Delete the original file
-        if (!credentialsFile.delete()) {
-            System.out.println("Failed to delete original credentials file.");
-            return;
-        }
-
-        // Rename the temporary file to replace the original file
-        if (!tempCredentialsFile.renameTo(credentialsFile)) {
-            System.out.println("Failed to update password in credentials file.");
-        }
-    }
-
-    private void updateBioInCredentials(String username, String newBio) {
-        if (newBio.isEmpty())
-            return;
-        File credentialsFile = new File("data/credentials.txt");
-        File tempCredentialsFile = new File("data/credentials_temp.txt");
-        BufferedReader credentialsReader = null;
-        BufferedWriter credentialsWriter = null;
-
-        try {
-            credentialsReader = new BufferedReader(new FileReader(credentialsFile));
-            credentialsWriter = new BufferedWriter(new FileWriter(tempCredentialsFile));
-
-            String credentialsLine;
-
-            while ((credentialsLine = credentialsReader.readLine()) != null) {
-                String[] parts = credentialsLine.split(":");
-                if (parts.length == 3 && parts[0].equals(username)) {
-                    credentialsLine = parts[0] + ":" + parts[1] + ":" + newBio;
-                }
-                credentialsWriter.write(credentialsLine);
-                credentialsWriter.newLine();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            // Close all file streams in a finally block
-            try {
-                if (credentialsReader != null)
-                    credentialsReader.close();
-                if (credentialsWriter != null)
-                    credentialsWriter.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        // Delete the original file
-        if (!credentialsFile.delete()) {
-            System.out.println("Failed to delete original credentials file.");
-            return;
-        }
-
-        // Rename the temporary file to replace the original file
-        if (!tempCredentialsFile.renameTo(credentialsFile)) {
-            System.out.println("Failed to update bio in credentials file.");
-        }
-    }
+    
 
     public void openPfpChooser() {
         JFileChooser fileChooser = new JFileChooser();
@@ -195,11 +125,9 @@ public class EditProfileUI extends JFrame {
         try {
             BufferedImage image = ImageIO.read(file);
             File outputFile = new File("img/storage/profile/" + username + ".png");
-            if (outputFile.exists()) {
-                // If it exists, delete it before writing the new image
-                outputFile.delete();
+            if (!outputFile.exists() || outputFile.delete()) {
+                ImageIO.write(image, "png", outputFile);
             }
-            ImageIO.write(image, "png", outputFile);
         } catch (IOException e) {
             e.printStackTrace();
         }

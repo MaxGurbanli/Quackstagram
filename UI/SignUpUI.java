@@ -6,7 +6,6 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javax.imageio.ImageIO;
@@ -15,6 +14,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import Util.DatabaseConnection;
 import Util.DisplayError;
 import Util.UIComponentsUtil;
+import Util.User;
 
 public class SignUpUI extends JFrame {
 
@@ -112,7 +112,7 @@ public class SignUpUI extends JFrame {
         if (username.isEmpty() || password.isEmpty() || bio.isEmpty()) {
             DisplayError.displayError(this, "Please fill out all fields");
             return;
-        } else if (doesUsernameExist(username)) {
+        } else if (User.doesUsernameExist(username)) {
             DisplayError.displayError(this, "Username already exists. Please choose a different username.");
             return;
         } else if (password.length() < 6) {
@@ -144,21 +144,6 @@ public class SignUpUI extends JFrame {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
-
-    private boolean doesUsernameExist(String username) {
-        Connection conn = DatabaseConnection.getConnection();
-        String sql = "SELECT 1 FROM User WHERE username = ?";
-
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, username);
-            ResultSet rs = pstmt.executeQuery();
-
-            return rs.next();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return false;
     }
 
 
