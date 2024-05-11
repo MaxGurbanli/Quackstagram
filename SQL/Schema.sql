@@ -25,7 +25,6 @@ CREATE TABLE PictureLike (
   FOREIGN KEY (imagePath) REFERENCES Picture(imagePath)
 );
 
-
 CREATE TABLE Follow (
   id INT AUTO_INCREMENT PRIMARY KEY,
   followerId INT,
@@ -43,27 +42,6 @@ CREATE TABLE Notification (
   FOREIGN KEY (notifierId) REFERENCES User(id),
   FOREIGN KEY (targetId) REFERENCES User(id),
   FOREIGN KEY (imagePath) REFERENCES Picture(imagePath)
-);
-
-CREATE TABLE PictureCount (
-  userId INT,
-  count INT DEFAULT 0,
-  PRIMARY KEY (userId),
-  FOREIGN KEY (userId) REFERENCES User(id)
-);
-
-CREATE TABLE FollowersCount (
-  userId INT,
-  count INT DEFAULT 0,
-  PRIMARY KEY (userId),
-  FOREIGN KEY (userId) REFERENCES User(id)
-);
-
-CREATE TABLE FollowingCount (
-  userId INT,
-  count INT DEFAULT 0,
-  PRIMARY KEY (userId),
-  FOREIGN KEY (userId) REFERENCES User(id)
 );
 
 CREATE TABLE NotificationType (

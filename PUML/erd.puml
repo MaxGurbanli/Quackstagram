@@ -39,24 +39,6 @@ entity "Notification" as notification {
   picture : Picture
 }
 
-entity "PictureCount" as piccount {
-  + userId : int
-  --
-  count : int
-}
-
-entity "FollowersCount" as fcount {
-  + userId : int
-  --
-  count : int
-}
-
-entity "FollowingCount" as flcount {
-  + userId : int
-  --
-  count : int
-}
-
 entity "NotificationType" as ntype {
   + typeId : int
   --
@@ -67,9 +49,6 @@ user "1" -- "0..*" picture
 user "1" -- "0..*" picturelike
 user "1" -- "0..*" follow
 user "1" -- "0..*" notification
-user "1" -- "1" piccount
-user "1" -- "1" fcount
-user "1" -- "1" flcount
 notification "0..*" -- "1" picture
 picture "1" -- "0..*" picturelike
 
