@@ -4,9 +4,15 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import Util.DatabaseConnection;
 import Util.DisplayError;
 import Util.UIComponentsUtil;
 
@@ -21,7 +27,6 @@ public class SignUpUI extends JFrame {
     private JButton btnRegister;
     private JLabel lblPhoto;
     private JButton btnUploadPhoto;
-    private final String credentialsFilePath = "data/credentials.txt";
     private final String profilePhotoStoragePath = "img/storage/profile/";
 
     public SignUpUI() {
@@ -127,19 +132,35 @@ public class SignUpUI extends JFrame {
 
     }
 
+    private void saveCredentials(String username, String password, String bio) {
+        Connection conn = DatabaseConnection.getConnection();
+        String sql = "INSERT INTO User (username, password, bio) VALUES (?, ?, ?)";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            pstmt.setString(3, bio);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     private boolean doesUsernameExist(String username) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(credentialsFilePath))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.startsWith(username + ":")) {
-                    return true;
-                }
-            }
-        } catch (IOException e) {
+        Connection conn = DatabaseConnection.getConnection();
+        String sql = "SELECT 1 FROM User WHERE username = ?";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            ResultSet rs = pstmt.executeQuery();
+
+            return rs.next();
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
     }
+
 
     // Method to handle profile picture upload
     private void handleProfilePictureUpload() {
@@ -157,15 +178,6 @@ public class SignUpUI extends JFrame {
             BufferedImage image = ImageIO.read(file);
             File outputFile = new File(profilePhotoStoragePath + username + ".png");
             ImageIO.write(image, "png", outputFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void saveCredentials(String username, String password, String bio) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/credentials.txt", true))) {
-            writer.write(username + ":" + password + ":" + bio);
-            writer.newLine();
         } catch (IOException e) {
             e.printStackTrace();
         }

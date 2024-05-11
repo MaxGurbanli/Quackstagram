@@ -70,3 +70,10 @@ CREATE TABLE NotificationType (
   typeId INT AUTO_INCREMENT PRIMARY KEY,
   description VARCHAR(255)
 );
+
+CREATE TABLE UserSession (
+    sessionId INT PRIMARY KEY,
+    userId INT,
+    lastActive TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (userId) REFERENCES User(id)
+);

@@ -1,15 +1,17 @@
 package UI;
 import javax.swing.*;
 
+import Util.DatabaseConnection;
 import Util.DisplayError;
 import Util.UIComponentsUtil;
 import Util.User;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class SignInUI extends JFrame {
 
@@ -119,22 +121,25 @@ public class SignInUI extends JFrame {
     }
 
     private boolean verifyCredentials(String username, String password) {
-        try (BufferedReader reader = new BufferedReader(new FileReader("data/credentials.txt"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] credentials = line.split(":");
-                if (credentials[0].equals(username) && credentials[1].equals(password)) {
-                    String bio = credentials[2];
-                    // Create User object and save information
-                    newUser = new User(username, bio, password);
-                    User.setLoggedInUser(newUser);
+        Connection conn = DatabaseConnection.getConnection();
+        String sql = "SELECT bio FROM User WHERE username = ? AND password = ?";
 
-                    return true;
-                }
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                String bio = rs.getString("bio");
+                newUser = new User(username, bio, password);
+                User.setLoggedInUser(newUser);
+
+                return true;
             }
-        } catch (IOException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
     }
+
 }

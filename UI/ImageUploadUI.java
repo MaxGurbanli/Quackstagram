@@ -2,16 +2,19 @@ package UI;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import Util.DatabaseConnection;
 import Util.InitializeUI;
 import Util.User;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -89,7 +92,11 @@ public class ImageUploadUI extends JFrame {
                 Files.copy(selectedFile.toPath(), destPath, StandardCopyOption.REPLACE_EXISTING);
 
                 // Save the bio and image ID to a text file
-                saveImageInfo(username + "_" + imageId, username, bioTextArea.getText());
+                try {
+                    saveImageInfo(newFileName, username, bioTextArea.getText());
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
 
                 // Load the image from the saved path
                 ImageIcon imageIcon = new ImageIcon(destPath.toString());
@@ -127,7 +134,7 @@ public class ImageUploadUI extends JFrame {
     }
 
     private int getNextImageId(String username) throws IOException {
-        Path storageDir = Paths.get("img", "uploaded"); // Ensure this is the directory where images are saved
+        Path storageDir = Paths.get("img", "uploaded");
         if (!Files.exists(storageDir)) {
             Files.createDirectories(storageDir);
         }
@@ -145,7 +152,7 @@ public class ImageUploadUI extends JFrame {
                             maxId = id;
                         }
                     } catch (NumberFormatException ex) {
-                        // Ignore filenames that do not have a valid numeric ID
+                        // Ignore invalid file names
                     }
                 }
             }
@@ -153,21 +160,21 @@ public class ImageUploadUI extends JFrame {
         return maxId + 1; // Return the next available ID
     }
 
-    private void saveImageInfo(String imageId, String username, String bio) throws IOException {
-        Path infoFilePath = Paths.get("img", "image_details.txt");
-        if (!Files.exists(infoFilePath)) {
-            Files.createFile(infoFilePath);
-        }
+    private void saveImageInfo(String imageId, String username, String bio) throws SQLException {
+        Connection conn = DatabaseConnection.getConnection();
+        String sql = "INSERT INTO Picture (imagePath, authorId, caption, timestamp) VALUES (?, (SELECT id FROM User WHERE username = ?), ?, ?)";
 
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-        try (BufferedWriter writer = Files.newBufferedWriter(infoFilePath, StandardOpenOption.APPEND)) {
-            writer.write(String.format("ImageID: %s, Username: %s, Bio: %s, Timestamp: %s", imageId, username,
-                    bio, timestamp));
-            writer.newLine();
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, imageId);
+            pstmt.setString(2, username);
+            pstmt.setString(3, bio);
+            pstmt.setString(4, timestamp);
+            pstmt.executeUpdate();
         }
-
     }
+
 
     private String getFileExtension(File file) {
         String name = file.getName();

@@ -1,12 +1,7 @@
 package Util;
 import java.util.List;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -16,6 +11,7 @@ import java.util.ArrayList;
 public class User {
     private String username;
     private String bio;
+    @SuppressWarnings("unused")
     private String password;
 
     public User(String username, String bio, String password) {
@@ -25,7 +21,33 @@ public class User {
     }
 
     public User(String username) {
-        this.username = username;
+        Connection conn = DatabaseConnection.getConnection();
+        try (Statement stmt = conn.createStatement()) {
+            String query = "SELECT * FROM User WHERE username = '" + username + "'";
+            ResultSet rs = stmt.executeQuery(query);
+            if (rs.next()) {
+                this.username = rs.getString("Username");
+                this.bio = rs.getString("Bio");
+                this.password = rs.getString("Password");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public User(int userId) {
+        Connection conn = DatabaseConnection.getConnection();
+        try (Statement stmt = conn.createStatement()) {
+            String query = "SELECT * FROM User WHERE id = " + userId;
+            ResultSet rs = stmt.executeQuery(query);
+            if (rs.next()) {
+                this.username = rs.getString("Username");
+                this.bio = rs.getString("Bio");
+                this.password = rs.getString("Password");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     // Getter methods for user details
@@ -123,31 +145,40 @@ public class User {
         return pictures;
     }
 
-    @Override
-    public String toString() {
-        return username + ":" + bio + ":" + password;
-    }
-
     public static void setLoggedInUser(User user) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter("data/user.txt", false))) {
-            writer.write(user.toString());
-        } catch (IOException e) {
+        Connection conn = DatabaseConnection.getConnection();
+        String sql = "INSERT INTO UserSession (sessionId, userId) VALUES (?, ?) ON DUPLICATE KEY UPDATE userId = ?";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            // Since quackstagram is a single user application, we can use a fixed session id
+            // This infrastructure is made in case we want to expand the application later
+            pstmt.setInt(1, 1); 
+            pstmt.setInt(2, user.getId());
+            pstmt.setInt(3, user.getId());
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
 
     public static User getLoggedInUser() {
-        String loggedInUsername = "";
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get("data", "user.txt"))) {
-            String line = reader.readLine();
-            if (line != null) {
-                loggedInUsername = line.split(":")[0].trim();
+        Connection conn = DatabaseConnection.getConnection();
+        String sql = "SELECT userId FROM UserSession WHERE sessionId = ?";
+    
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, 1);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                int userId = rs.getInt("userId");
+                return new User(userId);
             }
-        } catch (IOException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-        return new User(loggedInUsername);
+        return null; 
     }
+    
 
     public boolean isCurrentUser() {
         String currentUsername = getLoggedInUser().getUsername();
@@ -170,6 +201,20 @@ public class User {
         }
         return null;
 
+    }
+
+    public int getId() {
+        Connection conn = DatabaseConnection.getConnection();
+        try (Statement stmt = conn.createStatement()) {
+            String query = "SELECT * FROM User WHERE Username = '" + username + "'";
+            ResultSet rs = stmt.executeQuery(query);
+            if (rs.next()) {
+                return rs.getInt("id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
 }

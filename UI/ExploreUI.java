@@ -50,13 +50,6 @@ public class ExploreUI extends JFrame {
 
     private JPanel createMainContentPanel() {
         // Create the main content panel with search and image grid
-        // Search bar at the top
-        JPanel searchPanel = new JPanel(new BorderLayout());
-        JTextField searchField = new JTextField(" Search Users");
-        searchPanel.add(searchField, BorderLayout.CENTER);
-        searchPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, searchField.getPreferredSize().height)); // Limit
-                                                                                                             // the
-                                                                                                             // height
 
         // Image Grid
         JPanel imageGridPanel = new JPanel(new GridLayout(0, 3, 2, 2)); // 3 columns, auto rows
@@ -88,7 +81,6 @@ public class ExploreUI extends JFrame {
         // Main content panel that holds both the search bar and the image grid
         JPanel mainContentPanel = new JPanel();
         mainContentPanel.setLayout(new BoxLayout(mainContentPanel, BoxLayout.Y_AXIS));
-        mainContentPanel.add(searchPanel);
         mainContentPanel.add(scrollPane); // This will stretch to take up remaining space
         return mainContentPanel;
     }
@@ -195,7 +187,7 @@ public class ExploreUI extends JFrame {
 
         final String finalUsername = username;
         usernameLabel.addActionListener(e -> {
-            User user = new User(finalUsername); // Assuming User class has a constructor that takes a username
+            User user = new User(finalUsername);
             ProfileUI profileUI = new ProfileUI(user);
             profileUI.setVisible(true);
             dispose(); // Close the current frame

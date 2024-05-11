@@ -1,16 +1,18 @@
 package UI;
 import javax.swing.*;
 
+import Util.DatabaseConnection;
 import Util.User;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.awt.*;
 import java.nio.file.*;
-import java.util.ArrayList;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.stream.Stream;
 
 public class ProfileUI extends JFrame {
@@ -25,52 +27,50 @@ public class ProfileUI extends JFrame {
     private JPanel navigationPanel; // Panel for the navigation
     private User currentUser; // User object to store the current user's information
 
+    @SuppressWarnings("unused")
     public ProfileUI(User user) {
-        this.currentUser = user;
+        currentUser = user;
         int imageCount = 0;
         int followersCount = 0;
         int followingCount = 0;
-
-        // Read image_details.txt to count the number of images posted by the
-        Path imageDetailsFilePath = Paths.get("img", "image_details.txt");
-        try (BufferedReader imageDetailsReader = Files.newBufferedReader(imageDetailsFilePath)) {
-            String line;
-            while ((line = imageDetailsReader.readLine()) != null) {
-                if (line.contains("Username: " + currentUser.getUsername() + ",")) {
-                    imageCount++;
-                }
+        Connection conn = DatabaseConnection.getConnection();
+    
+        // Query to count images
+        String imageSql = "SELECT COUNT(*) FROM Picture WHERE authorId = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(imageSql)) {
+            pstmt.setInt(1, currentUser.getId());
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                imageCount = rs.getInt(1);
             }
-        } catch (IOException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        // Read following.txt to calculate followers and following
-        Path followingFilePath = Paths.get("data", "following.txt");
-        try (BufferedReader followingReader = Files.newBufferedReader(followingFilePath)) {
-            String line;
-            while ((line = followingReader.readLine()) != null) {
-                String[] parts = line.split(":");
-                if (parts.length == 2) {
-                    String username = parts[0].trim();
-                    String[] followingUsers = parts[1].split(";");
-                    if (username.equals(currentUser.getUsername())) {
-                        followingCount = followingUsers.length;
-                    } else {
-                        for (String followingUser : followingUsers) {
-                            if (followingUser.trim().equals(currentUser.getUsername())) {
-                                followersCount++;
-                            }
-                        }
-                    }
-                }
+    
+        // Query to count followers
+        String followersSql = "SELECT COUNT(*) FROM Follow WHERE targetId = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(followersSql)) {
+            pstmt.setInt(1, currentUser.getId());
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                followersCount = rs.getInt(1);
             }
-        } catch (IOException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        String bio = user.getBio();
-        currentUser.setBio(bio);
-
+    
+        // Query to count following
+        String followingSql = "SELECT COUNT(*) FROM Follow WHERE followerId = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(followingSql)) {
+            pstmt.setInt(1, currentUser.getId());
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                followingCount = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    
         setTitle("Profile");
         setSize(WIDTH, HEIGHT);
         setMinimumSize(new Dimension(WIDTH, HEIGHT));
@@ -79,9 +79,10 @@ public class ProfileUI extends JFrame {
         contentPanel = new JPanel();
         headerPanel = createHeaderPanel(); // Initialize header panel
         navigationPanel = createNavigationPanel(); // Initialize navigation panel
-
+    
         initializeUI();
     }
+    
 
     private void initializeUI() {
         getContentPane().removeAll(); // Clear existing components
@@ -98,32 +99,40 @@ public class ProfileUI extends JFrame {
     }
 
     private JPanel createHeaderPanel() {
-        boolean isCurrentUser = false;
         User loggedInUser = User.getLoggedInUser();
-        String loggedInUsername = loggedInUser.getUsername();
-
+    
+        // Determine if the logged-in user is viewing their own profile
+        boolean isCurrentUser = loggedInUser.getId() == currentUser.getId();
+    
+        // Determine if the logged-in user is following the profile being viewed
+        boolean isFollowing = false;
+        Connection conn = DatabaseConnection.getConnection();
+        String sql = "SELECT 1 FROM Follow WHERE followerId = ? AND targetId = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, loggedInUser.getId());
+            pstmt.setInt(2, currentUser.getId());
+            ResultSet rs = pstmt.executeQuery();
+            isFollowing = rs.next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    
         // Header Panel
         JPanel headerPanel = new JPanel();
-        try (Stream<String> lines = Files.lines(Paths.get("data", "user.txt"))) {
-            isCurrentUser = lines.anyMatch(line -> line.startsWith(currentUser.getUsername() + ":"));
-        } catch (IOException e) {
-            e.printStackTrace(); // Log or handle the exception as appropriate
-        }
-
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
         headerPanel.setBackground(Color.GRAY);
-
+    
         // Top Part of the Header (Profile Image, Stats, Follow Button)
         JPanel topHeaderPanel = new JPanel(new BorderLayout(10, 0));
         topHeaderPanel.setBackground(new Color(249, 249, 249));
-
+    
         // Profile image
         ImageIcon profileIcon = new ImageIcon(new ImageIcon("img/storage/profile/" + currentUser.getUsername() + ".png")
                 .getImage().getScaledInstance(PROFILE_IMAGE_SIZE, PROFILE_IMAGE_SIZE, Image.SCALE_SMOOTH));
         JLabel profileImage = new JLabel(profileIcon);
         profileImage.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         topHeaderPanel.add(profileImage, BorderLayout.WEST);
-
+    
         // Stats Panel
         JPanel statsPanel = new JPanel();
         statsPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 0));
@@ -131,163 +140,101 @@ public class ProfileUI extends JFrame {
         statsPanel.add(createStatLabel(Integer.toString(currentUser.getPostsCount()), "Posts"));
         statsPanel.add(createStatLabel(Integer.toString(currentUser.getFollowersCount()), "Followers"));
         statsPanel.add(createStatLabel(Integer.toString(currentUser.getFollowingCount()), "Following"));
-        statsPanel.setBorder(BorderFactory.createEmptyBorder(25, 0, 10, 0)); // Add some vertical padding
-
+        statsPanel.setBorder(BorderFactory.createEmptyBorder(25, 0, 10, 0));
+    
         // Follow or Edit Profile Button
         JButton followOrEditProfileButton;
         if (isCurrentUser) {
             followOrEditProfileButton = new JButton("Edit Profile");
-            followOrEditProfileButton.addActionListener(e -> {
-                openEditProfileUI();
-            });
-            
+            followOrEditProfileButton.addActionListener(e -> openEditProfileUI());
         } else {
-            followOrEditProfileButton = new JButton("Follow");
-
-            // Check if the current user is already being followed by the logged-in user
-            Path followingFilePath = Paths.get("data", "following.txt");
-            try (BufferedReader reader = Files.newBufferedReader(followingFilePath)) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    String[] parts = line.split(":");
-                    if (parts[0].trim().equals(loggedInUsername)) {
-                        String[] followedUsers = parts[1].split(";");
-                        for (String followedUser : followedUsers) {
-                            if (followedUser.trim().equals(currentUser.getUsername())) {
-                                followOrEditProfileButton.setText("Following");
-                                break;
-                            }
-                        }
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            followOrEditProfileButton = new JButton(isFollowing ? "Following" : "Follow");
             followOrEditProfileButton.addActionListener(e -> {
-                String status = followOrEditProfileButton.getText();
-
-                if (status.equals("Follow")) {
+                if (followOrEditProfileButton.getText().equals("Follow")) {
                     followOrEditProfileButton.setText("Following");
                     handleFollowAction(currentUser.getUsername());
-                } else if (status.equals("Following")) {
+                } else {
                     followOrEditProfileButton.setText("Follow");
-                    handleFollowAction(currentUser.getUsername());
+                    handleUnfollowAction(currentUser.getUsername());
                 }
-                // else {
-                // // Open the edit profile UI
-                // EditProfileUI editProfileUI = new EditProfileUI(currentUser);
-                // editProfileUI.setVisible(true);
-                // }
             });
         }
-
+    
         followOrEditProfileButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         followOrEditProfileButton.setFont(new Font("Arial", Font.BOLD, 12));
-        followOrEditProfileButton
-                .setMaximumSize(new Dimension(Integer.MAX_VALUE, followOrEditProfileButton.getMinimumSize().height)); // Make
-                                                                                                                      // the
-        // button
-        // fill the
-        // horizontal
-        // space
-        followOrEditProfileButton.setBackground(new Color(225, 228, 232)); // A soft, appealing color that complements
-                                                                           // the UI
+        followOrEditProfileButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, followOrEditProfileButton.getMinimumSize().height));
+        followOrEditProfileButton.setBackground(new Color(225, 228, 232));
         followOrEditProfileButton.setForeground(Color.BLACK);
         followOrEditProfileButton.setOpaque(true);
         followOrEditProfileButton.setBorderPainted(false);
-        followOrEditProfileButton.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0)); // Add some vertical padding
-
+        followOrEditProfileButton.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+    
         // Add Stats and Follow Button to a combined Panel
         JPanel statsFollowPanel = new JPanel();
         statsFollowPanel.setLayout(new BoxLayout(statsFollowPanel, BoxLayout.Y_AXIS));
         statsFollowPanel.add(statsPanel);
         statsFollowPanel.add(followOrEditProfileButton);
         topHeaderPanel.add(statsFollowPanel, BorderLayout.CENTER);
-
+    
         headerPanel.add(topHeaderPanel);
-
+    
         // Profile Name and Bio Panel
         JPanel profileNameAndBioPanel = new JPanel();
         profileNameAndBioPanel.setLayout(new BorderLayout());
         profileNameAndBioPanel.setBackground(new Color(249, 249, 249));
-
+    
         JLabel profileNameLabel = new JLabel(currentUser.getUsername());
         profileNameLabel.setFont(new Font("Arial", Font.BOLD, 14));
         profileNameLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 0, 10)); // Padding on the sides
-
+    
         JTextArea profileBio = new JTextArea(currentUser.getBio());
         profileBio.setEditable(false);
         profileBio.setFont(new Font("Arial", Font.PLAIN, 12));
         profileBio.setBackground(new Color(249, 249, 249));
         profileBio.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10)); // Padding on the sides
-
+    
         profileNameAndBioPanel.add(profileNameLabel, BorderLayout.NORTH);
         profileNameAndBioPanel.add(profileBio, BorderLayout.CENTER);
-
+    
         headerPanel.add(profileNameAndBioPanel);
-
+    
         return headerPanel;
-
     }
+    
 
     private void handleFollowAction(String usernameToFollow) {
-        Path followingFilePath = Paths.get("data", "following.txt");
-        User loggedInUser = User.getLoggedInUser();
-        String loggedInUsername = loggedInUser.getUsername();
-
-        // If currentUserUsername is not empty, process following.txt
-        if (loggedInUsername.isEmpty()) {
-            System.out.println("Please log in to follow users.");
-            return;
-        }
-
-        boolean found = false;
-        StringBuilder newContent = new StringBuilder();
-
-        // Read and process following.txt
-        if (Files.exists(followingFilePath)) {
-            try (BufferedReader reader = Files.newBufferedReader(followingFilePath)) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    String[] parts = line.split(": ");
-                    if (parts[0].trim().equals(loggedInUsername)) {
-                        found = true;
-                        if (!line.contains(usernameToFollow)) {
-                            if (parts.length == 1) {
-                                line = parts[0] + ": " + usernameToFollow;
-                            } else {
-                                line = parts[0] + ": " + parts[1] + "; " + usernameToFollow;
-                            }
-                        } else {
-                            ArrayList<String> usernames = new ArrayList<>();
-                            for (String user : parts[1].split("; ")) {
-                                if (!user.trim().equals(usernameToFollow)) {
-                                    usernames.add(user.trim());
-                                }
-                            }
-                            line = parts[0] + ": " + String.join("; ", usernames);
-                        }
-                    }
-                    newContent.append(line).append("\n");
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        // If the current user was not found in following.txt, add them
-        if (!found) {
-            newContent.append(loggedInUsername).append(": ").append(usernameToFollow).append("\n");
-        }
-
-        // Write the updated content back to following.txt
-        try (BufferedWriter writer = Files.newBufferedWriter(followingFilePath)) {
-            writer.write(newContent.toString());
-        } catch (IOException e) {
+        Connection conn = DatabaseConnection.getConnection();
+        try {
+            String sqlFollow = "INSERT INTO Follow (followerId, targetId) VALUES (?, (SELECT id FROM User WHERE username = ?))";
+            PreparedStatement pstmtFollow = conn.prepareStatement(sqlFollow);
+            pstmtFollow.setInt(1, User.getLoggedInUser().getId());
+            pstmtFollow.setString(2, usernameToFollow);
+            pstmtFollow.executeUpdate();
+            refreshUI(); // Refresh the UI to update the followers count
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-
+    
+    private void handleUnfollowAction(String usernameToUnfollow) {
+        Connection conn = DatabaseConnection.getConnection();
+        try {
+            String sqlUnfollow = "DELETE FROM Follow WHERE followerId = ? AND targetId = (SELECT id FROM User WHERE username = ?)";
+            PreparedStatement pstmtUnfollow = conn.prepareStatement(sqlUnfollow);
+            pstmtUnfollow.setInt(1, User.getLoggedInUser().getId());
+            pstmtUnfollow.setString(2, usernameToUnfollow);
+            pstmtUnfollow.executeUpdate();
+            refreshUI(); // Refresh the UI to update the followers count
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void refreshUI() {
+        headerPanel = createHeaderPanel();
+        initializeUI();
+    }
+    
     private JPanel createNavigationPanel() {
         // Navigation Bar
         JPanel navigationPanel = new JPanel();
