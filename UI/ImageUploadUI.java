@@ -84,9 +84,10 @@ public class ImageUploadUI extends JFrame {
             File selectedFile = fileChooser.getSelectedFile();
             try {
                 String username = User.getLoggedInUser().getUsername();
+                int authorID = User.getLoggedInUser().getId();
                 int imageId = getNextImageId(username);
                 String fileExtension = getFileExtension(selectedFile);
-                String newFileName = username + "_" + imageId + "." + fileExtension;
+                String newFileName = authorID + "_" + imageId + "." + fileExtension;
 
                 Path destPath = Paths.get("img", "uploaded", newFileName);
                 Files.copy(selectedFile.toPath(), destPath, StandardCopyOption.REPLACE_EXISTING);
@@ -185,31 +186,12 @@ public class ImageUploadUI extends JFrame {
         return name.substring(lastIndexOf + 1);
     }
 
-    private void openHomeUI() {
+    private void UploadImageUI() {
         // Open QuackstagramProfileUI frame
         this.dispose();
-        HomeUI homeUI = new HomeUI();
-        homeUI.setVisible(true);
-    }
-
-    private void exploreUI() {
-        // Open ExploreUI frame
-        this.dispose();
-        ExploreUI explore = new ExploreUI();
-        explore.setVisible(true);
-    }
-
-    private void UploadImageUI() {
-        // Refresh the current ImageUploadUI frame or open a new instance if needed
-        this.dispose();
-        new ImageUploadUI().setVisible(true);
-    }
-
-    private void notificationsUI() {
-        // Open NotificationsUI frame
-        this.dispose();
-        NotificationsUI notificationsUI = new NotificationsUI();
-        notificationsUI.setVisible(true);
+        ImageUploadUI upload = new ImageUploadUI();
+        upload.setLocationRelativeTo(null);
+        upload.setVisible(true);
     }
 
     private void openProfileUI() {
@@ -217,7 +199,32 @@ public class ImageUploadUI extends JFrame {
         this.dispose();
         User user = User.getLoggedInUser();
         ProfileUI profileUI = new ProfileUI(user);
+        profileUI.setLocationRelativeTo(null);
         profileUI.setVisible(true);
+    }
+
+    private void notificationsUI() {
+        // Open QuackstagramProfileUI frame
+        this.dispose();
+        NotificationsUI notificationsUI = new NotificationsUI();
+        notificationsUI.setLocationRelativeTo(null);
+        notificationsUI.setVisible(true);
+    }
+
+    private void openHomeUI() {
+        // Open QuackstagramProfileUI frame
+        this.dispose();
+        HomeUI homeUI = new HomeUI();
+        homeUI.setLocationRelativeTo(null);
+        homeUI.setVisible(true);
+    }
+
+    private void exploreUI() {
+        // Open QuackstagramProfileUI frame
+        this.dispose();
+        ExploreUI explore = new ExploreUI();
+        explore.setLocationRelativeTo(null);
+        explore.setVisible(true);
     }
 
 }

@@ -260,5 +260,20 @@ public class User {
         return false;
     }
 
+    // Returns the next available user ID
+    public static int getNextId() {
+        Connection conn = DatabaseConnection.getConnection();
+        try (Statement stmt = conn.createStatement()) {
+            String query = "SELECT MAX(id) FROM User";
+            ResultSet rs = stmt.executeQuery(query);
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
 
 }

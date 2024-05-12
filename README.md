@@ -7,7 +7,7 @@ Quackstagram is a social media application developed in Java. It allows users to
 The project is divided into two packages:
 
 - `UI`: Contains classes for different user interfaces like Home, Profile, Sign Up, Sign In, Image Upload, and Notifications.
-- `Util`: Contains utility classes like User, InitializeUI, DisplayError, ImageLikesManager, and others.
+- `Util`: Contains utility classes like User, InitializeUI, DisplayMessage, ImageLikesManager, and others.
 
 ## Getting Started
 

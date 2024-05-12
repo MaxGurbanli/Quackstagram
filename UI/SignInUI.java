@@ -2,7 +2,7 @@ package UI;
 import javax.swing.*;
 
 import Util.DatabaseConnection;
-import Util.DisplayError;
+import Util.DisplayMessage;
 import Util.UIComponentsUtil;
 import Util.User;
 
@@ -102,10 +102,11 @@ public class SignInUI extends JFrame {
             // Open the SignInUI frame
             SwingUtilities.invokeLater(() -> {
                 ProfileUI profileUI = new ProfileUI(newUser);
+                profileUI.setLocationRelativeTo(null);
                 profileUI.setVisible(true);
             });
         } else {
-            DisplayError.displayError(this, "Invalid username or password. Please try again.");
+            DisplayMessage.displayError(this, "Invalid username or password. Please try again.");
         }
     }
 
@@ -116,6 +117,7 @@ public class SignInUI extends JFrame {
         // Open the SignUpUI frame
         SwingUtilities.invokeLater(() -> {
             SignUpUI signUpFrame = new SignUpUI();
+            signUpFrame.setLocationRelativeTo(null);
             signUpFrame.setVisible(true);
         });
     }

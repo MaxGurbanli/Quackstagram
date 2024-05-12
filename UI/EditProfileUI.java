@@ -4,7 +4,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import Util.DisplayError;
+import Util.DisplayMessage;
 import Util.User;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -81,7 +81,7 @@ public class EditProfileUI extends JFrame {
         if (passwordChanged) {
 
              if (newPassword.length() < 6) {
-                DisplayError.displayError(this, "Password must be at least 6 characters long.");
+                DisplayMessage.displayError(this, "Password must be at least 6 characters long.");
                 return;
             }
 
@@ -90,16 +90,16 @@ public class EditProfileUI extends JFrame {
 
         if (usernameChanged) {
             if (newUsername.isEmpty()) {
-                DisplayError.displayError(this, "Username cannot be empty.");
+                DisplayMessage.displayError(this, "Username cannot be empty.");
                 return;
             } else if (newUsername.equals(user.getUsername())) {
-                DisplayError.displayError(this, "Username cannot be the same as the current username.");
+                DisplayMessage.displayError(this, "Username cannot be the same as the current username.");
                 return;
             } else if (User.doesUsernameExist(newUsername)) {
-                DisplayError.displayError(this, "Username already exists. Please choose a different username.");
+                DisplayMessage.displayError(this, "Username already exists. Please choose a different username.");
                 return;
             } else if (!newUsername.matches("^[a-zA-Z0-9]*$")) {
-                DisplayError.displayError(this, "Username can only contain alphanumeric characters.");
+                DisplayMessage.displayError(this, "Username can only contain alphanumeric characters.");
                 return;
             }
             user.setUsername(newUsername);
@@ -107,6 +107,7 @@ public class EditProfileUI extends JFrame {
     
         dispose();
         ProfileUI profileUI = new ProfileUI(user);
+        profileUI.setLocationRelativeTo(null);
         profileUI.setVisible(true);
     }
     

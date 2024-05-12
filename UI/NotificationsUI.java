@@ -46,7 +46,7 @@ public class NotificationsUI extends JFrame implements Observer {
     private void generateAndWriteNotification(String likerUsername, String imagePosterUsername, String imagePath) {
         // write notification to database
         Connection conn = DatabaseConnection.getConnection();
-        String sql = "INSERT INTO notifications (notifierId, targetId, imagePath) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO notification (notifierId, targetId, imagePath) VALUES (?, ?, ?)";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, likerUsername);
             pstmt.setString(2, imagePosterUsername);
@@ -106,20 +106,18 @@ public class NotificationsUI extends JFrame implements Observer {
     }
 
     private void loadNotifications() {
-        String currentUsername = User.getLoggedInUser().getUsername();
-        if (!currentUsername.isEmpty()) {
-            populateNotifications(mainContentPanel, currentUsername);
-        }
+        int currentUserId = User.getLoggedInUser().getId();
+        populateNotifications(mainContentPanel, currentUserId);
     }
 
-    private void populateNotifications(JPanel mainContentPanel, String currentUsername) {
+    private void populateNotifications(JPanel mainContentPanel, int currentUserId) {
         Connection conn = DatabaseConnection.getConnection();
-        String sql = "SELECT * FROM notifications WHERE targetId = ?";
+        String sql = "SELECT * FROM notification WHERE targetId = ?";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, currentUsername);
+            pstmt.setInt(1, currentUserId);
             java.sql.ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
-                String notifierId = rs.getString("notifierId");
+                int notifierId = rs.getInt("notifierId");
                 String imagePath = rs.getString("imagePath");
                 String notification = getNotificationString(notifierId, imagePath);
                 displayNotification(notification);
@@ -129,8 +127,9 @@ public class NotificationsUI extends JFrame implements Observer {
         }
     }
 
-    private String getNotificationString(String notifierId, String imagePath) {
-        String notification = notifierId + " liked your image: " + imagePath + " " + getElapsedTime("2024-03-28T12:13:28.483811200");
+    private String getNotificationString(int notifierId, String imagePath) {
+        String notifierUsername = User.getUserByUserId(notifierId).getUsername();
+        String notification = notifierUsername + " liked your image " + getElapsedTime("2024-03-28T12:13:28.483811200") + " ago";
         return notification;
     }
 
@@ -154,6 +153,7 @@ public class NotificationsUI extends JFrame implements Observer {
         // Open QuackstagramProfileUI frame
         this.dispose();
         ImageUploadUI upload = new ImageUploadUI();
+        upload.setLocationRelativeTo(null);
         upload.setVisible(true);
     }
 
@@ -162,6 +162,7 @@ public class NotificationsUI extends JFrame implements Observer {
         this.dispose();
         User user = User.getLoggedInUser();
         ProfileUI profileUI = new ProfileUI(user);
+        profileUI.setLocationRelativeTo(null);
         profileUI.setVisible(true);
     }
 
@@ -169,6 +170,7 @@ public class NotificationsUI extends JFrame implements Observer {
         // Open QuackstagramProfileUI frame
         this.dispose();
         NotificationsUI notificationsUI = new NotificationsUI();
+        notificationsUI.setLocationRelativeTo(null);
         notificationsUI.setVisible(true);
     }
 
@@ -176,6 +178,7 @@ public class NotificationsUI extends JFrame implements Observer {
         // Open QuackstagramProfileUI frame
         this.dispose();
         HomeUI homeUI = new HomeUI();
+        homeUI.setLocationRelativeTo(null);
         homeUI.setVisible(true);
     }
 
@@ -183,6 +186,8 @@ public class NotificationsUI extends JFrame implements Observer {
         // Open QuackstagramProfileUI frame
         this.dispose();
         ExploreUI explore = new ExploreUI();
+        explore.setLocationRelativeTo(null);
         explore.setVisible(true);
     }
+
 }

@@ -189,6 +189,7 @@ public class ExploreUI extends JFrame {
         usernameLabel.addActionListener(e -> {
             User user = new User(finalUsername);
             ProfileUI profileUI = new ProfileUI(user);
+            profileUI.setLocationRelativeTo(null);
             profileUI.setVisible(true);
             dispose(); // Close the current frame
         });
@@ -234,6 +235,7 @@ public class ExploreUI extends JFrame {
         // Open QuackstagramProfileUI frame
         this.dispose();
         ImageUploadUI upload = new ImageUploadUI();
+        upload.setLocationRelativeTo(null);
         upload.setVisible(true);
     }
 
@@ -242,6 +244,7 @@ public class ExploreUI extends JFrame {
         this.dispose();
         User user = User.getLoggedInUser();
         ProfileUI profileUI = new ProfileUI(user);
+        profileUI.setLocationRelativeTo(null);
         profileUI.setVisible(true);
     }
 
@@ -249,6 +252,7 @@ public class ExploreUI extends JFrame {
         // Open QuackstagramProfileUI frame
         this.dispose();
         NotificationsUI notificationsUI = new NotificationsUI();
+        notificationsUI.setLocationRelativeTo(null);
         notificationsUI.setVisible(true);
     }
 
@@ -256,6 +260,7 @@ public class ExploreUI extends JFrame {
         // Open QuackstagramProfileUI frame
         this.dispose();
         HomeUI homeUI = new HomeUI();
+        homeUI.setLocationRelativeTo(null);
         homeUI.setVisible(true);
     }
 
@@ -263,6 +268,7 @@ public class ExploreUI extends JFrame {
         // Open QuackstagramProfileUI frame
         this.dispose();
         ExploreUI explore = new ExploreUI();
+        explore.setLocationRelativeTo(null);
         explore.setVisible(true);
     }
 

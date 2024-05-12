@@ -12,7 +12,7 @@ import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import Util.DatabaseConnection;
-import Util.DisplayError;
+import Util.DisplayMessage;
 import Util.UIComponentsUtil;
 import Util.User;
 
@@ -26,7 +26,6 @@ public class SignUpUI extends JFrame {
     private JTextField txtBio;
     private JButton btnRegister;
     private JLabel lblPhoto;
-    private JButton btnUploadPhoto;
     private final String profilePhotoStoragePath = "img/storage/profile/";
 
     public SignUpUI() {
@@ -73,8 +72,6 @@ public class SignUpUI extends JFrame {
         addField(fieldsPanel, "Password", txtPassword);
         addField(fieldsPanel, "Bio", txtBio);
 
-        addPhotoUploadButton(fieldsPanel);
-
         return fieldsPanel;
     }
 
@@ -82,13 +79,6 @@ public class SignUpUI extends JFrame {
         JLabel label = new JLabel(labelText);
         panel.add(label);
         panel.add(textField); // Use the passed textField directly without reinitializing it
-    }
-
-    private void addPhotoUploadButton(JPanel panel) {
-        btnUploadPhoto = UIComponentsUtil.createButton("Upload Photo", e -> handleProfilePictureUpload());
-        JPanel photoUploadPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        photoUploadPanel.add(btnUploadPhoto);
-        panel.add(photoUploadPanel);
     }
 
     private JPanel createRegisterPanel() {
@@ -110,25 +100,26 @@ public class SignUpUI extends JFrame {
         String bio = txtBio.getText();
 
         if (username.isEmpty() || password.isEmpty() || bio.isEmpty()) {
-            DisplayError.displayError(this, "Please fill out all fields");
+            DisplayMessage.displayError(this, "Please fill out all fields");
             return;
         } else if (User.doesUsernameExist(username)) {
-            DisplayError.displayError(this, "Username already exists. Please choose a different username.");
+            DisplayMessage.displayError(this, "Username already exists. Please choose a different username.");
             return;
         } else if (password.length() < 6) {
-            DisplayError.displayError(this, "Password must be at least 6 characters long.");
+            DisplayMessage.displayError(this, "Password must be at least 6 characters long.");
             return;
         }
 
         saveCredentials(username, password, bio);
         handleProfilePictureUpload();
         dispose();
-
+        
         // Open the SignInUI frame
         SwingUtilities.invokeLater(() -> {
             SignInUI signInFrame = new SignInUI();
             signInFrame.setVisible(true);
         });
+        DisplayMessage.displayInfo(this, "Account created successfully. Please sign in.");
 
     }
 
@@ -154,14 +145,15 @@ public class SignUpUI extends JFrame {
         fileChooser.setFileFilter(filter);
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
-            saveProfilePicture(selectedFile, txtUsername.getText());
+            int nextId = User.getNextId();
+            saveProfilePicture(selectedFile, nextId);
         }
     }
 
-    private void saveProfilePicture(File file, String username) {
+    private void saveProfilePicture(File file, int nextId) {
         try {
             BufferedImage image = ImageIO.read(file);
-            File outputFile = new File(profilePhotoStoragePath + username + ".png");
+            File outputFile = new File(profilePhotoStoragePath + nextId + ".png");
             ImageIO.write(image, "png", outputFile);
         } catch (IOException e) {
             e.printStackTrace();

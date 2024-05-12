@@ -3,7 +3,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import Util.DatabaseConnection;
-import Util.DisplayError;
+import Util.DisplayMessage;
 import Util.InitializeUI;
 import Util.Picture;
 import Util.User;
@@ -187,7 +187,7 @@ public class HomeUI extends JFrame {
                 saveButton.setText("💾 Saved");
                 saveButton.setEnabled(false);
             } catch (IOException e) {
-                DisplayError.displayError(this, "Failed to save the image");
+                DisplayMessage.displayError(this, "Failed to save the image");
             }
         }
     }
@@ -311,11 +311,20 @@ public class HomeUI extends JFrame {
         cardLayout.show(cardPanel, "ImageView"); // Switch to the image view
     }
 
+    private void ImageUploadUI() {
+        // Open QuackstagramProfileUI frame
+        this.dispose();
+        ImageUploadUI upload = new ImageUploadUI();
+        upload.setLocationRelativeTo(null);
+        upload.setVisible(true);
+    }
+
     private void openProfileUI() {
         // Open QuackstagramProfileUI frame
         this.dispose();
         User user = User.getLoggedInUser();
         ProfileUI profileUI = new ProfileUI(user);
+        profileUI.setLocationRelativeTo(null);
         profileUI.setVisible(true);
     }
 
@@ -323,20 +332,15 @@ public class HomeUI extends JFrame {
         // Open QuackstagramProfileUI frame
         this.dispose();
         NotificationsUI notificationsUI = new NotificationsUI();
+        notificationsUI.setLocationRelativeTo(null);
         notificationsUI.setVisible(true);
-    }
-
-    private void ImageUploadUI() {
-        // Open QuackstagramProfileUI frame
-        this.dispose();
-        ImageUploadUI upload = new ImageUploadUI();
-        upload.setVisible(true);
     }
 
     private void openHomeUI() {
         // Open QuackstagramProfileUI frame
         this.dispose();
         HomeUI homeUI = new HomeUI();
+        homeUI.setLocationRelativeTo(null);
         homeUI.setVisible(true);
     }
 
@@ -344,6 +348,7 @@ public class HomeUI extends JFrame {
         // Open QuackstagramProfileUI frame
         this.dispose();
         ExploreUI explore = new ExploreUI();
+        explore.setLocationRelativeTo(null);
         explore.setVisible(true);
     }
 

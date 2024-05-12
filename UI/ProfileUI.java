@@ -127,7 +127,7 @@ public class ProfileUI extends JFrame {
         topHeaderPanel.setBackground(new Color(249, 249, 249));
     
         // Profile image
-        ImageIcon profileIcon = new ImageIcon(new ImageIcon("img/storage/profile/" + currentUser.getUsername() + ".png")
+        ImageIcon profileIcon = new ImageIcon(new ImageIcon("img/storage/profile/" + currentUser.getId() + ".png")
                 .getImage().getScaledInstance(PROFILE_IMAGE_SIZE, PROFILE_IMAGE_SIZE, Image.SCALE_SMOOTH));
         JLabel profileImage = new JLabel(profileIcon);
         profileImage.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -341,33 +341,43 @@ public class ProfileUI extends JFrame {
     }
 
     private void ImageUploadUI() {
+        // Open QuackstagramProfileUI frame
         this.dispose();
         ImageUploadUI upload = new ImageUploadUI();
+        upload.setLocationRelativeTo(null);
         upload.setVisible(true);
     }
 
     private void notificationsUI() {
+        // Open QuackstagramProfileUI frame
         this.dispose();
         NotificationsUI notificationsUI = new NotificationsUI();
+        notificationsUI.setLocationRelativeTo(null);
         notificationsUI.setVisible(true);
     }
 
     private void openHomeUI() {
+        // Open QuackstagramProfileUI frame
         this.dispose();
         HomeUI homeUI = new HomeUI();
+        homeUI.setLocationRelativeTo(null);
         homeUI.setVisible(true);
     }
 
     private void exploreUI() {
+        // Open QuackstagramProfileUI frame
         this.dispose();
         ExploreUI explore = new ExploreUI();
+        explore.setLocationRelativeTo(null);
         explore.setVisible(true);
     }
+
     private void openEditProfileUI() {
         this.dispose(); // Close current profile UI
         EditProfileUI editProfileUI = new EditProfileUI(currentUser); // Open edit profile UI
+        editProfileUI.setLocationRelativeTo(null);
         editProfileUI.setVisible(true);
-        }
+    }
     
 
 }
