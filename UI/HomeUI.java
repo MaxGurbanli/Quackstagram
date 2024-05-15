@@ -105,8 +105,7 @@ public class HomeUI extends JFrame {
 
             JLabel descriptionLabel = new JLabel(postData[1]);
             descriptionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-            // Read the number of likes from likes.txt
+            
             Picture picture = Picture.getPictureByPath(imagePath);
             int likesCount = picture.getLikesCount();
             JLabel likesLabel = new JLabel(likesCount + " likes");
