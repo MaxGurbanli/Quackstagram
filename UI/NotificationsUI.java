@@ -1,4 +1,5 @@
 package UI;
+
 import javax.swing.*;
 
 import Util.DatabaseConnection;
@@ -74,7 +75,7 @@ public class NotificationsUI extends JFrame implements Observer {
 
     private void initializeObservers() {
         ImageLikesManager imageLikesManager = new ImageLikesManager(this); // Register NotificationsUI as
-                                                                                          // observer
+                                                                           // observer
         imageLikesManager.registerObserver(this);
     }
 
@@ -129,7 +130,8 @@ public class NotificationsUI extends JFrame implements Observer {
 
     private String getNotificationString(int notifierId, String imagePath) {
         String notifierUsername = User.getUserByUserId(notifierId).getUsername();
-        String notification = notifierUsername + " liked your image " + getElapsedTime("2024-03-28T12:13:28.483811200") + " ago";
+        String notification = notifierUsername + " liked your image " + getElapsedTime("2024-03-28T12:13:28.483811200")
+                + " ago";
         return notification;
     }
 
@@ -150,7 +152,6 @@ public class NotificationsUI extends JFrame implements Observer {
     }
 
     private void ImageUploadUI() {
-        // Open QuackstagramProfileUI frame
         this.dispose();
         ImageUploadUI upload = new ImageUploadUI();
         upload.setLocationRelativeTo(null);
@@ -158,7 +159,6 @@ public class NotificationsUI extends JFrame implements Observer {
     }
 
     private void openProfileUI() {
-        // Open QuackstagramProfileUI frame
         this.dispose();
         User user = User.getLoggedInUser();
         ProfileUI profileUI = new ProfileUI(user);
@@ -167,7 +167,6 @@ public class NotificationsUI extends JFrame implements Observer {
     }
 
     private void notificationsUI() {
-        // Open QuackstagramProfileUI frame
         this.dispose();
         NotificationsUI notificationsUI = new NotificationsUI();
         notificationsUI.setLocationRelativeTo(null);
@@ -175,7 +174,6 @@ public class NotificationsUI extends JFrame implements Observer {
     }
 
     private void openHomeUI() {
-        // Open QuackstagramProfileUI frame
         this.dispose();
         HomeUI homeUI = new HomeUI();
         homeUI.setLocationRelativeTo(null);
@@ -183,7 +181,6 @@ public class NotificationsUI extends JFrame implements Observer {
     }
 
     private void exploreUI() {
-        // Open QuackstagramProfileUI frame
         this.dispose();
         ExploreUI explore = new ExploreUI();
         explore.setLocationRelativeTo(null);

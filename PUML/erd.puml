@@ -9,34 +9,34 @@ entity "User" as user {
 }
 
 entity "Picture" as picture {
-  + id : int
-  author : User
+  + imagePath : varchar(255)
   --
-  imagePath : varchar(255)
   caption : varchar(255)
-  likesCount : int
+  timestamp : TIMESTAMP
+  authorId : int
 }
 
 entity "PictureLike" as picturelike {
   + id : int
-  liker : User
   --
-  picture : Picture
+  likerId : int
+  imagePath : varchar(255)
 }
 
 entity "Follow" as follow {
   + id : int
-  follower : User
   --
-  target : User
+  followerId : int
+  targetId : int
 }
 
 entity "Notification" as notification {
   + id : int
-  notifier : User
   --
-  type : NotificationType
-  picture : Picture
+  notifierId : int
+  targetId : int
+  imagePath : varchar(255)
+  timestamp : TIMESTAMP
 }
 
 entity "NotificationType" as ntype {
@@ -45,11 +45,19 @@ entity "NotificationType" as ntype {
   description : varchar(255)
 }
 
-user "1" -- "0..*" picture
-user "1" -- "0..*" picturelike
-user "1" -- "0..*" follow
-user "1" -- "0..*" notification
-notification "0..*" -- "1" picture
-picture "1" -- "0..*" picturelike
+entity "UserSession" as usersession {
+  + sessionId : int
+  --
+  userId : int
+  lastActive : TIMESTAMP
+}
+
+user "1" -- "0..*" picture : "authorId"
+user "1" -- "0..*" picturelike : "likerId"
+user "1" -- "0..*" follow : "followerId"
+user "1" -- "0..*" notification : "notifierId"
+user "1" -- "0..*" usersession : "userId"
+notification "0..*" -- "1" picture : "imagePath"
+picture "1" -- "0..*" picturelike : "imagePath"
 
 @enduml
