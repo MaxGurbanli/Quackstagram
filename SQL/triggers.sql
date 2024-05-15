@@ -7,3 +7,39 @@ RETURNS TIMESTAMP
 BEGIN
   RETURN NOW(); 
 END;
+
+DROP TRIGGER IF EXISTS PictureLikeTrigger;
+-- Trigger to update the timestamp of the picture when a like is added
+CREATE TRIGGER PictureLikeTrigger
+AFTER INSERT
+ON PictureLike
+FOR EACH ROW
+BEGIN
+  UPDATE Picture
+  SET timestamp = current_timestamp()
+  WHERE imagePath = NEW.imagePath;
+END;
+
+DROP TRIGGER IF EXISTS NotificationTrigger;
+-- Trigger to update the timestamp of the notification when a new notification is added
+CREATE TRIGGER NotificationTrigger
+AFTER INSERT
+ON Notification
+FOR EACH ROW
+BEGIN
+  UPDATE Notification
+  SET timestamp = current_timestamp()
+  WHERE id = NEW.id;
+END;
+
+DROP TRIGGER IF EXISTS UserSessionTrigger;
+-- Trigger to update the lastActive timestamp of the user session when a new session is created
+CREATE TRIGGER UserSessionTrigger
+AFTER INSERT
+ON UserSession
+FOR EACH ROW
+BEGIN
+  UPDATE UserSession
+  SET lastActive = current_timestamp()
+  WHERE sessionId = NEW.sessionId;
+END;

@@ -21,3 +21,5 @@ HAVING COUNT(*) > 0;
 
 CREATE INDEX ind_picturelike_username ON PictureLike(username);
 CREATE INDEX ind_notification_target ON Notification(target);
+
+-- TODO: Document performance of queires before and after the indexes are added to demonstrate the improvement
