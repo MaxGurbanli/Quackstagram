@@ -11,7 +11,6 @@ import java.util.ArrayList;
 public class User {
     private String username;
     private String bio;
-    @SuppressWarnings("unused")
     private String password;
 
     public User(String username, String bio, String password) {
