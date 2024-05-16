@@ -129,7 +129,7 @@ public class NotificationsUI extends JFrame implements Observer {
     }
 
     private String getNotificationString(int notifierId, String imagePath) {
-        String notifierUsername = User.getUserByUserId(notifierId).getUsername();
+        String notifierUsername = User.getUserById(notifierId).getUsername();
         String notification = notifierUsername + " liked your image " + getElapsedTime("2024-03-28T12:13:28.483811200")
                 + " ago";
         return notification;

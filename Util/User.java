@@ -213,7 +213,7 @@ public class User {
         return this.username.equals(currentUsername);
     }
 
-    public static User getUserByUserId(int UserId) {
+    public static User getUserById(int UserId) {
         Connection conn = DatabaseConnection.getConnection();
         try (Statement stmt = conn.createStatement()) {
             String query = "SELECT * FROM User WHERE id = " + UserId;

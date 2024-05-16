@@ -110,7 +110,7 @@ public class ExploreUI extends JFrame {
             statement.setString(1, imagePath);
             ResultSet resultSet = statement.executeQuery();
             if (resultSet.next()) {
-            User author = User.getUserByUserId(resultSet.getInt("authorId"));
+            User author = User.getUserById(resultSet.getInt("authorId"));
             username = author.getUsername();
             bio = resultSet.getString("caption");
             timestampString = resultSet.getString("timestamp");

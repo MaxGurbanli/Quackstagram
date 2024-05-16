@@ -231,7 +231,7 @@ public class HomeUI extends JFrame {
             while (rs.next() && count < tempData.length) {
                 // Get image poster name using authorId to fetch 
                 Picture picture = Picture.getPictureByPath(rs.getString("imagePath"));
-                String imagePoster = User.getUserByUserId(rs.getInt("authorId")).getUsername();
+                String imagePoster = User.getUserById(rs.getInt("authorId")).getUsername();
                 String imagePath = "img/uploaded/" + rs.getString("imagePath");
                 String description = rs.getString("caption");
     

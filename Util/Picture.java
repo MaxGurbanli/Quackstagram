@@ -96,7 +96,7 @@ public class Picture {
             ResultSet rs = stmt.executeQuery(query);
             if (rs.next()) {
                 int userId = rs.getInt("UserId");
-                return User.getUserByUserId(userId);
+                return User.getUserById(userId);
             }
         } catch (SQLException e) {
             e.printStackTrace();
