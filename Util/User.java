@@ -1,5 +1,8 @@
 package Util;
 import java.util.List;
+
+import Util.Exceptions.UserNotFoundException;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -212,22 +215,29 @@ public class User {
         return this.username.equals(currentUsername);
     }
 
-    public static User getUserById(int UserId) {
+    public static User getUserById(int userId) {
         Connection conn = DatabaseConnection.getConnection();
-        try (Statement stmt = conn.createStatement()) {
-            String query = "SELECT * FROM User WHERE id = " + UserId;
-            ResultSet rs = stmt.executeQuery(query);
+        String query = "SELECT * FROM User WHERE id = ?";
+        
+        try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, userId);
+            ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
-                String username = rs.getString("Username");
-                String bio = rs.getString("Bio");
-                String password = rs.getString("Password");
+                String username = rs.getString("username");
+                String bio = rs.getString("bio");
+                String password = rs.getString("password");
                 return new User(username, bio, password);
+            } else {
+                throw new UserNotFoundException(userId);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            handleSQLException(e);
+            throw new UserNotFoundException(userId);
         }
-        return null;
+    }
 
+    private static void handleSQLException(SQLException e) {
+        System.err.println("A database error occurred.");
     }
 
     public int getId() {

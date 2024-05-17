@@ -140,7 +140,7 @@ public class ProfileUI extends JFrame {
         statsPanel.add(createStatLabel(Integer.toString(currentUser.getPostsCount()), "Posts"));
         statsPanel.add(createStatLabel(Integer.toString(currentUser.getFollowersCount()), "Followers"));
         statsPanel.add(createStatLabel(Integer.toString(currentUser.getFollowingCount()), "Following"));
-        statsPanel.setBorder(BorderFactory.createEmptyBorder(25, 0, 10, 0));
+        statsPanel.setBorder(BorderFactory.createEmptyBorder(25, 0, 40, 0));
     
         // Follow or Edit Profile Button
         JButton followOrEditProfileButton;
@@ -328,7 +328,7 @@ public class ProfileUI extends JFrame {
         if ("home".equals(buttonType)) {
             button.addActionListener(e -> openHomeUI());
         } else if ("profile".equals(buttonType)) {
-            //
+            button.addActionListener(e -> openProfileUI());
         } else if ("notification".equals(buttonType)) {
             button.addActionListener(e -> notificationsUI());
         } else if ("explore".equals(buttonType)) {
@@ -338,6 +338,15 @@ public class ProfileUI extends JFrame {
         }
         return button;
 
+    }
+
+    private void openProfileUI() {
+        // Open QuackstagramProfileUI frame
+        this.dispose();
+        User user = User.getLoggedInUser();
+        ProfileUI profileUI = new ProfileUI(user);
+        profileUI.setLocationRelativeTo(null);
+        profileUI.setVisible(true);
     }
 
     private void ImageUploadUI() {
