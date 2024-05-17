@@ -1,25 +1,23 @@
 -- Shows the number of pictures each user has liked (user behavior)
 CREATE VIEW UserLikes AS
-SELECT username AS username, COUNT(*) AS totalLikes
+SELECT likerId AS likerId, COUNT(*) AS totalLikes
 FROM PictureLike
-GROUP BY username
+GROUP BY likerId
 HAVING totalLikes > 0;
 
 -- Shows the number of likes for each picture (content popularity)
 CREATE VIEW PopularPictures AS
-SELECT pictureId AS pictureID, COUNT(*) AS numberOfLikes
+SELECT imagePath AS imagePath, COUNT(*) AS numberOfLikes
 FROM PictureLike
-GROUP BY pictureID
+GROUP BY imagePath
 HAVING numberOfLikes > 0;
 
 -- Shows the number of notifications for each user (system analytics)
 CREATE VIEW SystemAnalytics AS
-SELECT target AS username, COUNT(*) AS notifications_count
+SELECT targetId AS targetId, COUNT(*) AS notifications_count
 FROM Notification
-GROUP BY target
+GROUP BY targetId
 HAVING COUNT(*) > 0;
 
-CREATE INDEX ind_picturelike_username ON PictureLike(username);
-CREATE INDEX ind_notification_target ON Notification(target);
-
--- TODO: Document performance of queires before and after the indexes are added to demonstrate the improvement
+CREATE INDEX ind_picturelike_username ON PictureLike(likerId);
+CREATE INDEX ind_notification_target ON Notification(targetId);
