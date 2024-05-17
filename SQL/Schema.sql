@@ -29,6 +29,7 @@ CREATE TABLE Follow (
   id INT AUTO_INCREMENT PRIMARY KEY,
   followerId INT,
   targetId INT,
+  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (followerId) REFERENCES User(id),
   FOREIGN KEY (targetId) REFERENCES User(id)
 );
@@ -42,11 +43,6 @@ CREATE TABLE Notification (
   FOREIGN KEY (notifierId) REFERENCES User(id),
   FOREIGN KEY (targetId) REFERENCES User(id),
   FOREIGN KEY (imagePath) REFERENCES Picture(imagePath)
-);
-
-CREATE TABLE NotificationType (
-  typeId INT AUTO_INCREMENT PRIMARY KEY,
-  description VARCHAR(255)
 );
 
 CREATE TABLE UserSession (

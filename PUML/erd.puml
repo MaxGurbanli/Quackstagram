@@ -28,6 +28,7 @@ entity "Follow" as follow {
   --
   followerId : int
   targetId : int
+  timestamp : TIMESTAMP
 }
 
 entity "Notification" as notification {
@@ -37,12 +38,6 @@ entity "Notification" as notification {
   targetId : int
   imagePath : varchar(255)
   timestamp : TIMESTAMP
-}
-
-entity "NotificationType" as ntype {
-  + typeId : int
-  --
-  description : varchar(255)
 }
 
 entity "UserSession" as usersession {

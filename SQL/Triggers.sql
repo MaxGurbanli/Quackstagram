@@ -20,6 +20,18 @@ BEGIN
   WHERE id = NEW.id;
 END;
 
+DROP TRIGGER IF EXISTS FollowTrigger;
+-- Trigger to update the timestamp of the follow when a new follow is added
+CREATE TRIGGER FollowTrigger
+AFTER INSERT
+ON Follow
+FOR EACH ROW
+BEGIN
+  UPDATE Follow
+  SET timestamp = current_timestamp()
+  WHERE id = NEW.id;
+END;
+
 DROP TRIGGER IF EXISTS UserSessionTrigger;
 -- Trigger to update the lastActive timestamp of the user session when a new session is created
 CREATE TRIGGER UserSessionTrigger
