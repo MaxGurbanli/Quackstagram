@@ -50,8 +50,9 @@ entity "UserSession" as usersession {
 user "1" -- "0..*" picture : "authorId"
 user "1" -- "0..*" picturelike : "likerId"
 user "1" -- "0..*" follow : "followerId"
+user "1" -- "0..*" follow : "targetId"
 user "1" -- "0..*" notification : "notifierId"
-user "1" -- "0..*" usersession : "userId"
+user "1" -- "1" usersession : "userId"
 notification "0..*" -- "1" picture : "imagePath"
 picture "1" -- "0..*" picturelike : "imagePath"
 
