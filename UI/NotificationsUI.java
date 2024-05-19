@@ -45,20 +45,6 @@ public class NotificationsUI extends JFrame implements Observer {
         loadNotifications();
     }
 
-    private void generateAndWriteNotification(String likerUsername, String imagePosterUsername, String imagePath) {
-        // write notification to database
-        Connection conn = DatabaseConnection.getConnection();
-        String sql = "INSERT INTO notification (notifierId, targetId, imagePath) VALUES (?, ?, ?)";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, likerUsername);
-            pstmt.setString(2, imagePosterUsername);
-            pstmt.setString(3, imagePath);
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
     private JPanel createMainContentPanel() {
         mainContentPanel = new JPanel();
         mainContentPanel.setLayout(new BoxLayout(mainContentPanel, BoxLayout.Y_AXIS));
@@ -87,24 +73,22 @@ public class NotificationsUI extends JFrame implements Observer {
         mainContentPanel.repaint();
     }
 
-    public void handleLikeEvent(String imagePath) {
+    private static void generateNotification(String imagePath) {
         User currentUser = User.getLoggedInUser();
         String currentUsername = currentUser.getUsername();
         Picture picture = Picture.getPictureByPath(imagePath);
         User imagePoster = picture.getAuthor();
         String imagePosterUsername = imagePoster.getUsername();
-
-        System.out.println(currentUsername + " liked " + imagePosterUsername + "'s image");
-
-        // Generate and write notification only if the liked user is not the current
-        // user
-
-        if (currentUser == imagePoster) {
-            System.out.println("User liked their own image");
-            return;
+        Connection conn = DatabaseConnection.getConnection();
+        String sql = "INSERT INTO notification (notifierId, targetId, imagePath) VALUES (?, ?, ?)";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, currentUsername);
+            pstmt.setString(2, imagePosterUsername);
+            pstmt.setString(3, imagePath);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
-
-        generateAndWriteNotification(currentUsername, imagePosterUsername, imagePath);
     }
 
     private void loadNotifications() {
