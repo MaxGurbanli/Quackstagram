@@ -39,7 +39,7 @@ CREATE TABLE Notification (
   notifierId INT,
   targetId INT,
   imagePath VARCHAR(255),
-  timestamp TIMESTAMP,
+  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (notifierId) REFERENCES User(id),
   FOREIGN KEY (targetId) REFERENCES User(id),
   FOREIGN KEY (imagePath) REFERENCES Picture(imagePath)
