@@ -96,7 +96,7 @@ public class Picture {
             String query = "SELECT * FROM Picture WHERE imagePath = '" + imagePath + "'";
             ResultSet rs = stmt.executeQuery(query);
             if (rs.next()) {
-                int userId = rs.getInt("UserId");
+                int userId = rs.getInt("authorId");
                 return User.getUserById(userId);
             }
         } catch (SQLException e) {

@@ -8,15 +8,13 @@ public class NotificationGenerator {
 
     public static void generateNotification(String imagePath) {
         User currentUser = User.getLoggedInUser();
-        String currentUsername = currentUser.getUsername();
         Picture picture = Picture.getPictureByPath(imagePath);
         User imagePoster = picture.getAuthor();
-        String imagePosterUsername = imagePoster.getUsername();
         Connection conn = DatabaseConnection.getConnection();
-        String sql = "INSERT INTO notification (notifierId, targetId, imagePath) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO notification (notifierId, targetId, imagePath, timestamp) VALUES (?, ?, ?, CURRENT_TIMESTAMP)";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, currentUsername);
-            pstmt.setString(2, imagePosterUsername);
+            pstmt.setString(1, currentUser.getUserId());
+            pstmt.setString(2, imagePoster.getUserId());
             pstmt.setString(3, imagePath);
             pstmt.executeUpdate();
         } catch (SQLException e) {

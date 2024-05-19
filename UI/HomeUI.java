@@ -197,10 +197,9 @@ public class HomeUI extends JFrame {
 
         if (currentUser != null && picture != null) {
             if (picture.hasLiked(currentUser)) {
-                picture.removeLike(User.getLoggedInUser());
+                picture.removeLike(currentUser);
                 updateLikesCount(likesLabel, -1);
             } else {
-                picture.addLike(User.getLoggedInUser());
                 picture.addLike(currentUser);
                 updateLikesCount(likesLabel, 1);
             }
