@@ -7,6 +7,7 @@ import Util.ImageLikesManager;
 import Util.InitializeUI;
 import Util.Observer;
 import Util.User;
+import Util.Picture;
 
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -14,6 +15,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 public class NotificationsUI extends JFrame implements Observer {
@@ -41,6 +43,20 @@ public class NotificationsUI extends JFrame implements Observer {
 
         initializeObservers();
         loadNotifications();
+    }
+
+    private void generateAndWriteNotification(String likerUsername, String imagePosterUsername, String imagePath) {
+        // write notification to database
+        Connection conn = DatabaseConnection.getConnection();
+        String sql = "INSERT INTO notification (notifierId, targetId, imagePath) VALUES (?, ?, ?)";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, likerUsername);
+            pstmt.setString(2, imagePosterUsername);
+            pstmt.setString(3, imagePath);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private JPanel createMainContentPanel() {
@@ -71,49 +87,69 @@ public class NotificationsUI extends JFrame implements Observer {
         mainContentPanel.repaint();
     }
 
+    public void handleLikeEvent(String imagePath) {
+        User currentUser = User.getLoggedInUser();
+        String currentUsername = currentUser.getUsername();
+        Picture picture = Picture.getPictureByPath(imagePath);
+        User imagePoster = picture.getAuthor();
+        String imagePosterUsername = imagePoster.getUsername();
+
+        System.out.println(currentUsername + " liked " + imagePosterUsername + "'s image");
+
+        // Generate and write notification only if the liked user is not the current
+        // user
+
+        if (currentUser == imagePoster) {
+            System.out.println("User liked their own image");
+            return;
+        }
+
+        generateAndWriteNotification(currentUsername, imagePosterUsername, imagePath);
+    }
+
     private void loadNotifications() {
         int currentUserId = User.getLoggedInUser().getId();
         populateNotifications(mainContentPanel, currentUserId);
     }
 
     private void populateNotifications(JPanel mainContentPanel, int currentUserId) {
-        Connection conn = DatabaseConnection.getConnection();
-        String sql = "SELECT * FROM notification WHERE targetId = ?";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, currentUserId);
-            java.sql.ResultSet rs = pstmt.executeQuery();
-            while (rs.next()) {
-                int notifierId = rs.getInt("notifierId");
-                String imagePath = rs.getString("imagePath");
-                String notification = getNotificationString(notifierId, imagePath);
-                displayNotification(notification);
-            }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
+    Connection conn = DatabaseConnection.getConnection();
+    String sql = "SELECT * FROM notification WHERE targetId = ?";
+    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        pstmt.setInt(1, currentUserId);
+        java.sql.ResultSet rs = pstmt.executeQuery();
+        while (rs.next()) {
+            int notifierId = rs.getInt("notifierId");
+            String imagePath = rs.getString("imagePath");
+            String timestamp = rs.getString("timestamp");
+            String notification = getNotificationString(notifierId, imagePath, timestamp);
+            displayNotification(notification);
         }
+    } catch (SQLException e) {
+        System.out.println(e.getMessage());
+    }
     }
 
-    private String getNotificationString(int notifierId, String imagePath) {
-        String notifierUsername = User.getUserById(notifierId).getUsername();
-        String notification = notifierUsername + " liked your image " + getElapsedTime("2024-03-28T12:13:28.483811200")
-                + " ago";
-        return notification;
+    private String getNotificationString(int notifierId, String imagePath, String timestamp) {
+    String notifierUsername = User.getUserById(notifierId).getUsername();
+    String notification = notifierUsername + " liked your image " + getElapsedTime(timestamp) + " ago";
+    return notification;
     }
 
     private String getElapsedTime(String timestamp) {
-        // Parse string in the following format: 2024-03-28T12:13:28.483811200
-        LocalDateTime notificationTime = LocalDateTime.parse(timestamp);
-        LocalDateTime currentTime = LocalDateTime.now();
-        long seconds = ChronoUnit.SECONDS.between(notificationTime, currentTime);
-        if (seconds < 60) {
-            return seconds + " seconds";
-        } else if (seconds < 3600) {
-            return seconds / 60 + " minutes";
-        } else if (seconds < 86400) {
-            return seconds / 3600 + " hours";
-        } else {
-            return seconds / 86400 + " days";
-        }
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    LocalDateTime notificationTime = LocalDateTime.parse(timestamp, formatter);
+    LocalDateTime currentTime = LocalDateTime.now();
+    long seconds = ChronoUnit.SECONDS.between(notificationTime, currentTime);
+    if (seconds < 60) {
+        return seconds + " seconds";
+    } else if (seconds < 3600) {
+        return seconds / 60 + " minutes";
+    } else if (seconds < 86400) {
+        return seconds / 3600 + " hours";
+    } else {
+        return seconds / 86400 + " days";
+    }
     }
 
     private void ImageUploadUI() {
