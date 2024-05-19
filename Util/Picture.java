@@ -45,6 +45,7 @@ public class Picture {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        NotificationGenerator.generateNotification(imagePath);
     }
 
     public void removeLike(User user) {
