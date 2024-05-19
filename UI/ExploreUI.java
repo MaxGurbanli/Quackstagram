@@ -222,16 +222,13 @@ public class ExploreUI extends JFrame {
         User currentUser = User.getLoggedInUser();
         if (currentUser != null && !picture.hasLiked(currentUser)) {
             picture.addLike(currentUser);
-            updateLikesCount(likesLabel, picture);
+            int updatedLikes = picture.getLikesCount();
+            likesLabel.setText("Likes: " + updatedLikes);
         } else {
             picture.removeLike(currentUser);
-            updateLikesCount(likesLabel, picture);
+            int updatedLikes = picture.getLikesCount();
+            likesLabel.setText("Likes: " + updatedLikes);
         }
-    }
-
-    private void updateLikesCount(JLabel likesLabel, Picture picture) {
-        int updatedLikes = picture.getLikesCount();
-        likesLabel.setText("Likes: " + updatedLikes);
     }
 
     private void ImageUploadUI() {
