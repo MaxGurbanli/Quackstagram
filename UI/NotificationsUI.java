@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -48,7 +49,6 @@ public class NotificationsUI extends JFrame {
         return mainContentPanel;
     }
 
-
     public void displayNotification(String notification) {
         JLabel notificationLabel = new JLabel(notification);
         mainContentPanel.add(notificationLabel);
@@ -62,43 +62,44 @@ public class NotificationsUI extends JFrame {
     }
 
     private void populateNotifications(JPanel mainContentPanel, int currentUserId) {
-    Connection conn = DatabaseConnection.getConnection();
-    String sql = "SELECT * FROM notification WHERE targetId = ?";
-    try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-        pstmt.setInt(1, currentUserId);
-        java.sql.ResultSet rs = pstmt.executeQuery();
-        while (rs.next()) {
-            int notifierId = rs.getInt("notifierId");
-            String imagePath = rs.getString("imagePath");
-            String timestamp = rs.getString("timestamp");
-            String notification = getNotificationString(notifierId, imagePath, timestamp);
-            displayNotification(notification);
+        Connection conn = DatabaseConnection.getConnection();
+        String sql = "SELECT * FROM notification WHERE targetId = ? ORDER BY timestamp ASC";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, currentUserId);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                int notifierId = rs.getInt("notifierId");
+                String imagePath = rs.getString("imagePath");
+                String timestamp = rs.getString("timestamp");
+                String notification = getNotificationString(notifierId, imagePath, timestamp);
+                displayNotification(notification);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
-    } catch (SQLException e) {
-        System.out.println(e.getMessage());
-    }
     }
 
     private String getNotificationString(int notifierId, String imagePath, String timestamp) {
-    String notifierUsername = User.getUserById(notifierId).getUsername();
-    String notification = notifierUsername + " liked your image " + imagePath + " " + getElapsedTime(timestamp) + " ago";
-    return notification;
+        String notifierUsername = User.getUserById(notifierId).getUsername();
+        String notification = notifierUsername + " liked your image " + getElapsedTime(timestamp)
+                + " ago";
+        return notification;
     }
 
     private String getElapsedTime(String timestamp) {
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    LocalDateTime notificationTime = LocalDateTime.parse(timestamp, formatter);
-    LocalDateTime currentTime = LocalDateTime.now();
-    long seconds = ChronoUnit.SECONDS.between(notificationTime, currentTime);
-    if (seconds < 60) {
-        return seconds + " seconds";
-    } else if (seconds < 3600) {
-        return seconds / 60 + " minutes";
-    } else if (seconds < 86400) {
-        return seconds / 3600 + " hours";
-    } else {
-        return seconds / 86400 + " days";
-    }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime notificationTime = LocalDateTime.parse(timestamp, formatter);
+        LocalDateTime currentTime = LocalDateTime.now();
+        long seconds = ChronoUnit.SECONDS.between(notificationTime, currentTime);
+        if (seconds < 60) {
+            return seconds + " seconds";
+        } else if (seconds < 3600) {
+            return seconds / 60 + " minutes";
+        } else if (seconds < 86400) {
+            return seconds / 3600 + " hours";
+        } else {
+            return seconds / 86400 + " days";
+        }
     }
 
     private void ImageUploadUI() {
