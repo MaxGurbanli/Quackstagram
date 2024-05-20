@@ -1,6 +1,7 @@
 package Util;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -71,24 +72,20 @@ public class Picture {
     }
 
     public int getLikesCount() {
-        int likesCount = 0;
-        try {
-            // Connect to the database
-            Connection conn = DatabaseConnection.getConnection();
-            Statement stmt = conn.createStatement();
-    
-            // Execute a SQL query to get likes count
-            ResultSet rs = stmt.executeQuery("SELECT COUNT(*) AS likesCount FROM PictureLike WHERE imagePath = '" + imagePath + "'");
-    
+        Connection conn = DatabaseConnection.getConnection();
+        String sql = "SELECT getLikesCount(?) AS likeCount";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, imagePath);
+            ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
-                likesCount = rs.getInt("likesCount");
+                return rs.getInt("likeCount");
             }
-
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-        return likesCount;
+        return 0;
     }
+
 
     public User getAuthor() {
         Connection conn = DatabaseConnection.getConnection();
