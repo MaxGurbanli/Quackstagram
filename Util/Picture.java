@@ -41,11 +41,11 @@ public class Picture {
         Connection conn = DatabaseConnection.getConnection();
         try (Statement stmt = conn.createStatement()) {
             String query = "INSERT INTO PictureLike (imagePath, likerId) VALUES ('" + imagePath + "', " + user.getUserId() + ")";
+            System.out.println(query);
             stmt.executeUpdate(query);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        NotificationGenerator.generateNotification(imagePath);
     }
 
     public void removeLike(User user) {

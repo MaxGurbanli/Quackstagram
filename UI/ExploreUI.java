@@ -3,7 +3,6 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import Util.DatabaseConnection;
-import Util.ImageLikesManager;
 import Util.InitializeUI;
 import Util.Picture;
 import Util.User;
@@ -30,8 +29,7 @@ public class ExploreUI extends JFrame {
     private static final Color LIKE_BUTTON_COLOR = new Color(255, 90, 95);
 
     JPanel navigationPanel;
-    ImageLikesManager imageLikesManager;
-
+    
     public ExploreUI() {
         InitializeUI.setupFrame(this, "Explore");
         JPanel headerPanel = InitializeUI.createHeaderPanel("Explore 🐥");

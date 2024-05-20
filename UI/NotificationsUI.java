@@ -3,9 +3,7 @@ package UI;
 import javax.swing.*;
 
 import Util.DatabaseConnection;
-import Util.ImageLikesManager;
 import Util.InitializeUI;
-import Util.Observer;
 import Util.User;
 
 import java.awt.*;
@@ -17,18 +15,15 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
-public class NotificationsUI extends JFrame implements Observer {
+public class NotificationsUI extends JFrame {
 
     private JScrollPane scrollPane;
-    private ImageLikesManager imageLikesManager;
     private JPanel mainContentPanel;
 
     public NotificationsUI() {
         InitializeUI.setupFrame(this, "Notifications");
         JPanel headerPanel = InitializeUI.createHeaderPanel("Notifications ");
         JPanel mainContentPanel = createMainContentPanel();
-        imageLikesManager = new ImageLikesManager(this);
-        imageLikesManager.registerObserver(this);
         ActionListener[] actions = {
                 e -> openHomeUI(),
                 e -> exploreUI(),
@@ -40,7 +35,6 @@ public class NotificationsUI extends JFrame implements Observer {
 
         InitializeUI.addComponents(this, headerPanel, mainContentPanel, navigationPanel);
 
-        initializeObservers();
         loadNotifications();
     }
 
@@ -54,16 +48,6 @@ public class NotificationsUI extends JFrame implements Observer {
         return mainContentPanel;
     }
 
-    @Override
-    public void update(String notification) {
-        displayNotification(notification);
-    }
-
-    private void initializeObservers() {
-        ImageLikesManager imageLikesManager = new ImageLikesManager(this); // Register NotificationsUI as
-                                                                           // observer
-        imageLikesManager.registerObserver(this);
-    }
 
     public void displayNotification(String notification) {
         JLabel notificationLabel = new JLabel(notification);
@@ -97,7 +81,7 @@ public class NotificationsUI extends JFrame implements Observer {
 
     private String getNotificationString(int notifierId, String imagePath, String timestamp) {
     String notifierUsername = User.getUserById(notifierId).getUsername();
-    String notification = notifierUsername + " liked your image " + getElapsedTime(timestamp) + " ago";
+    String notification = notifierUsername + " liked your image " + imagePath + " " + getElapsedTime(timestamp) + " ago";
     return notification;
     }
 
