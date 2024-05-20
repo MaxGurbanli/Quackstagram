@@ -5,9 +5,18 @@ DROP TRIGGER IF EXISTS PictureLikeTrigger;
 DROP FUNCTION IF EXISTS getLikesCount;
 DROP PROCEDURE IF EXISTS deleteUser;
 
--- Trigger to update the lastActive timestamp of the user session when a new session is created
-CREATE TRIGGER UserSessionTrigger
+-- Trigger to update the lastActive timestamp when a new session is created
+CREATE TRIGGER UserSessionBeforeInsertTrigger
 BEFORE INSERT ON UserSession
+FOR EACH ROW
+BEGIN
+  SET NEW.lastActive = NOW();
+END;
+//
+
+-- Trigger to update the lastActive timestamp when a session is updated
+CREATE TRIGGER UserSessionBeforeUpdateTrigger
+BEFORE UPDATE ON UserSession
 FOR EACH ROW
 BEGIN
   SET NEW.lastActive = NOW();
