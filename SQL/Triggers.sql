@@ -59,7 +59,7 @@ BEGIN
     -- Delete Notifications related to user's pictures
     DELETE FROM Notification WHERE imagePath IN (SELECT imagePath FROM Picture WHERE authorId = userId);
 
-    -- Delete the user's sessions
+    -- Delete the user's session
     DELETE FROM UserSession WHERE userId = userId;
 
     -- Delete likes made by the user
@@ -71,7 +71,7 @@ BEGIN
     -- Delete the user's pictures
     DELETE FROM Picture WHERE authorId = userId;
 
-    -- Delete the user
+    -- Delete the user from the User table
     DELETE FROM User WHERE id = userId;
 END;
 //
