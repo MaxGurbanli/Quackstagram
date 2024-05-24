@@ -2,6 +2,7 @@ DELIMITER //
 
 DROP TRIGGER IF EXISTS UserSessionTrigger;
 DROP TRIGGER IF EXISTS PictureLikeTrigger;
+DROP TRIGGER IF EXISTS UserBeforeUpdateTrigger;
 DROP FUNCTION IF EXISTS getLikesCount;
 DROP PROCEDURE IF EXISTS deleteUser;
 
@@ -23,16 +24,36 @@ BEGIN
 END;
 //
 
--- Trigger to create a notification when a picture is liked
+-- Trigger to delete the user data if a user is updated with the ID set to -1
+CREATE TRIGGER UserBeforeUpdateTrigger
+BEFORE UPDATE ON User
+FOR EACH ROW
+BEGIN
+  IF NEW.id = -1 THEN
+    CALL deleteUser(OLD.id);
+  END IF;
+END;
+
+-- Trigger to create a notification when a picture is liked, 2 if a picture has >10 likes
 CREATE TRIGGER PictureLikeTrigger
 AFTER INSERT ON PictureLike
 FOR EACH ROW
 BEGIN
   DECLARE authorId INT DEFAULT NULL;
+  DECLARE likesCount INT DEFAULT 0;
+
   SELECT authorId INTO authorId FROM Picture WHERE imagePath = NEW.imagePath LIMIT 1;
+  
   IF authorId IS NOT NULL THEN
     INSERT INTO Notification (notifierId, targetId, imagePath, timestamp)
     VALUES (NEW.likerId, authorId, NEW.imagePath, NOW());
+
+    SET likesCount = getLikesCount(NEW.imagePath);
+    
+    IF likesCount > 10 THEN
+      INSERT INTO Notification (notifierId, targetId, imagePath, timestamp)
+      VALUES (NEW.likerId, NEW.likerId, NEW.imagePath, NOW());
+    END IF;
   END IF;
 END;
 //
